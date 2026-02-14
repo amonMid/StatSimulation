@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/index.css">
+    <script src="js/index.js"></script>
+    <script src="js/bridge.js"></script>
+    <title>Character Calculator</title>
+</head>
+<body>
+    <div class="app-container">
+        <header class="config-bar card">
+            <div class="input-item">
+                <label>Job</label>
+                <select><option>Novice</option></select>
+            </div>
+            <div class="input-item">
+                <label>Base Lv</label>
+                <input type="number" value="1" class="small-input">
+            </div>
+            <div class="input-item">
+                <label>Job Lv</label>
+                <input type="number" value="1" class="small-input">
+            </div>
+            <div class="status-pill">Weight: 2030</div>
+        </header>
+
+        <main class="content-grid">
+            <section class="card stat-section">
+                <div class="section-header">
+                    <h3>Attributes</h3>
+                    <span class="points-remaining">Status Points: <strong data-display="StatusPoints">48</strong></span>
+                </div>
+
+                <div class="stat-list">
+                    <div class="stat-control-row" data-stat-container="STR">
+                        <div class="stat-label">
+                            <span class="stat-name">STR</span>
+                            <span class="job-bonus" data-stat-bonus="STR">+{0}</span>
+                        </div>
+                        <div class="stat-input-group">
+                            <button class="btn-minus" data-type="minus" data-stat="STR">-</button>
+                            <input type="number" value="1" data-stat-input="STR">
+                            <button class="btn-plus" data-type="plus" data-stat="STR">+</button>
+                        </div>
+                        <div class="stat-cost">
+                            <small>Next Cost</small>
+                            <span data-stat-cost="STR" data-display="NextStrCost">2</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-list">
+                    <div class="stat-control-row" data-stat-container="AGI">
+                        <div class="stat-label">
+                            <span class="stat-name">AGI</span>
+                            <span class="job-bonus" data-stat-bonus="AGI">+{0}</span>
+                        </div>
+                        <div class="stat-input-group">
+                            <button class="btn-minus" data-type="minus" data-stat="AGI">-</button>
+                            <input type="number" value="1" data-stat-input="AGI">
+                            <button class="btn-plus" data-type="plus" data-stat="AGI">+</button>
+                        </div>
+                        <div class="stat-cost">
+                            <small>Next Cost</small>
+                            <span data-stat-cost="AGI" data-display="NextAgiCost">2</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-list">
+                    <div class="stat-control-row" data-stat-container="VIT">
+                        <div class="stat-label">
+                            <span class="stat-name">VIT</span>
+                            <span class="job-bonus" data-stat-bonus="VIT">+{0}</span>
+                        </div>
+                        <div class="stat-input-group">
+                            <button class="btn-minus" data-type="minus" data-stat="VIT">-</button>
+                            <input type="number" value="1" data-stat-input="VIT">
+                            <button class="btn-plus" data-type="plus" data-stat="VIT">+</button>
+                        </div>
+                        <div class="stat-cost">
+                            <small>Next Cost</small>
+                            <span data-stat-cost="VIT" data-display="NextVitCost">2</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-list">
+                    <div class="stat-control-row" data-stat-container="INT">
+                        <div class="stat-label">
+                            <span class="stat-name">INT</span>
+                            <span class="job-bonus" data-stat-bonus="INT">+{0}</span>
+                        </div>
+                        <div class="stat-input-group">
+                            <button class="btn-minus" data-type="minus" data-stat="INT">-</button>
+                            <input type="number" value="1" data-stat-input="INT">
+                            <button class="btn-plus" data-type="plus" data-stat="INT">+</button>
+                        </div>
+                        <div class="stat-cost">
+                            <small>Next Cost</small>
+                            <span data-stat-cost="INT" data-display="NextIntCost">2</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-list">
+                    <div class="stat-control-row" data-stat-container="DEX">
+                        <div class="stat-label">
+                            <span class="stat-name">DEX</span>
+                            <span class="job-bonus" data-stat-bonus="DEX">+{0}</span>
+                        </div>
+                        <div class="stat-input-group">
+                            <button class="btn-minus" data-type="minus" data-stat="DEX">-</button>
+                            <input type="number" value="1" data-stat-input="DEX">
+                            <button class="btn-plus" data-type="plus" data-stat="DEX">+</button>
+                        </div>
+                        <div class="stat-cost">
+                            <small>Next Cost</small>
+                            <span data-stat-cost="DEX" data-display="NextDexCost">2</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-list">
+                    <div class="stat-control-row" data-stat-container="LUK">
+                        <div class="stat-label">
+                            <span class="stat-name">LUK</span>
+                            <span class="job-bonus" data-stat-bonus="LUK">+{0}</span>
+                        </div>
+                        <div class="stat-input-group">
+                            <button class="btn-minus" data-type="minus" data-stat="LUK">-</button>
+                            <input type="number" value="1" data-stat-input="LUK">
+                            <button class="btn-plus" data-type="plus" data-stat="LUK">+</button>
+                        </div>
+                        <div class="stat-cost">
+                            <small>Next Cost</small>
+                            <span data-stat-cost="LUK" data-display="NextLukCost">2</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!--<section class="card">
+                <h3>Buffs & Items</h3>
+                <div class="buff-grid">
+                    <div class="input-group">
+                        <label>Blessing</label>
+                        <select><option>Level 10</option></select>
+                    </div>
+                    <div class="input-group">
+                        <label>Increase AGI</label>
+                        <select><option>None</option></select>
+                    </div>
+                </div>
+            </section>-->
+
+            <section class="card results-section">
+                <h3>Calculated Combat Stats</h3>
+                <div class="results-grid">
+                    <div class="result-item"><span>Hp</span><strong data-display="MaxHp">1</strong></div>
+                    <div class="result-item"><span>Sp</span><strong data-display="MaxSp">100</strong></div>
+                    <div class="result-item"><span>ATK</span><strong data-display="Atk">1 + 0</strong></div>
+                    <div class="result-item"><span>DEF</span><strong data-display="Def">0 + 1</strong></div>
+                    <div class="result-item"><span>MATK</span><strong data-display="Matk">1 ~ 1</strong></div>
+                    <div class="result-item"><span>MDEF</span><strong data-display="Mdef">0 + 1</strong></div>
+                    <div class="result-item"><span>HIT</span><strong data-display="Hit">2</strong></div>
+                    <div class="result-item"><span>FLEE</span><strong data-display="Flee">2 + 1</strong></div>
+                    <div class="result-item"><span>CRIT</span><strong data-display="Crit">1</strong></div>
+                    <div class="result-item highlight"><span>ASPD</span><strong data-display="Aspd">150</strong></div>
+                    <div class="result-item"><span>Cast Reduc.</span><strong data-display="CastTime">0%</strong></div>
+                    <div class="result-item"><span>P. Dodge</span><strong data-display="PerfectDodge">1.0</strong></div>
+                </div>
+                <div class="regen-info">
+                    <p data-display="HpRegen">HP Regen: 1 per 6s</p>
+                    <p data-display="SpRegen">SP Regen: 1 per 8s</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
