@@ -8,6 +8,13 @@ namespace StatSimulation.Backend
 {
     public static class Calculator
     {
+        // Constants 
+        // Centralised so a job system can override these later
+        private const int BASE_HIT = 175;   // All characters start with 175 HIT
+        private const int BASE_FLEE = 10;    // Base flee bonus before stats
+        private const double WEAPON_DELAY = 50.0;  // Bare-hands delay (ASPD base = 150)
+        private const int MAX_ASPD = 190;
+
         public static CalculationResult CalculateAll(CharacterData charData)
         {
             var res = new CalculationResult();
@@ -20,72 +27,76 @@ namespace StatSimulation.Backend
             res.Atk = $"{strBonusAtk + dexMeleeBonus + lukMeleeBonus}";
 
             // --- AGI & DEX (ASPD) ---
-            // Every 1 AGI = -0.4% delay, Every 1 DEX = -0.1% delay
-            // (Placeholder logic as ASPD depends on Weapon/Job)
-            double baseAspd = 150.0;
-
-            // Formula: BaseASPD + [(200 - BaseASPD) * (AGI + (DEX/4)) / 250]
-            double statBonus = charData.Agi + (charData.Dex / 4.0);
-            double finalAspd = baseAspd + (200.0 - baseAspd) * statBonus / 250.0;
-
-            // Cap it at 190 (Standard game limit)
-            if (finalAspd > 190) finalAspd = 190;
-
+            // Formula:  ASPD = 200 − floor( WeaponDelay × (1 − AGI×0.004 − DEX×0.001) )
+            // Source:   AGI=−0.4% per pt, DEX=−0.1% per pt of base attack delay
+            double reduction = charData.Agi * 0.004 + charData.Dex * 0.001;
+            double delay = WEAPON_DELAY * (1.0 - reduction);
+            double finalAspd = 200.0 - Math.Floor(delay);
+            finalAspd = Math.Min(finalAspd, MAX_ASPD);
             res.Aspd = Math.Floor(finalAspd).ToString();
 
             // --- AGI: FLEE ---
-            // Formula: Base Level + AGI + LUK/5 (Simplified)
-            res.Flee = $"{charData.BaseLevel + charData.Agi + (charData.Luk / 5)}";
+            // Formula:  BaseLevel + AGI + 10 (base bonus)
+            // LUK does NOT contribute to Flee — only to Perfect Dodge & Crit resist
+            res.Flee = $"{charData.BaseLevel + charData.Agi + BASE_FLEE}";
 
-            // --- VIT ---
-            res.Def = $"0 + {charData.Vit}";
-            res.HpRegen = $"{(1000 / 200) + (charData.Vit / 5)} per 6s";
+            // --- DEF --- 
+            // VIT-based soft DEF ≈ floor(VIT × 0.8)
+            // Shown as "EquipDef + VitSoftDef" (equip portion is 0 here)
+            int vitSoftDef = (int)Math.Floor(charData.Vit * 0.8);
+            res.Def = $"0 + {vitSoftDef}";
+
+            // --- MDEF ---
+            // INT-based soft MDEF = 1 per INT
+            // VIT also grants: floor(VIT / 2) soft MDEF
+            int vitMdefBonus = charData.Vit / 2;
+            res.Mdef = $"0 + {charData.Int + vitMdefBonus}";
 
             // --- HP CALCULATIONS ---
-            // Formula: Total HP = Base HP + [Base HP * (VIT * 0.01)]
-            int baseHp = charData.BaseLevel * 50; // Example Base HP
-            int bonusHp = (int)(baseHp * (charData.Vit * 0.01));
-            int totalMaxHp = baseHp + bonusHp;
+            // Uses the accurate job-growth loop; VIT scales the result
+            int totalMaxHp = CalculateMaxHP(charData.BaseLevel, charData.Vit);
             res.MaxHp = totalMaxHp.ToString();
 
             //int finalMaxHp = CalculateMaxHP(charData.BaseLevel, charData.Str);
             //res.MaxHp = finalMaxHp.ToString();
 
-            // Formula: HP Natural Regen = [Max HP / 200] + [VIT / 5]
-            // Note: Only triggers every 5 VIT for the second part
+            // HpRegen
+            // Formula:  floor(MaxHP / 200) + floor(VIT / 5)   every 6 seconds
             int hpRegenValue = (totalMaxHp / 200) + (charData.Vit / 5);
             res.HpRegen = $"{hpRegenValue} per 6s";
 
             // --- SP CALCULATIONS ---
-            // Formula: Total SP = Base SP + [Base SP * (INT * 0.01)]
-            int baseSp = charData.BaseLevel * 10; // Example Base SP
-            int bonusSp = (int)(baseSp * (charData.Int * 0.01));
-            int totalMaxSp = baseSp + bonusSp;
+            // Formula:  BaseSP × (1 + INT × 0.01)
+            int baseSp = CalculateBaseSP(charData.BaseLevel);
+            int totalMaxSp = (int)(baseSp * (1 + charData.Int * 0.01));
             res.MaxSp = totalMaxSp.ToString();
 
-            // Formula: SP Natural Regen = [Max SP / 100] + [INT / 6] + 1
+            // --- SP Natural Regen ---
+            // Formula:  floor(MaxSP / 100) + floor(INT / 6) + 1   every 8 seconds
+            // Bonus: every 100 SP grants +1 regen (already embedded in MaxSP / 100)
             int spRegenValue = (totalMaxSp / 100) + (charData.Int / 6) + 1;
             res.SpRegen = $"{spRegenValue} per 8s";
 
             // --- RECOVERY ITEM EFFECTIVENESS ---
-            // HP Items: +2% per VIT | SP Items: +1% per INT
-            double hpItemBonus = charData.Vit * 2;
-            double spItemBonus = charData.Int * 1;
-            res.HpRecoveryItem = $"+{hpItemBonus}%";
-            res.SpRecoveryItem = $"+{spItemBonus}%";
+            // HP items: Base × (1 + VIT × 0.02)  → +2% per VIT
+            // SP items: Base × (1 + INT × 0.01)  → +1% per INT
+            res.HpRecoveryItem = $"+{charData.Vit * 2}%";
+            res.SpRecoveryItem = $"+{charData.Int * 1}%";
 
             // --- INT ---
+            // Min MATK = INT + floor(INT/7)^2
+            // Max MATK = INT + floor(INT/5)^2
             int minMatk = charData.Int + (int)Math.Pow(charData.Int / 7, 2);
             int maxMatk = charData.Int + (int)Math.Pow(charData.Int / 5, 2);
             res.Matk = $"{minMatk} ~ {maxMatk}";
-            res.Mdef = $"0 + {charData.Int}";
 
             // --- DEX ---
-            // Hit = Base Level + DEX
-            res.Hit = $"{charData.BaseLevel + charData.Dex}";
+            // Formula:  175 (base) + BaseLevel + DEX
+            res.Hit = $"{BASE_HIT + charData.BaseLevel + charData.Dex}";
 
-            // Cast Time = (DEX / 150) as a percentage of reduction
-            double castReduction = (charData.Dex / 150.0) * 100;
+            // --- CAST TIME ---
+            // 150 DEX = instant cast; each DEX = −(1/150) of cast time
+            double castReduction = (charData.Dex / 150.0) * 100.0;
             res.CastTime = charData.Dex >= 150 ? "Instant" : $"{Math.Floor(castReduction)}%";
 
             // --- LUK ---
@@ -144,8 +155,6 @@ namespace StatSimulation.Backend
 
         private static int CalculateMaxHP(int baseLevel, int vit)
         {
-
-
             // These constants would ideally come from a Job-specific config file
             // Using standard "Novice" constants as an example:
             double hpJobA = 5.0;  // The growth factor per level
@@ -154,7 +163,6 @@ namespace StatSimulation.Backend
             // Initial calculation: 35 + (BaseLevel * JobB)
             double runningHp = 35 + (baseLevel * hpJobB);
 
-            // Cumulative growth loop: adding JobA * level for every level from 2 upwards
             for (int i = 2; i <= baseLevel; i++)
             {
                 runningHp += Math.Round(hpJobA * i);
@@ -164,6 +172,13 @@ namespace StatSimulation.Backend
             int totalMaxHp = (int)(runningHp * (1 + (vit * 0.01)));
 
             return totalMaxHp;
+        }
+
+        // ── SP CALCULATION ────────────────────────────────────────────────────
+        // Scaled by INT in CalculateAll:  TotalSP = BaseSP × (1 + INT × 0.01)
+        private static int CalculateBaseSP(int baseLevel)
+        {
+            return 10 + (baseLevel * 10);
         }
     }
 }
