@@ -24,15 +24,17 @@ namespace StatSimulation
                 var message = JsonConvert.DeserializeObject<StatUpdateMessage>(e.WebMessageAsJson);
                 if (message == null) return;
 
-                // 1. Process via Service
+                // Process via Service
                 var results = _service.UpdateStat(message.Stat, message.NewValue);
 
-                // 2. Serialize and Encode
+                // Serialize and Encode
                 string json = JsonConvert.SerializeObject(results);
                 string safeJson = HttpUtility.JavaScriptStringEncode(json);
 
-                // 3. Dispatch to UI
+                // Dispatch to UI
                 await wb1.CoreWebView2.ExecuteScriptAsync($"CharacterUI.render('{safeJson}')");
+                // Prevents the user from typing a number that makes points negative
+                await wb1.CoreWebView2.ExecuteScriptAsync($"CharacterUI.syncInputs('{safeJson}')");
             }
             catch (JsonException ex)
             {

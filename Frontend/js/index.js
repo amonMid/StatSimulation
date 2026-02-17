@@ -43,6 +43,7 @@
                 // Manually trigger 'input' so the listener above catches the change
                 input.dispatchEvent(new Event('input', { bubbles: true }));
             }
+
         });
     }
 
@@ -61,30 +62,39 @@
 // Initialize
 const bridge = new StatBridge();
 
-///**
-// * Updates the UI dynamically based on JSON keys.
-// * @param {string} encodedJson - Encoded for safety, should be a JSON string with keys matching data-display attributes.
-// */
-//function updateUiFromResult(encodedJson) {
-//    try {
-//        // Decode and parse
-//        const data = JSON.parse(decodeURIComponent(encodedJson));
+// Inside your input event listener
+document.querySelectorAll('[data-stat-input]').forEach(input => {
+    // Store the current value as a "safe" value
+    input.addEventListener('focus', (e) => {
+        e.target.dataset.oldValue = e.target.value;
+    });
 
-//        Object.keys(data).forEach(key => {
-//            const elements = document.querySelectorAll(`[data-display="${key}"]`);
+    input.addEventListener('change', async (e) => {
+        const stat = e.target.getAttribute('data-stat-input');
+        const newValue = parseInt(e.target.value);
+        const oldValue = parseInt(e.target.dataset.oldValue || 1);
 
-//            elements.forEach(el => {
-//                // If it's a paragraph (Regen info), we might want to preserve the label
-//                if (el.tagName === 'P') {
-//                    const label = el.innerText.split(':')[0]; 
-//                    el.innerText = `${label}: ${data[key]}`;
-//                } else {
-//                    // Otherwise just update the value (ATK, DEF, etc.)
-//                    el.innerText = data[key];
-//                }
-//            });
-//        });
-//    } catch (e) {
-//        console.error("Failed to update UI:", e);
-//    }
-//}
+        // Get current calculation state from the UI
+        const remainingPoints = parseInt(document.querySelector('[data-display="StatusPoints"]').innerText);
+
+        // If the user is trying to INCREASE the stat
+        if (newValue > oldValue) {
+            // Check if we have enough points (Simple check for immediate UI response)
+            if (remainingPoints <= 0) {
+                alert("Not enough status points!");
+                e.target.value = oldValue; // Revert the UI
+                return;
+            }
+        }
+
+        // If it passes initial check, send to C# for formal validation
+        window.chrome.webview.postMessage({
+            type: "STAT_CHANGE",
+            stat: stat,
+            value: newValue
+        });
+
+        // Update the "safe" value for the next interaction
+        e.target.dataset.oldValue = e.target.value;
+    });
+});

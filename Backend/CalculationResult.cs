@@ -33,6 +33,14 @@ namespace StatSimulation.Backend
         public int NextIntCost { get; set; }
         public int NextDexCost { get; set; }
         public int NextLukCost { get; set; }
+        public bool IsOverspent { get; set; }
+        public int Str { get; set; }
+        public int Agi { get; set; }
+        public int Vit { get; set; }
+        public int Int { get; set; }
+        public int Dex { get; set; }
+        public int Luk { get; set; }
+        public int BaseLv { get; set; }
 
     }
 

@@ -106,6 +106,9 @@ namespace StatSimulation.Backend
 
             res.StatusPoints = totalPointsGained - totalPointsSpent;
 
+            // Flag if the user has exceeded their budget
+            res.IsOverspent = res.StatusPoints < 0;
+
             // --- NEXT COSTS ---
             res.NextStrCost = ((charData.Str - 1) / 10) + 2;
             res.NextAgiCost = ((charData.Agi - 1) / 10) + 2;
@@ -113,6 +116,14 @@ namespace StatSimulation.Backend
             res.NextIntCost = ((charData.Int - 1) / 10) + 2;
             res.NextDexCost = ((charData.Dex - 1) / 10) + 2;
             res.NextLukCost = ((charData.Luk - 1) / 10) + 2;
+
+            res.Str = charData.Str;
+            res.Agi = charData.Agi;
+            res.Vit = charData.Vit;
+            res.Int = charData.Int;
+            res.Dex = charData.Dex;
+            res.Luk = charData.Luk;
+            res.BaseLv = charData.BaseLevel;
 
             return res;
         }
