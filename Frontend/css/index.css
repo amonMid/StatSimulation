@@ -1,4 +1,4 @@
-﻿:root {
+﻿/*:root {
     --accent: #3b82f6;
     --bg: #f8fafc;
     --card-bg: #ffffff;
@@ -17,8 +17,8 @@ body {
 
 .content-grid {
     display: grid;
-    grid-template-columns: 350px 1fr 300px; /* Three columns */
-    gap: 20px;
+    grid-template-columns: 350px 1fr 300px;*/ /* Three columns */
+    /*gap: 20px;
     margin-top: 20px;
 }
 
@@ -28,10 +28,10 @@ body {
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
+}*/
 
 /* Stat Rows */
-.stat-control-row {
+/*.stat-control-row {
     display: grid;
     grid-template-columns: 1fr 120px 60px;
     align-items: center;
@@ -80,10 +80,10 @@ body {
 .btn-plus:hover {
     background: var(--accent);
     color: white;
-}
+}*/
 
 /* Result Items */
-.results-grid {
+/*.results-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
@@ -110,4 +110,782 @@ body {
 .result-item.highlight {
     background: #eff6ff;
     border: 1px solid #bfdbfe;
+}*/
+/* ════════════════════════════════════════════════════════════
+   HSR STAT CALCULATOR — style.css
+   Fonts: Oxanium (display/headings) · Rajdhani (UI) · Share Tech Mono (numbers)
+   Loaded via: fonts.googleapis.com
+════════════════════════════════════════════════════════════ */
+
+/* ── DESIGN TOKENS ─────────────────────────────────────────── */
+:root {
+    /* Brand palette */
+    --gold: #f0c060;
+    --gold-bright: #ffe49a;
+    --gold-dim: rgba(240, 192, 96, 0.30);
+    --gold-glow: rgba(240, 192, 96, 0.15);
+    --gold-border: rgba(240, 192, 96, 0.50);
+    --cyan: #4de8ff;
+    --cyan-glow: rgba(77, 232, 255, 0.22);
+    --cyan-dim: rgba(77, 232, 255, 0.10);
+    --red: #ff4a5e;
+    /* Backgrounds */
+    --bg-void: #070810;
+    --bg-deep: #0c0e18;
+    --bg-panel: rgba(10, 12, 22, 0.90);
+    --bg-row: rgba(255, 255, 255, 0.032);
+    --bg-row-hover: rgba(240, 192, 96, 0.045);
+    /* Borders */
+    --border-faint: rgba(255, 255, 255, 0.07);
+    --border-mid: rgba(255, 255, 255, 0.13);
+    --border-gold: rgba(240, 192, 96, 0.45);
+    --border-cyan: rgba(77, 232, 255, 0.25);
+    /* Text */
+    --text: #e8eaf4;
+    --text-mid: #8a92b8;
+    --text-dim: rgba(138, 146, 184, 0.50);
+    /* Typography */
+    --font-display: 'Oxanium', sans-serif;
+    --font-ui: 'Rajdhani', sans-serif;
+    --font-mono: 'Share Tech Mono', monospace;
+}
+
+
+/* ── RESET ──────────────────────────────────────────────────── */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+select {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+
+/* ── BODY ───────────────────────────────────────────────────── */
+body {
+    background: var(--bg-void);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-size: 15px;
+    height: 100vh;
+    overflow: hidden;
+    letter-spacing: 0.02em;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   BACKGROUND SYSTEM
+════════════════════════════════════════════════════════════ */
+
+/* Main space-nebula backdrop */
+.hsr-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background: radial-gradient(ellipse 90% 60% at 65% 20%, #0d1c36 0%, transparent 65%), radial-gradient(ellipse 60% 80% at 15% 85%, #0a0d1f 0%, transparent 60%), radial-gradient(ellipse 40% 50% at 85% 75%, #100a1a 0%, transparent 55%), var(--bg-void);
+}
+
+    /* Star-field: pure CSS, no JS */
+    .hsr-bg::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(1px 1px at 8% 12%, rgba(255,255,255,0.80) 0%, transparent 100%), radial-gradient(1px 1px at 22% 38%, rgba(255,255,255,0.55) 0%, transparent 100%), radial-gradient(1.5px 1.5px at 38% 8%, rgba(255,255,255,0.75) 0%, transparent 100%), radial-gradient(1px 1px at 54% 62%, rgba(255,255,255,0.45) 0%, transparent 100%), radial-gradient(1px 1px at 68% 22%, rgba(255,255,255,0.60) 0%, transparent 100%), radial-gradient(2px 2px at 82% 72%, rgba(255,255,255,0.50) 0%, transparent 100%), radial-gradient(1px 1px at 14% 78%, rgba(255,255,255,0.40) 0%, transparent 100%), radial-gradient(1.5px 1.5px at 91% 16%, rgba(200,215,255,0.65) 0%, transparent 100%), radial-gradient(1px 1px at 60% 88%, rgba(255,255,255,0.48) 0%, transparent 100%), radial-gradient(1px 1px at 33% 52%, rgba(200,215,255,0.35) 0%, transparent 100%), radial-gradient(1px 1px at 76% 44%, rgba(200,215,255,0.55) 0%, transparent 100%), radial-gradient(1px 1px at 4% 48%, rgba(200,215,255,0.40) 0%, transparent 100%), radial-gradient(1px 1px at 46% 30%, rgba(255,255,255,0.35) 0%, transparent 100%), radial-gradient(1.5px 1.5px at 72% 6%, rgba(255,255,255,0.60) 0%, transparent 100%), radial-gradient(1px 1px at 90% 92%, rgba(200,215,255,0.45) 0%, transparent 100%);
+    }
+
+/* Diagonal light sweep — atmospheric */
+.hsr-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(135deg, transparent 0%, rgba(77, 232, 255, 0.025) 30%, transparent 50%, rgba(240, 192, 96, 0.018) 70%, transparent 100%);
+    pointer-events: none;
+}
+
+    /* Scan-line texture overlay */
+    .hsr-overlay::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient( 0deg, transparent, transparent 3px, rgba(0, 0, 0, 0.06) 3px, rgba(0, 0, 0, 0.06) 4px );
+        pointer-events: none;
+    }
+
+
+/* ════════════════════════════════════════════════════════════
+   LAYOUT
+════════════════════════════════════════════════════════════ */
+
+.app-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 28px 36px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    height: 100vh;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 360px 1fr 360px;
+    gap: 22px;
+    align-items: start;
+    flex: 1;
+    min-height: 0;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   HEADER
+════════════════════════════════════════════════════════════ */
+
+.hsr-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: var(--bg-panel);
+    backdrop-filter: blur(18px);
+    border: 1px solid var(--border-faint);
+    position: relative;
+    /* Angled bottom-right corner cut */
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+}
+
+    /* Gold accent bar on left edge */
+    .hsr-header::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, var(--gold) 0%, var(--gold-dim) 100%);
+    }
+
+    /* Thin gold rule along the bottom */
+    .hsr-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 180px;
+        height: 1px;
+        background: linear-gradient(90deg, var(--gold-border) 0%, transparent 100%);
+    }
+
+/* ── Path / Class selector ── */
+.job-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+    .job-info .label {
+        font-family: var(--font-display);
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 3px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+    }
+
+.hsr-select {
+    background: rgba(240, 192, 96, 0.07);
+    border: 1px solid var(--gold-border);
+    color: var(--gold);
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    padding: 7px 32px 7px 14px;
+    clip-path: polygon(6px 0%, 100% 0%, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    /* Custom dropdown arrow */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23f0c060'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 10px 6px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+    .hsr-select:focus {
+        outline: none;
+        border-color: var(--gold);
+        box-shadow: 0 0 0 2px var(--gold-glow), inset 0 0 12px var(--gold-glow);
+    }
+
+/* ── Level badge ── */
+.level-badge {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border-gold);
+    padding: 6px 18px 6px 14px;
+    position: relative;
+    clip-path: polygon(8px 0%, 100% 0%, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}
+
+    .level-badge::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--gold);
+        box-shadow: 0 0 8px var(--gold);
+    }
+
+.lv-text {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-transform: uppercase;
+}
+
+.hsr-lv-input {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 700;
+    width: 52px;
+    text-align: center;
+    outline: none;
+    line-height: 1;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   PANEL CARDS  (.hsr-card)
+════════════════════════════════════════════════════════════ */
+
+.hsr-card {
+    background: var(--bg-panel);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border-faint);
+    padding: 0; /* padding handled by inner elements */
+    position: relative;
+    overflow: hidden;
+    /* Diagonal corner cuts — top-right & bottom-left */
+    clip-path: polygon( 16px 0%, 100% 0%, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0% 100%, 0% 16px );
+    /* Stagger-in animation */
+    animation: panelFadeUp 0.5s ease-out both;
+}
+
+.attribute-panel {
+    animation-delay: 0.05s;
+}
+
+.stats-panel {
+    animation-delay: 0.10s;
+}
+
+@keyframes panelFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Gold top-border gradient */
+.hsr-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--gold-border) 20%, var(--gold) 50%, var(--gold-border) 80%, transparent 100% );
+    z-index: 2;
+}
+
+/* Subtle inner glow in top-left corner */
+.hsr-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle at 0% 0%, rgba(240,192,96,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+
+/* ── Panel header ── */
+.hsr-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--border-faint);
+    position: relative;
+    z-index: 1;
+}
+
+    /* Gold underline accent — only spans left portion */
+    .hsr-panel-header::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 20px;
+        width: 56px;
+        height: 1px;
+        background: var(--gold);
+        box-shadow: 0 0 6px var(--gold);
+    }
+
+.hsr-icon {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    border-radius: 50%;
+    border: 1px solid var(--gold-border);
+    padding: 2px;
+    background: var(--gold-glow);
+}
+
+.hsr-panel-header h3 {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: var(--text);
+    text-transform: uppercase;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   ATTRIBUTE PANEL — left column
+════════════════════════════════════════════════════════════ */
+
+/* Remaining points display */
+.points-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 14px 20px;
+    padding: 10px 16px;
+    background: rgba(0, 0, 0, 0.30);
+    border: 1px solid var(--border-faint);
+    position: relative;
+    z-index: 1;
+}
+
+    /* Animated fill bar at the bottom of points-display */
+    .points-display::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 2px;
+        width: 85%; /* JS can update this via a CSS custom property or direct style */
+        background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+        transition: width 0.4s ease;
+    }
+
+    .points-display label {
+        font-family: var(--font-display);
+        font-size: 10px;
+        letter-spacing: 2.5px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        cursor: default;
+    }
+
+    .points-display span {
+        font-family: var(--font-mono);
+        font-size: 22px;
+        color: var(--gold);
+        text-shadow: 0 0 10px var(--gold-glow);
+    }
+
+
+/* ── Stat list ── */
+.hsr-stat-list {
+    padding: 0 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Individual stat row */
+.hsr-stat-row {
+    display: grid;
+    grid-template-columns: 72px 1fr 64px;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    background: var(--bg-row);
+    border: 1px solid var(--border-faint);
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+    .hsr-stat-row:hover {
+        border-color: var(--gold-dim);
+        background: var(--bg-row-hover);
+    }
+
+    /* Animated left accent bar — hidden by default, shown on hover/active */
+    .hsr-stat-row::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--gold);
+        box-shadow: 0 0 6px var(--gold);
+        transform: scaleY(0);
+        transition: transform 0.2s ease;
+        transform-origin: center;
+    }
+
+    .hsr-stat-row:hover::before {
+        transform: scaleY(1);
+    }
+
+/* Stat name + bonus */
+.stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+    .stat-info .name {
+        font-family: var(--font-display);
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        color: var(--text);
+    }
+
+    .stat-info .bonus {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--cyan);
+        letter-spacing: 0.5px;
+        opacity: 0.85;
+    }
+
+/* +/- controls + number input */
+.hsr-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.hsr-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-mid);
+    color: var(--text-mid);
+    font-size: 16px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    clip-path: polygon(4px 0%, 100% 0%, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+    transition: all 0.15s ease;
+    user-select: none;
+    font-family: var(--font-display);
+}
+
+    .hsr-btn.btn-plus:hover:not(:disabled) {
+        background: var(--gold-glow);
+        border-color: var(--gold-border);
+        color: var(--gold-bright);
+        box-shadow: 0 0 8px var(--gold-glow);
+    }
+
+    .hsr-btn.btn-minus:hover:not(:disabled) {
+        background: rgba(255, 74, 94, 0.12);
+        border-color: rgba(255, 74, 94, 0.45);
+        color: var(--red);
+    }
+
+    .hsr-btn:disabled {
+        opacity: 0.20;
+        cursor: not-allowed;
+    }
+
+/* Number input between the buttons */
+.hsr-input-wrapper input[type="number"] {
+    width: 42px;
+    background: rgba(0, 0, 0, 0.40);
+    border: 1px solid var(--border-mid);
+    border-radius: 0;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    text-align: center;
+    padding: 4px 2px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+    .hsr-input-wrapper input[type="number"]:focus {
+        border-color: var(--gold-dim);
+    }
+
+/* Cost tag */
+.cost-tag {
+    text-align: right;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    line-height: 1.4;
+}
+
+    .cost-tag span {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 15px;
+        color: var(--gold);
+        letter-spacing: 0.5px;
+    }
+
+
+/* ════════════════════════════════════════════════════════════
+   CHARACTER PREVIEW — center column
+════════════════════════════════════════════════════════════ */
+
+.character-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: 72vh;
+    position: relative;
+    padding-bottom: 12px;
+}
+
+.sprite-container {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 100%;
+}
+
+    /* Radial platform glow beneath the sprite */
+    .sprite-container::before {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 220px;
+        height: 40px;
+        background: radial-gradient(ellipse, var(--cyan-glow) 0%, transparent 70%);
+        border-radius: 50%;
+        filter: blur(10px);
+    }
+
+    /* Horizontal decorative lines emanating from platform */
+    .sprite-container::after {
+        content: '';
+        position: absolute;
+        bottom: 4px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 340px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent 0%, var(--border-cyan) 25%, rgba(77,232,255,0.50) 50%, var(--border-cyan) 75%, transparent 100% );
+    }
+
+.hsr-sprite {
+    height: 300px;
+    max-height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 30px rgba(77, 232, 255, 0.20)) drop-shadow(0 24px 32px rgba(0, 0, 0, 0.65));
+    animation: charFloat 7s ease-in-out infinite;
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes charFloat {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-18px);
+    }
+}
+
+/* Name plate */
+.character-name-plate {
+    text-align: center;
+    margin-top: 20px;
+}
+
+    .character-name-plate h2 {
+        font-family: var(--font-display);
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: 8px;
+        color: var(--text);
+        text-transform: uppercase;
+        /* Subtle glow on the name */
+        text-shadow: 0 0 20px rgba(77, 232, 255, 0.15), 0 0 40px rgba(77, 232, 255, 0.08);
+    }
+
+.rarity-stars {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 8px;
+    font-size: 16px;
+    color: var(--gold);
+    /* Each star individually pulses via animation */
+    animation: starShimmer 4s ease-in-out infinite;
+}
+
+@keyframes starShimmer {
+    0%, 100% {
+        opacity: 0.80;
+        text-shadow: none;
+    }
+
+    50% {
+        opacity: 1;
+        text-shadow: 0 0 8px var(--gold);
+    }
+}
+
+/* Flanking horizontal rules around the name */
+.character-name-plate::after {
+    content: '· TRAILBLAZER ·';
+    display: block;
+    font-family: var(--font-display);
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: var(--text-dim);
+    margin-top: 6px;
+    text-transform: uppercase;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   COMBAT STATS PANEL — right column
+════════════════════════════════════════════════════════════ */
+
+.hsr-results-list {
+    padding: 14px 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Individual result row */
+.hsr-res-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--bg-row);
+    border: 1px solid var(--border-faint);
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+
+.hsr-res-item:hover {
+    border-color: var(--border-cyan);
+}
+
+/* Sliding fill bar behind row — width set by inline style or JS */
+.hsr-res-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 55%; /* update per-stat via inline style: style="--bar:60%" + width:var(--bar) */
+    background: linear-gradient(90deg, var(--cyan-dim) 0%, transparent 100%);
+    pointer-events: none;
+    transition: width 0.4s ease;
+}
+
+/* Highlighted row (e.g., ASPD) */
+.hsr-res-item.highlight {
+    border-color: var(--gold-dim);
+    background: rgba(240, 192, 96, 0.04);
+}
+
+.hsr-res-item.highlight::before {
+    background: linear-gradient(90deg, var(--gold-glow) 0%, transparent 100%);
+}
+
+.hsr-res-item.highlight::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--gold);
+    box-shadow: 0 0 6px var(--gold);
+}
+
+/* Stat label */
+.res-label {
+    font-family: var(--font-display);
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    position: relative;
+    z-index: 1;
+}
+
+/* Stat value */
+.res-value {
+    font-family: var(--font-mono);
+    font-size: 17px;
+    color: var(--cyan);
+    text-shadow: 0 0 8px var(--cyan-glow);
+    position: relative;
+    z-index: 1;
+    letter-spacing: 1px;
+}
+
+.hsr-res-item.highlight .res-value {
+    color: var(--gold-bright);
+    text-shadow: 0 0 10px var(--gold-glow);
 }

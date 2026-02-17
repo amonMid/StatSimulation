@@ -1,7 +1,8 @@
 ﻿const CharacterUI = (() => {
-    // 1. Private helper to update individual text values
+    // Private helper to update individual text values
     const updateElement = (key, value) => {
         const targets = document.querySelectorAll(`[data-display="${key}"]`);
+
         targets.forEach(el => {
             if (el.tagName === 'P') {
                 const label = el.innerText.split(':')[0];

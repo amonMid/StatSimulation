@@ -41,21 +41,6 @@ namespace StatSimulation.Backend
                 return testResult;
             }
 
-            // Update the model
-            //switch (statName.ToUpper())
-            //{
-            //    case "STR": CurrentCharacter.Str = value; break;
-            //    case "AGI": CurrentCharacter.Agi = value; break;
-            //    case "VIT": CurrentCharacter.Vit = value; break;
-            //    case "INT": CurrentCharacter.Int = value; break;
-            //    case "DEX": CurrentCharacter.Dex = value; break;
-            //    case "LUK": CurrentCharacter.Luk = value; break;
-            //    case "BASELV": CurrentCharacter.BaseLevel = value; break;
-            //}
-
-            //// Return the full recalculated state
-            //return Calculator.CalculateAll(CurrentCharacter);
-
             // If invalid, return the calculation of the LAST GOOD state
             return Calculator.CalculateAll(CurrentCharacter);
         }
