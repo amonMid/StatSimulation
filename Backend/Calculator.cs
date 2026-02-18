@@ -44,6 +44,9 @@ namespace StatSimulation.Backend
             // VIT-based soft DEF ≈ floor(VIT × 0.8)
             // Shown as "EquipDef + VitSoftDef" (equip portion is 0 here)
             int vitSoftDef = (int)Math.Floor(charData.Vit * 0.8);
+            if (vitSoftDef <= 0) {
+                vitSoftDef = 1;
+            }
             res.Def = $"0 + {vitSoftDef}";
 
             // --- MDEF ---
