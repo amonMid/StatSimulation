@@ -93,18 +93,25 @@ document.querySelectorAll('[data-stat-input]').forEach(input => {
 
     input.addEventListener('change', async (e) => {
         const stat = e.target.getAttribute('data-stat-input');
-        const newValue = parseInt(e.target.value);
+        const newValue = parseInt(e.target.value) || 1;
         const oldValue = parseInt(e.target.dataset.oldValue || 1);
 
         // ── Level cap guard (on blur / tab-out) ──────────────
         if (stat === 'BASELV') {
-            newValue = Math.min(
-                Math.max(newValue || StatBridge.LEVEL_MIN, StatBridge.LEVEL_MIN),
-                StatBridge.LEVEL_MAX
-            );
-            e.target.value = newValue;
-            window.chrome.webview.postMessage({ type: 'STAT_CHANGE', stat, value: newValue });
-            e.target.dataset.oldValue = newValue;
+            //newValue = Math.min(
+            //    Math.max(newValue || StatBridge.LEVEL_MIN, StatBridge.LEVEL_MIN),
+            //    StatBridge.LEVEL_MAX
+            //);
+
+            const clampedValue = Math.min(Math.max(newValue, StatBridge.LEVEL_MIN), StatBridge.LEVEL_MAX);
+            // If lowering level, check if we'd go negative
+            if (clampedValue < oldValue) {
+                console.log("Checking if level reduction is valid...");
+            }
+
+            //e.target.value = newValue;
+            window.chrome.webview.postMessage({ type: 'STAT_CHANGE', stat, value: clampedValue });
+            //e.target.dataset.oldValue = newValue;
             return;
         }
 

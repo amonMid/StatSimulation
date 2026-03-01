@@ -24,9 +24,31 @@ namespace StatSimulation
                 var message = JsonConvert.DeserializeObject<StatUpdateMessage>(e.WebMessageAsJson);
                 if (message == null) return;
 
-                // Process via Service
-                var results = _service.UpdateStat(message.Stat, message.NewValue);
+                CalculationResult results = null;
 
+                // --- NEW TYPE-BASED LOGIC ---
+                switch (message.Type)
+                {
+                    case "CLASS_CHANGE":
+                        // Handle Job Class Update (e.g., "Swordsman")
+                        results = _service.UpdateJob(message.ClassName);
+                        break;
+
+                    case "STAT_CHANGE":
+                        // Handle Attribute Update (e.g., STR, AGI)
+                        results = _service.UpdateStat(message.Stat, message.NewValue);
+                        break;
+
+                    case "JOB_LEVEL_CHANGE":
+                        // Handle Level Change
+                        results = _service.UpdateStat("JOBLV", message.NewValue);
+                        break;
+
+                    default:
+                        // Fallback for simple stat updates if type is missing
+                        results = _service.UpdateStat(message.Stat, message.NewValue);
+                        break;
+                }
                 // Serialize and Encode
                 string json = JsonConvert.SerializeObject(results);
                 string safeJson = HttpUtility.JavaScriptStringEncode(json);

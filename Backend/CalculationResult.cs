@@ -34,6 +34,7 @@ namespace StatSimulation.Backend
         public int NextDexCost { get; set; }
         public int NextLukCost { get; set; }
         public bool IsOverspent { get; set; }
+        // Base stats (what the user invested points into)
         public int Str { get; set; }
         public int Agi { get; set; }
         public int Vit { get; set; }
@@ -41,6 +42,15 @@ namespace StatSimulation.Backend
         public int Dex { get; set; }
         public int Luk { get; set; }
         public int BaseLv { get; set; }
+        public int JobLv { get; set; }
+
+        // Job bonuses (passive, from class)
+        public int BonusStr { get; set; }
+        public int BonusAgi { get; set; }
+        public int BonusVit { get; set; }
+        public int BonusInt { get; set; }
+        public int BonusDex { get; set; }
+        public int BonusLuk { get; set; }
 
     }
 
