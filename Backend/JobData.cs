@@ -25,12 +25,20 @@ namespace StatSimulation.Backend
         public Dictionary<int, int> DexBonusTable { get; set; } = new Dictionary<int, int>();
         public Dictionary<int, int> LukBonusTable { get; set; } = new Dictionary<int, int>();
 
-        public double WeaponDelay { get; set; } = 50.0;
+        public double WeaponDelay { get; set; };
 
-        /// <summary>
-        /// Get stat bonus for a specific job level.
-        /// Returns the highest bonus where jobLevel >= threshold.
-        /// </summary>
+
+        //Weapon-specific delays
+        public Dictionary<WeaponType, double> WeaponDelays { get; set; } = new Dictionary<WeaponType, double>();
+
+        public double GetWeaponDelay(WeaponType weapon)
+        {
+            // If the weapon isn't defined for this job, return a very high delay (slow)
+            return WeaponDelays.TryGetValue(weapon, out double delay) ? delay : 2000.0;
+        }
+
+        //Get stat bonus for a specific job level.
+        // Returns the highest bonus where jobLevel >= threshold.
         public int GetStatBonus(Dictionary<int, int> table, int jobLevel)
         {
             int bonus = 0;
@@ -59,6 +67,18 @@ namespace StatSimulation.Backend
                 SpJobA = 1.0,
                 SpJobB = 1.0,
                 WeaponDelay = 50.0,
+
+                WeaponDelays = new Dictionary<WeaponType, double>
+                {
+                    { WeaponType.Hand, 150 },
+                    { WeaponType.Dagger, 135},
+                    { WeaponType.OnehandedSword, 130 },
+                    { WeaponType.OnehandedAxe, 120 },
+                    { WeaponType.OnehandedMace, 130 },
+                    { WeaponType.TwohandedMace, 130 },
+                    { WeaponType.RodStaff, 135 },
+                    { WeaponType.TwohandedStaff, 135 }
+                }
             },
 
             // ── SWORDSMAN ────────────────────────────────────────────────
@@ -92,7 +112,21 @@ namespace StatSimulation.Backend
                     { 26, 1 }, { 44, 2 }
                 },
 
-                WeaponDelay = 45.0,
+                //WeaponDelay = 45.0,
+
+                WeaponDelays = new Dictionary<WeaponType, double>
+                {
+                    { WeaponType.Hand, 160 },
+                    { WeaponType.Dagger, 150},
+                    { WeaponType.OnehandedSword, 145 },
+                    { WeaponType.TwohandedSword, 140 },
+                    { WeaponType.OnehandedSpear, 135 },
+                    { WeaponType.TwohandedSpear, 130 },
+                    { WeaponType.OnehandedAxe, 130 },
+                    { WeaponType.TwohandedAxe, 125 },
+                    { WeaponType.OnehandedMace, 135 },
+                    { WeaponType.TwohandedMace, 130 }
+                }
             },
 
             // ── Mage ─────────────────────────────────────────────────
@@ -122,7 +156,13 @@ namespace StatSimulation.Backend
                     { 30, 1 }, { 42, 2 }, {49, 3 }
                 },
 
-                WeaponDelay = 55.0,
+                WeaponDelays = new Dictionary<WeaponType, double>
+                {
+                    { WeaponType.Hand, 150 },
+                    { WeaponType.Dagger, 140},
+                    { WeaponType.RodStaff, 130 },
+                    { WeaponType.TwohandedStaff, 130 }
+                }
             },
 
             // ── ARCHER ───────────────────────────────────────────────────
@@ -276,6 +316,7 @@ namespace StatSimulation.Backend
 
                 WeaponDelay = 48.0,
             },
+
         };
 
         public static JobData Get(string jobName)
