@@ -19,7 +19,7 @@ namespace StatSimulation.Backend
         public int Dex { get; set; } = 1;
         public int Luk { get; set; } = 1;
 
-        public int Weight { get; set; } = 2000;
+        public decimal Weight { get; set; }
 
         // Can add more later, like Job type or equipment
         public string Job { get; set; } = "Novice";

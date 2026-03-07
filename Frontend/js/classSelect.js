@@ -18,7 +18,7 @@
         },
         Magician: {
             sprite: 'img/Mage.png',
-            name: 'MAGE',
+            name: 'MAGICIAN',
             stars: 4,
             maxJobLv: 50,
             weapons: ['Hand', 'Dagger', 'Rod & Staff', 'Two-handed Staff']

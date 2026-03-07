@@ -8,8 +8,12 @@ namespace StatSimulation.Backend
 {
     public class JobData
     {
+        // Basic info
         public string Name { get; set; }
         public int MaxJobLevel { get; set; }
+
+        //Weight
+        public int Weight { get; set; }
 
         // HP/SP growth constants
         public double HpJobA { get; set; }
@@ -25,7 +29,7 @@ namespace StatSimulation.Backend
         public Dictionary<int, int> DexBonusTable { get; set; } = new Dictionary<int, int>();
         public Dictionary<int, int> LukBonusTable { get; set; } = new Dictionary<int, int>();
 
-        public double WeaponDelay { get; set; };
+        public double WeaponDelay { get; set; }
 
 
         //Weapon-specific delays
@@ -36,6 +40,16 @@ namespace StatSimulation.Backend
             // If the weapon isn't defined for this job, return a very high delay (slow)
             return WeaponDelays.TryGetValue(weapon, out double delay) ? delay : 2000.0;
         }
+
+        // Base Time Between Attacks
+
+        public Dictionary<WeaponType, double> WeaponBTBAs { get; set; } = new Dictionary<WeaponType, double>();
+
+        public double GetBTBA(WeaponType weapon)
+        {
+            return WeaponBTBAs.TryGetValue(weapon, out double val) ? val : 2.0; // Default slow
+        }
+
 
         //Get stat bonus for a specific job level.
         // Returns the highest bonus where jobLevel >= threshold.
@@ -62,11 +76,13 @@ namespace StatSimulation.Backend
             {
                 Name = "Novice",
                 MaxJobLevel = 10,
-                HpJobA = 5.0,
+                HpJobA = 0,
                 HpJobB = 5.0,
                 SpJobA = 1.0,
                 SpJobB = 1.0,
-                WeaponDelay = 50.0,
+                Weight = 0,
+
+                //WeaponDelay = 50.0,
 
                 WeaponDelays = new Dictionary<WeaponType, double>
                 {
@@ -78,6 +94,19 @@ namespace StatSimulation.Backend
                     { WeaponType.TwohandedMace, 130 },
                     { WeaponType.RodStaff, 135 },
                     { WeaponType.TwohandedStaff, 135 }
+                },
+
+                //BTBAs value
+                WeaponBTBAs = new Dictionary<WeaponType, double>
+                {
+                    { WeaponType.Hand, 1.0 },
+                    { WeaponType.Dagger, 1.3 },
+                    { WeaponType.OnehandedSword, 1.4 },
+                    { WeaponType.OnehandedAxe, 1.6 },
+                    { WeaponType.OnehandedMace, 1.4 },
+                    { WeaponType.TwohandedMace, 1.4 },
+                    { WeaponType.RodStaff, 1.3 },
+                    { WeaponType.TwohandedStaff, 1.3 }
                 }
             },
 
@@ -86,10 +115,11 @@ namespace StatSimulation.Backend
             {
                 Name = "Swordsman",
                 MaxJobLevel = 50,
-                HpJobA = 5.0,
-                HpJobB = 7.0,
+                HpJobA = 0.7,
+                HpJobB = 5.0,
                 SpJobA = 1.0,
-                SpJobB = 0.8,
+                SpJobB = 2.0,
+                Weight = 800,
 
                 StrBonusTable = new Dictionary<int, int>
                 {
@@ -126,18 +156,36 @@ namespace StatSimulation.Backend
                     { WeaponType.TwohandedAxe, 125 },
                     { WeaponType.OnehandedMace, 135 },
                     { WeaponType.TwohandedMace, 130 }
+                },
+
+                //BTBAs value
+                WeaponBTBAs = new Dictionary<WeaponType, double>
+                {
+                    { WeaponType.Hand, 0.8 },
+                    { WeaponType.Dagger, 1 },
+                    { WeaponType.OnehandedSword, 1.1 },
+                    { WeaponType.TwohandedSword, 1.2 },
+                    { WeaponType.OnehandedSpear, 1.3 },
+                    { WeaponType.TwohandedSpear, 1.4 },
+                    { WeaponType.OnehandedAxe, 1.4 },
+                    { WeaponType.TwohandedAxe, 1.5 },
+                    { WeaponType.OnehandedMace, 1.3 },
+                    { WeaponType.TwohandedMace, 1.4 }
                 }
+
+                
             },
 
             // ── Mage ─────────────────────────────────────────────────
-            ["Mage"] = new JobData
+            ["Magician"] = new JobData
             {
-                Name = "Mage",
+                Name = "Magician",
                 MaxJobLevel = 50,
-                HpJobA = 3.0,
-                HpJobB = 3.0,
+                HpJobA = 0.3,
+                HpJobB = 5.0,
                 SpJobA = 1.5,
-                SpJobB = 2.0,
+                SpJobB = 6.0,
+                Weight = 200,
 
                 AgiBonusTable = new Dictionary<int, int>
                 {
@@ -161,7 +209,16 @@ namespace StatSimulation.Backend
                     { WeaponType.Hand, 150 },
                     { WeaponType.Dagger, 140},
                     { WeaponType.RodStaff, 130 },
-                    { WeaponType.TwohandedStaff, 130 }
+                    { WeaponType.TwohandedStaff, 150 }
+                },
+
+                //BTBAs value
+                WeaponBTBAs = new Dictionary<WeaponType, double>
+                {
+                    { WeaponType.Hand, 1 },
+                    { WeaponType.Dagger, 1.2 },
+                    { WeaponType.RodStaff, 1.4 },
+                    { WeaponType.TwohandedStaff, 1.4 }
                 }
             },
 
@@ -170,11 +227,11 @@ namespace StatSimulation.Backend
             {
                 Name = "Archer",
                 MaxJobLevel = 50,
-                HpJobA = 4.5,
-                HpJobB = 5.5,
+                HpJobA = 0.5,
+                HpJobB = 5.0,
                 SpJobA = 1.0,
-                SpJobB = 1.0,
-
+                SpJobB = 2.0,
+                Weight = 600,
 
                 StrBonusTable = new Dictionary<int, int>
                 {
@@ -200,8 +257,23 @@ namespace StatSimulation.Backend
                 {
                     { 22, 1 }, { 44, 2 }
                 },
+                
+                //WeaponDelay values
+                WeaponDelays = new Dictionary<WeaponType, double>
+                {
+                    { WeaponType.Hand, 160 },
+                    { WeaponType.Dagger, 140},
+                    { WeaponType.Bow, 130 },
+                },
 
-                WeaponDelay = 42.0,
+                //BTBAs value
+                WeaponBTBAs = new Dictionary<WeaponType, double>
+                {
+                    { WeaponType.Hand, 0.8 },
+                    { WeaponType.Dagger, 1.2 },
+                    { WeaponType.Bow, 1.4 }
+                }
+                //WeaponDelay = 42.0,
             },
 
             // ── THIEF ────────────────────────────────────────────────────
@@ -209,10 +281,11 @@ namespace StatSimulation.Backend
             {
                 Name = "Thief",
                 MaxJobLevel = 50,
-                HpJobA = 4.0,
+                HpJobA = 0.5,
                 HpJobB = 5.0,
                 SpJobA = 1.0,
-                SpJobB = 1.2,
+                SpJobB = 2.0,
+                Weight = 400,
 
                 StrBonusTable = new Dictionary<int, int>
                 {
@@ -238,7 +311,28 @@ namespace StatSimulation.Backend
                 {
                     { 26, 1 }, { 40, 2 }, {46, 3 }
                 },
-                WeaponDelay = 40.0,
+
+                //BTBAs value
+                WeaponDelays = new Dictionary<WeaponType, double>
+                {
+                    { WeaponType.Hand, 160 },
+                    { WeaponType.Dagger, 150 },
+                    { WeaponType.OnehandedSword, 135 },
+                    { WeaponType.OnehandedAxe, 120 },
+                    { WeaponType.Bow, 120 },
+                },
+
+                //BTBAs value
+                WeaponBTBAs = new Dictionary<WeaponType, double>
+                {
+                    { WeaponType.Hand, 0.8 },
+                    { WeaponType.Dagger, 1 },
+                    { WeaponType.OnehandedSword, 1.3 },
+                    { WeaponType.OnehandedAxe, 1.6 },
+                    { WeaponType.Bow, 1.6 }
+                }
+
+                //WeaponDelay = 40.0,
             },
 
             // ── ACOLYTE ──────────────────────────────────────────────────
@@ -246,10 +340,11 @@ namespace StatSimulation.Backend
             {
                 Name = "Acolyte",
                 MaxJobLevel = 50,
-                HpJobA = 4.0,
+                HpJobA = 0.4,
                 HpJobB = 5.0,
                 SpJobA = 1.2,
-                SpJobB = 1.5,
+                SpJobB = 5.0,
+                Weight = 400,
 
                 StrBonusTable = new Dictionary<int, int>
                 {
@@ -276,7 +371,26 @@ namespace StatSimulation.Backend
                     { 2, 1 }, { 18, 2 }, { 38, 3 }, { 50, 4 }
                 },
 
-                WeaponDelay = 52.0,
+                WeaponDelays = new Dictionary<WeaponType, double>
+                {
+                    { WeaponType.Hand, 160 },
+                    { WeaponType.OnehandedMace, 140 },
+                    { WeaponType.TwohandedMace, 140 },
+                    { WeaponType.RodStaff, 140 },
+                    { WeaponType.TwohandedStaff, 140 }
+                },
+
+                //BTBAs value
+                WeaponBTBAs = new Dictionary<WeaponType, double>
+                {
+                    { WeaponType.Hand, 0.8 },
+                    { WeaponType.OnehandedMace, 1.2 },
+                    { WeaponType.TwohandedMace, 1.2 },
+                    { WeaponType.RodStaff, 1.2 },
+                    { WeaponType.TwohandedStaff, 1.2 }
+                }
+
+                //WeaponDelay = 52.0,
             },
 
             // ── MERCHANT ─────────────────────────────────────────────────
@@ -284,10 +398,11 @@ namespace StatSimulation.Backend
             {
                 Name = "Merchant",
                 MaxJobLevel = 50,
-                HpJobA = 4.5,
-                HpJobB = 6.0,
+                HpJobA = 0.4,
+                HpJobB = 5.0,
                 SpJobA = 1.0,
-                SpJobB = 1.0,
+                SpJobB = 3.0,
+                Weight = 800,
 
                 StrBonusTable = new Dictionary<int, int>
                 {
@@ -314,7 +429,30 @@ namespace StatSimulation.Backend
                     { 36, 1 }, { 46, 2 }
                 },
 
-                WeaponDelay = 48.0,
+                WeaponDelays = new Dictionary<WeaponType, double>
+                {
+                    { WeaponType.Hand, 160 },
+                    { WeaponType.Dagger, 140 },
+                    { WeaponType.OnehandedSword, 130 },
+                    { WeaponType.OnehandedAxe, 130 },
+                    { WeaponType.TwohandedAxe, 125 },
+                    { WeaponType.OnehandedMace, 130 },
+                    { WeaponType.TwohandedMace, 130 }
+                },
+
+                //BTBAs value
+                WeaponBTBAs = new Dictionary<WeaponType, double>
+                {
+                    { WeaponType.Hand, 0.8 },
+                    { WeaponType.Dagger, 1.2 },
+                    { WeaponType.OnehandedSword, 1.4 },
+                    { WeaponType.OnehandedAxe, 1.4 },
+                    { WeaponType.TwohandedAxe, 1.5 },
+                    { WeaponType.OnehandedMace, 1.4 },
+                    { WeaponType.TwohandedMace, 1.4 }
+                }
+
+                //WeaponDelay = 48.0,
             },
 
         };

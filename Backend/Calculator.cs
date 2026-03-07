@@ -42,24 +42,49 @@ namespace StatSimulation.Backend
             int strAtk = totalStr + (int)Math.Pow(totalStr / 10, 2);
             int dexMeleeBonus = totalDex / 5;
             int lukAtkBonus = totalLuk / 5;
-            res.Atk = $"{strAtk + dexMeleeBonus + lukAtkBonus}";
+            res.Atk = $"{strAtk + dexMeleeBonus + lukAtkBonus} + 0";
 
             // --- WEIGHT LIMIT ---
             // Formula: Base Job Weight + (Base STR * 30)
             // Note: Usually uses charData.Str (Base) rather than totalStr
-            res.MaxWeight = charData.Weight + (charData.Str * 30);
+            res.MaxWeight = 2000 + job.Weight + (charData.Str * 30);
 
             // ── ASPD ─────────────────────────────────────────────────────
-            double reduction = totalAgi * 0.004 + totalDex * 0.001;
-            double delay = job.WeaponDelay * (1.0 - reduction);
-            double finalAspd = 200.0 - Math.Floor(delay);
-            finalAspd = Math.Min(finalAspd, MAX_ASPD);
-            res.Aspd = Math.Floor(finalAspd).ToString();
+            //double reduction = totalAgi * 0.004 + totalDex * 0.001;
+            //double delay = weapondelay * (1.0 - reduction);
+            //double finalAspd = 200.0 - Math.Floor(delay);
+            //finalAspd = Math.Min(finalAspd, MAX_ASPD);
+            //res.Aspd = Math.Floor(finalAspd).ToString();
+
+            // --- ASPD CALCULATION (RMS Style) ---
+            // Get BTBA (e.g., 1.0 for Novice Hand)
+            double btba = job.GetBTBA(charData.EquippedWeapon);
+
+            // Calculate WD (Weapon Delay) 
+            double wd = 500.0 * btba;
+
+            // Stat Reductions [WD * AGI / 25] and [WD * DEX / 100]
+            double effectiveAgi = Math.Max(0, totalAgi - 1);
+            double effectiveDex = Math.Max(0, totalDex - 1);
+
+            double agiRed = Math.Floor((wd * effectiveAgi) / 25.0);
+            double dexRed = Math.Floor((wd * effectiveDex) / 100.0);
+
+            // RMS floors the result of (WD - StatReductions) / 10.0
+            double totalReductions = agiRed + dexRed;
+            double finalDelay = Math.Floor((wd - totalReductions) / 10.0);
+
+            // Formula: 200 - FinalDelay * (1 - SM)
+            double sm = 0.0; // Potion/Skill bonus
+            double aspdResult = 200.0 - (finalDelay * (1.0 - sm));
+
+            // Cap and Output
+            res.Aspd = Math.Floor(Math.Min(aspdResult, MAX_ASPD)).ToString();
 
             // --- AGI: FLEE ---
             // Formula:  BaseLevel + AGI + 10 (base bonus)
             // LUK does NOT contribute to Flee — only to Perfect Dodge & Crit resist
-            res.Flee = $"{charData.BaseLevel + totalAgi + BASE_FLEE}";
+            res.Flee = $"{charData.BaseLevel + totalAgi} + {(totalLuk + 10) * 10 / 100}";
 
             // --- DEF --- 
             // VIT-based soft DEF ≈ floor(VIT × 0.8)
@@ -84,20 +109,21 @@ namespace StatSimulation.Backend
 
             // HpRegen
             // Formula:  floor(MaxHP / 200) + floor(VIT / 5)   every 6 seconds
-            int hpRegenValue = (totalMaxHp / 200) + (totalVit / 5);
-            res.HpRegen = $"{hpRegenValue} per 6s";
+            //int baseHpr = Math.Max(1, totalMaxHp / 200);
+            int hpRegenValue = CalculateHPRegen(totalMaxHp, totalVit);
+
+            res.HpRegen = $"{hpRegenValue} per 6s standing (per 3s sitting)";
 
             // --- SP CALCULATIONS ---
             // Formula:  BaseSP × (1 + INT × 0.01)
-            int baseSp = CalculateBaseSP(charData.BaseLevel, job);
-            int totalMaxSp = (int)(baseSp * (1 + totalInt * 0.01));
-            res.MaxSp = totalMaxSp.ToString();
+            int baseSp = CalculateBaseSP(charData.BaseLevel, totalInt, job);
+            res.MaxSp = baseSp.ToString();
 
             // --- SP Natural Regen ---
             // Formula:  floor(MaxSP / 100) + floor(INT / 6) + 1   every 8 seconds
             // Bonus: every 100 SP grants +1 regen (already embedded in MaxSP / 100)
-            int spRegenValue = (totalMaxSp / 100) + (totalInt / 6) + 1;
-            res.SpRegen = $"{spRegenValue} per 8s";
+            int spRegenValue = (baseSp / 100) + (totalInt / 6) + 1;
+            res.SpRegen = $"{spRegenValue} per 8s standing (per 4s sitting)";
 
             // --- RECOVERY ITEM EFFECTIVENESS ---
             // HP items: Base × (1 + VIT × 0.02)  → +2% per VIT
@@ -114,7 +140,7 @@ namespace StatSimulation.Backend
 
             // --- DEX ---
             // Formula:  175 (base) + BaseLevel + DEX
-            res.Hit = $"{BASE_HIT + charData.BaseLevel + totalDex}";
+            res.Hit = $"{charData.BaseLevel + totalDex}";
 
             // --- CAST TIME ---
             // 150 DEX = instant cast; each DEX = −(1/150) of cast time
@@ -122,8 +148,7 @@ namespace StatSimulation.Backend
             res.CastTime = totalDex >= 150 ? "Instant" : $"{Math.Floor(castReduction)}%";
 
             // --- LUK ---
-            // Crit = [LUK * 0.3] + 1
-            res.Crit = $"{(int)(totalLuk * 0.3) + 1}";
+            res.Crit = $"{(int)(totalLuk * 3 + 10) * 10 / 100}";
 
             // Perfect Dodge = [LUK * 0.1] + 1 (Base perfect dodge is usually 1)
             res.PerfectDodge = $"{(totalLuk * 0.1) + 1:F1}";
@@ -186,40 +211,68 @@ namespace StatSimulation.Backend
 
         private static int CalculateMaxHP(int baseLevel, int vit, JobData job)
         {
-            //// These constants would ideally come from a Job-specific config file
-            //// Using standard "Novice" constants as an example:
-            //double hpJobA = 5.0;  // The growth factor per level
-            //double hpJobB = 5.0;  // The base multiplier
 
-            //// Initial calculation: 35 + (BaseLevel * JobB)
-            //double runningHp = 35 + (baseLevel * hpJobB);
+            // Calculate the BASE_HP (The sum of growth across levels)
+            // Formula: 35 + (BaseLevel * JobB) + Sigma(JobA * i)
+            double baseHpSum = 35.0 + (baseLevel * job.HpJobB);
+            for (int i = 2; i <= baseLevel; i++)
+            {
+                baseHpSum += (int)Math.Round(job.HpJobA * i, MidpointRounding.AwayFromZero);
+            }
 
-            //for (int i = 2; i <= baseLevel; i++)
+            // Apply VIT and Trans Mod (MAX_HP = floor( BASE_HP * (1 + VIT * 0.01) * TRANS_MOD ))
+            //double transMod = isTrans ? 1.25 : 1.0;
+            double vitMod = 1.0 + (vit * 0.01);
+
+            int currentMaxHp = (int)Math.Floor(baseHpSum * vitMod);
+
+            // Multiplicative Modifiers (MAX_HP = floor( MAX_HP * (1 + HP_MOD_B * 0.01) ))
+            // We floor again after applying multiplicative mods like Matyr Card
+            //if (hpModB != 0)
             //{
-            //    runningHp += Math.Round(hpJobA * i);
+            //    currentMaxHp = (int)Math.Floor(currentMaxHp * (1.0 + hpModB * 0.01));
             //}
 
-            //// Total HP = [Base HP * (1 + VIT * 0.01)]
-            //int totalMaxHp = (int)(runningHp * (1 + (vit * 0.01)));
+            return currentMaxHp;
+        }
 
-            //return totalMaxHp;
-            double baseHp = 35.0 + (baseLevel * job.HpJobB);
-            for (int i = 2; i <= baseLevel; i++)
-                baseHp += Math.Round(job.HpJobA * i);
+        private static int CalculateHPRegen(int totalMaxHp, int totalVit)
+        {
+            // Every character starts with a base of 1 HPR
+            int baseValue = 1;
 
+            // Calculate the part based on Max HP
+            // JS: Math.floor(MAX_HP / 200)
+            int hpPart = totalMaxHp / 200;
 
-            return (int)(baseHp * (1.0 + vit * 0.01));
+            // Calculate the part based on VIT
+            // JS: Math.floor(VIT / 5)
+            int vitPart = totalVit / 5;
+
+            // Sum them and ensure a minimum of 1
+            // JS: Math.max( 1, floor(HP/200) + floor(VIT/5) )
+            int baseHpr = Math.Max(1, hpPart + vitPart);
+
+            // Note: If add HPR_MOD (like Increase HP Recovery skill) later:
+            // baseHpr = (int)Math.Floor(baseHpr * (1 + hprMod * 0.01));
+
+            return baseHpr + baseValue;
         }
 
         // ── SP CALCULATION ────────────────────────────────────────────────────
         // Scaled by INT in CalculateAll:  TotalSP = BaseSP × (1 + INT × 0.01)
-        private static int CalculateBaseSP(int baseLevel, JobData job)
+        private static int CalculateBaseSP(int baseLevel, int intel, JobData job)
         {
-            //return 10 + (baseLevel * 10);
+            // Calculate BASE_SP
+            // Using your pseudo-code: 10 + (Level * Job_Multiplier)
             double baseSp = 10.0 + (baseLevel * job.SpJobB);
-            for (int i = 2; i <= baseLevel; i++)
-                baseSp += Math.Round(job.SpJobA * i);
-            return (int)baseSp;
+
+            // Apply INT Bonus
+            // Formula: floor( BASE_SP * (1 + INT * 0.01) )
+            double intMod = 1.0 + (intel * 0.01);
+            int maxSp = (int)Math.Floor(baseSp * intMod);
+
+            return maxSp;
         }
     }
 }

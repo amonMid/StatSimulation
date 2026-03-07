@@ -48,7 +48,6 @@ namespace StatSimulation
                         //string weapon = message.Weapon ?? "bare_hands";
                         string weaponStr = message.Weapon ?? "Hand";
                         charData.EquippedWeapon = ParseWeaponType(weaponStr);
-                        MessageBox.Show($"Weapon changed to: {charData.EquippedWeapon}");
 
                         // For now, just recalculate without changing anything
                         results = Calculator.CalculateAll(_service.CurrentCharacter);
