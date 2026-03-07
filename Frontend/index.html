@@ -30,115 +30,123 @@
                 </select>
             </div>
             <div class="job-level-badge">
-                <span class="lv-text">Lv.</span>
+                <span class="lv-text">Job Lv.</span>
                 <select class="hsr-select" data-stat-input="JOBLV"></select>
             </div>
             <div class="level-badge">
-                <span class="lv-text">Lv.</span>
+                <span class="lv-text">Base Lv.</span>
                 <input type="number" value="1" min="1" max="99" data-stat-input="BASELV" class="hsr-lv-input">
             </div>
         </header>
 
         <main class="content-grid">
 
-            <section class="hsr-card attribute-panel">
-                <div class="hsr-panel-header">
-                    <img src="img/Novice.png" class="hsr-icon" />
-                    <h3>Attributes</h3>
-                </div>
-                <div class="points-display">
-                    <label>Remaining Points</label>
-                    <span data-display="StatusPoints">48</span>
-                </div>
+            <!-- LEFT COLUMN -->
+            <div class="left-column">
 
-                <div class="job-bonus-display">
-                    <div class="bonus-tag">JOB_BONUS</div>
-                    <div class="bonus-grid">
-                        <div class="bonus-node"><span class="b-label">STR</span><span class="b-val" data-display="BonusStr">+0</span></div>
-                        <div class="bonus-node"><span class="b-label">AGI</span><span class="b-val" data-display="BonusAgi">+0</span></div>
-                        <div class="bonus-node"><span class="b-label">VIT</span><span class="b-val" data-display="BonusVit">+0</span></div>
-                        <div class="bonus-node"><span class="b-label">INT</span><span class="b-val" data-display="BonusInt">+0</span></div>
-                        <div class="bonus-node"><span class="b-label">DEX</span><span class="b-val" data-display="BonusDex">+0</span></div>
-                        <div class="bonus-node"><span class="b-label">LUK</span><span class="b-val" data-display="BonusLuk">+0</span></div>
+                
+                <!-- ATTRIBUTES CARD -->
+                <section class="hsr-card attribute-panel">
+                    <div class="hsr-panel-header">
+                        <img src="img/Novice.png" class="hsr-icon" />
+                        <h3>Attributes</h3>
                     </div>
-                </div>
+                    <div class="points-display">
+                        <label>Remaining Points</label>
+                        <span data-display="StatusPoints">48</span>
+                    </div>
 
-                <div class="hsr-stat-list">
-                    <div class="hsr-stat-row">
-                        <div class="stat-info">
-                            <span class="name">STR</span>
-                            <span class="bonus" data-stat-bonus="STR">+{0}</span>
+                    <div class="job-bonus-display">
+                        <div class="bonus-tag">JOB BONUS</div>
+                        <div class="bonus-grid">
+                            <div class="bonus-node"><span class="b-label">STR</span><span class="b-val" data-display="BonusStr">+0</span></div>
+                            <div class="bonus-node"><span class="b-label">AGI</span><span class="b-val" data-display="BonusAgi">+0</span></div>
+                            <div class="bonus-node"><span class="b-label">VIT</span><span class="b-val" data-display="BonusVit">+0</span></div>
+                            <div class="bonus-node"><span class="b-label">INT</span><span class="b-val" data-display="BonusInt">+0</span></div>
+                            <div class="bonus-node"><span class="b-label">DEX</span><span class="b-val" data-display="BonusDex">+0</span></div>
+                            <div class="bonus-node"><span class="b-label">LUK</span><span class="b-val" data-display="BonusLuk">+0</span></div>
                         </div>
-                        <div class="hsr-input-wrapper">
-                            <button class="hsr-btn btn-minus" data-type="minus" data-stat="STR">−</button>
-                            <input type="number" value="1" data-stat-input="STR">
-                            <button class="hsr-btn btn-plus" data-type="plus" data-stat="STR">+</button>
-                        </div>
-                        <div class="cost-tag">Cost <span data-display="NextStrCost">2</span></div>
                     </div>
-                    <div class="hsr-stat-row">
-                        <div class="stat-info">
-                            <span class="name">VIT</span>
-                            <span class="bonus" data-stat-bonus="DEF">+{0}</span>
-                        </div>
-                        <div class="hsr-input-wrapper">
-                            <button class="hsr-btn btn-minus" data-type="minus" data-stat="VIT">−</button>
-                            <input type="number" value="1" data-stat-input="VIT">
-                            <button class="hsr-btn btn-plus" data-type="plus" data-stat="VIT">+</button>
-                        </div>
-                        <div class="cost-tag">Cost <span data-display="NextVitCost">2</span></div>
-                    </div>
-                    <div class="hsr-stat-row">
-                        <div class="stat-info">
-                            <span class="name">AGI</span>
-                            <span class="bonus" data-stat-bonus="AGI">+{0}</span>
-                        </div>
-                        <div class="hsr-input-wrapper">
-                            <button class="hsr-btn btn-minus" data-type="minus" data-stat="AGI">−</button>
-                            <input type="number" value="1" data-stat-input="AGI">
-                            <button class="hsr-btn btn-plus" data-type="plus" data-stat="AGI">+</button>
-                        </div>
-                        <div class="cost-tag">Cost <span data-display="NextAgiCost">2</span></div>
-                    </div>
-                    <div class="hsr-stat-row">
-                        <div class="stat-info">
-                            <span class="name">INT</span>
-                            <span class="bonus" data-stat-bonus="INT">+{0}</span>
-                        </div>
-                        <div class="hsr-input-wrapper">
-                            <button class="hsr-btn btn-minus" data-type="minus" data-stat="INT">−</button>
-                            <input type="number" value="1" data-stat-input="INT">
-                            <button class="hsr-btn btn-plus" data-type="plus" data-stat="INT">+</button>
-                        </div>
-                        <div class="cost-tag">Cost <span data-display="NextIntCost">2</span></div>
-                    </div>
-                    <div class="hsr-stat-row">
-                        <div class="stat-info">
-                            <span class="name">LCK</span>
-                            <span class="bonus" data-stat-bonus="LCK">+{0}</span>
-                        </div>
-                        <div class="hsr-input-wrapper">
-                            <button class="hsr-btn btn-minus" data-type="minus" data-stat="LUK">−</button>
-                            <input type="number" value="1" data-stat-input="LUK">
-                            <button class="hsr-btn btn-plus" data-type="plus" data-stat="LUK">+</button>
-                        </div>
-                        <div class="cost-tag">Cost <span data-display="NextLukCost">3</span></div>
-                    </div>
-                    <div class="hsr-stat-row">
-                        <div class="stat-info">
-                            <span class="name">DEX</span>
-                            <span class="bonus" data-stat-bonus="DEX">+{0}</span>
-                        </div>
-                        <div class="hsr-input-wrapper">
-                            <button class="hsr-btn btn-minus" data-type="minus" data-stat="DEX">−</button>
-                            <input type="number" value="1" data-stat-input="DEX">
-                            <button class="hsr-btn btn-plus" data-type="plus" data-stat="DEX">+</button>
-                        </div>
-                        <div class="cost-tag">Cost <span data-display="NextDexCost">3</span></div>
-                    </div>
-                </div>
-            </section>
 
+                    <div class="hsr-stat-list">
+                        <div class="hsr-stat-row">
+                            <div class="stat-info">
+                                <span class="name">STR</span>
+                                <span class="bonus" data-stat-bonus="STR"></span>
+                            </div>
+                            <div class="hsr-input-wrapper">
+                                <button class="hsr-btn btn-minus" data-type="minus" data-stat="STR">−</button>
+                                <input type="number" value="1" data-stat-input="STR">
+                                <button class="hsr-btn btn-plus" data-type="plus" data-stat="STR">+</button>
+                            </div>
+                            <div class="cost-tag">Cost <span data-display="NextStrCost">2</span></div>
+                        </div>
+                        <div class="hsr-stat-row">
+                            <div class="stat-info">
+                                <span class="name">VIT</span>
+                                <span class="bonus" data-stat-bonus="VIT"></span>
+                            </div>
+                            <div class="hsr-input-wrapper">
+                                <button class="hsr-btn btn-minus" data-type="minus" data-stat="VIT">−</button>
+                                <input type="number" value="1" data-stat-input="VIT">
+                                <button class="hsr-btn btn-plus" data-type="plus" data-stat="VIT">+</button>
+                            </div>
+                            <div class="cost-tag">Cost <span data-display="NextVitCost">2</span></div>
+                        </div>
+                        <div class="hsr-stat-row">
+                            <div class="stat-info">
+                                <span class="name">AGI</span>
+                                <span class="bonus" data-stat-bonus="AGI"></span>
+                            </div>
+                            <div class="hsr-input-wrapper">
+                                <button class="hsr-btn btn-minus" data-type="minus" data-stat="AGI">−</button>
+                                <input type="number" value="1" data-stat-input="AGI">
+                                <button class="hsr-btn btn-plus" data-type="plus" data-stat="AGI">+</button>
+                            </div>
+                            <div class="cost-tag">Cost <span data-display="NextAgiCost">2</span></div>
+                        </div>
+                        <div class="hsr-stat-row">
+                            <div class="stat-info">
+                                <span class="name">INT</span>
+                                <span class="bonus" data-stat-bonus="INT"></span>
+                            </div>
+                            <div class="hsr-input-wrapper">
+                                <button class="hsr-btn btn-minus" data-type="minus" data-stat="INT">−</button>
+                                <input type="number" value="1" data-stat-input="INT">
+                                <button class="hsr-btn btn-plus" data-type="plus" data-stat="INT">+</button>
+                            </div>
+                            <div class="cost-tag">Cost <span data-display="NextIntCost">2</span></div>
+                        </div>
+                        <div class="hsr-stat-row">
+                            <div class="stat-info">
+                                <span class="name">LUK</span>
+                                <span class="bonus" data-stat-bonus="LUK"></span>
+                            </div>
+                            <div class="hsr-input-wrapper">
+                                <button class="hsr-btn btn-minus" data-type="minus" data-stat="LUK">−</button>
+                                <input type="number" value="1" data-stat-input="LUK">
+                                <button class="hsr-btn btn-plus" data-type="plus" data-stat="LUK">+</button>
+                            </div>
+                            <div class="cost-tag">Cost <span data-display="NextLukCost">3</span></div>
+                        </div>
+                        <div class="hsr-stat-row">
+                            <div class="stat-info">
+                                <span class="name">DEX</span>
+                                <span class="bonus" data-stat-bonus="DEX"></span>
+                            </div>
+                            <div class="hsr-input-wrapper">
+                                <button class="hsr-btn btn-minus" data-type="minus" data-stat="DEX">−</button>
+                                <input type="number" value="1" data-stat-input="DEX">
+                                <button class="hsr-btn btn-plus" data-type="plus" data-stat="DEX">+</button>
+                            </div>
+                            <div class="cost-tag">Cost <span data-display="NextDexCost">3</span></div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- CENTER: CHARACTER PREVIEW -->
             <section class="character-preview">
                 <div class="sprite-container">
                     <img src="img/Novice.png" alt="Character Sprite" class="hsr-sprite">
@@ -149,53 +157,96 @@
                 </div>
             </section>
 
-            <section class="hsr-card stats-panel">
-                <div class="hsr-panel-header">
-                    <h3>Combat Stats</h3>
-                </div>
-                <div class="hsr-results-list">
-                    <div class="hsr-res-item">
-                        <span class="res-label">Max HP</span>
-                        <span class="res-value" data-display="MaxHp">1,240</span>
+            <!-- RIGHT COLUMN -->
+            <div class="right-column">
+
+                <!-- VITALS CARD -->
+                <section class="hsr-card vitals-card">
+                    <div class="hsr-panel-header">
+                        <div class="panel-icon">❤</div>
+                        <h3>Vitals</h3>
                     </div>
-                    <div class="hsr-res-item">
-                        <span class="res-label">Max Sp</span>
-                        <span class="res-value" data-display="MaxSp">80</span>
+                    <div class="vitals-grid">
+                        <div class="vital-item">
+                            <span class="vital-label">Max HP</span>
+                            <span class="vital-value hp" data-display="MaxHp">40</span>
+                        </div>
+                        <div class="vital-item">
+                            <span class="vital-label">Max SP</span>
+                            <span class="vital-value sp" data-display="MaxSp">11</span>
+                        </div>
+                        <div class="vital-item">
+                            <span class="vital-label">HP Regen</span>
+                            <span class="vital-value" data-display="HpRegen">5 / 6s</span>
+                        </div>
+                        <div class="vital-item">
+                            <span class="vital-label">SP Regen</span>
+                            <span class="vital-value" data-display="SpRegen">3 / 8s</span>
+                        </div>
+                        <div class="vital-item">
+                            <span class="vital-label">Weight</span>
+                            <span class="vital-value" data-display="MaxWeight">2030</span>
+                        </div>
                     </div>
-                    <div class="hsr-res-item">
-                        <span class="res-label">Attack</span>
-                        <span class="res-value" data-display="Atk">1 + 0</span>
+                </section>
+
+                <!-- COMBAT STATS CARD -->
+                <section class="hsr-card stats-panel">
+                    <div class="hsr-panel-header">
+                        <div class="panel-icon">⚔</div>
+                        <h3>Combat Stats</h3>
                     </div>
-                    <div class="hsr-res-item">
-                        <span class="res-label">Defense</span>
-                        <span class="res-value" data-display="Def">0 ~ 1</span>
+                    <div class="hsr-results-list">
+                        <div class="hsr-res-item">
+                            <span class="res-label">Attack</span>
+                            <span class="res-value" data-display="Atk">1</span>
+                        </div>
+                        <div class="hsr-res-item">
+                            <span class="res-label">Defense</span>
+                            <span class="res-value" data-display="Def">0 + 1</span>
+                        </div>
+                        <div class="hsr-res-item">
+                            <span class="res-label">Magic Attack</span>
+                            <span class="res-value" data-display="Matk">1 ~ 1</span>
+                        </div>
+                        <div class="hsr-res-item">
+                            <span class="res-label">Magic Defense</span>
+                            <span class="res-value" data-display="Mdef">0 + 1</span>
+                        </div>
+                        <div class="hsr-res-item">
+                            <span class="res-label">Hit</span>
+                            <span class="res-value" data-display="Hit">176</span>
+                        </div>
+                        <div class="hsr-res-item">
+                            <span class="res-label">Flee</span>
+                            <span class="res-value" data-display="Flee">11</span>
+                        </div>
+                        <div class="hsr-res-item highlight">
+                            <span class="res-label">ASPD</span>
+                            <span class="res-value" data-display="Aspd">150</span>
+                        </div>
+                        <div class="hsr-res-item">
+                            <span class="res-label">CRIT</span>
+                            <span class="res-value" data-display="Crit">1</span>
+                        </div>
                     </div>
-                    <div class="hsr-res-item">
-                        <span class="res-label">Magic Attack</span>
-                        <span class="res-value" data-display="Matk">1 ~ 1</span>
+                </section>
+
+                <!-- WEAPON CARD -->
+                <section class="hsr-card weapon-card">
+                    <div class="hsr-panel-header">
+                        <div class="panel-icon">🗡</div>
+                        <h3>Weapon</h3>
                     </div>
-                    <div class="hsr-res-item">
-                        <span class="res-label">Magic Defense</span>
-                        <span class="res-value" data-display="Mdef">0 ~ 1</span>
+                    <div class="weapon-select-wrap">
+                        <label class="weapon-label">Equipped Type</label>
+                        <select class="hsr-select weapon-select" id="weaponSelect">
+                            <option value="fist">Bare Hands</option>
+                        </select>
                     </div>
-                    <div class="hsr-res-item">
-                        <span class="res-label">Hit</span>
-                        <span class="res-value" data-display="Hit">2</span>
-                    </div>
-                    <div class="hsr-res-item">
-                        <span class="res-label">Flee</span>
-                        <span class="res-value" data-display="Flee">2 + 1</span>
-                    </div>
-                    <div class="hsr-res-item highlight">
-                        <span class="res-label">ASPD</span>
-                        <span class="res-value" data-display="Aspd">150</span>
-                    </div>
-                    <div class="hsr-res-item">
-                        <span class="res-label">CRIT</span>
-                        <span class="res-value" data-display="Crit">1</span>
-                    </div>
-                </div>
-            </section>
+                </section>
+
+            </div>
 
         </main>
     </div>

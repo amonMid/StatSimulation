@@ -210,6 +210,32 @@ namespace StatSimulation.Backend
                 HpJobB = 5.0,
                 SpJobA = 1.2,
                 SpJobB = 1.5,
+
+                StrBonusTable = new Dictionary<int, int>
+                {
+                    { 26, 1 }, { 42, 2 }, { 49, 3 }
+                },
+                AgiBonusTable = new Dictionary<int, int>
+                {
+                    { 22, 1 }, { 40, 2 }
+                },
+                VitBonusTable = new Dictionary<int, int>
+                {
+                    { 6, 1 }, { 30, 2 }, { 44, 3}
+                },
+                IntBonusTable = new Dictionary<int, int>
+                {
+                    { 10, 1 }, { 33, 2 }, { 46, 3 }
+                },
+                DexBonusTable = new Dictionary<int, int>
+                {
+                    { 14, 1 }, { 36, 2 }, { 46, 3 }
+                },
+                LukBonusTable = new Dictionary<int, int>
+                {
+                    { 2, 1 }, { 18, 2 }, { 38, 3 }, { 50, 4 }
+                },
+
                 WeaponDelay = 52.0,
             },
 
@@ -222,6 +248,32 @@ namespace StatSimulation.Backend
                 HpJobB = 6.0,
                 SpJobA = 1.0,
                 SpJobB = 1.0,
+
+                StrBonusTable = new Dictionary<int, int>
+                {
+                    { 10, 1 }, { 22, 2 }, { 40, 3 }, { 44, 4 }, { 49, 5 }
+                },
+                AgiBonusTable = new Dictionary<int, int>
+                {
+                    { 33, 1 }
+                },
+                VitBonusTable = new Dictionary<int, int>
+                {
+                    { 2, 1 }, { 18, 2 }, { 30, 3 }, { 47, 4 }
+                },
+                IntBonusTable = new Dictionary<int, int>
+                {
+                    { 26, 1 }
+                },
+                DexBonusTable = new Dictionary<int, int>
+                {
+                    { 6, 1 }, { 14, 2 }, { 38, 3 }, { 42, 4 }, { 50, 5 }
+                },
+                LukBonusTable = new Dictionary<int, int>
+                {
+                    { 36, 1 }, { 46, 2 }
+                },
+
                 WeaponDelay = 48.0,
             },
         };

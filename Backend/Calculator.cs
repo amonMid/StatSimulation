@@ -44,6 +44,11 @@ namespace StatSimulation.Backend
             int lukAtkBonus = totalLuk / 5;
             res.Atk = $"{strAtk + dexMeleeBonus + lukAtkBonus}";
 
+            // --- WEIGHT LIMIT ---
+            // Formula: Base Job Weight + (Base STR * 30)
+            // Note: Usually uses charData.Str (Base) rather than totalStr
+            res.MaxWeight = charData.Weight + (charData.Str * 30);
+
             // ── ASPD ─────────────────────────────────────────────────────
             double reduction = totalAgi * 0.004 + totalDex * 0.001;
             double delay = job.WeaponDelay * (1.0 - reduction);
@@ -103,9 +108,6 @@ namespace StatSimulation.Backend
             // --- INT ---
             // Min MATK = INT + floor(INT/7)^2
             // Max MATK = INT + floor(INT/5)^2
-            //int minMatk = charData.Int + (int)Math.Pow(charData.Int / 7, 2);
-            //int maxMatk = charData.Int + (int)Math.Pow(charData.Int / 5, 2);
-            //res.Matk = $"{minMatk} ~ {maxMatk}";
             int minMatk = totalInt + (int)Math.Pow(totalInt / 7, 2);
             int maxMatk = totalInt + (int)Math.Pow(totalInt / 5, 2);
             res.Matk = $"{minMatk} ~ {maxMatk}";
@@ -204,6 +206,8 @@ namespace StatSimulation.Backend
             double baseHp = 35.0 + (baseLevel * job.HpJobB);
             for (int i = 2; i <= baseLevel; i++)
                 baseHp += Math.Round(job.HpJobA * i);
+
+
             return (int)(baseHp * (1.0 + vit * 0.01));
         }
 

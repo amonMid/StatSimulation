@@ -8,6 +8,8 @@ namespace StatSimulation
     public partial class Form1 : Form
     {
         private readonly CharacterService _service = new CharacterService();
+        private CharacterData charData => _service.CurrentCharacter;
+
         public Form1()
         {
             InitializeComponent();
@@ -16,7 +18,7 @@ namespace StatSimulation
             wb1.Source = new Uri(fullPath);
         }
 
-        
+
         private async void wb1_WebMessageReceived(object sender, Microsoft.Web.WebView2.Core.CoreWebView2WebMessageReceivedEventArgs e)
         {
             try
@@ -26,46 +28,95 @@ namespace StatSimulation
 
                 CalculationResult results = null;
 
-                // --- NEW TYPE-BASED LOGIC ---
-                switch (message.Type)
+                // „Ÿ„Ÿ Handle different message types „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
+                switch (message.Type?.ToUpper())
                 {
                     case "CLASS_CHANGE":
-                        // Handle Job Class Update (e.g., "Swordsman")
-                        results = _service.UpdateJob(message.ClassName);
-                        break;
-
-                    case "STAT_CHANGE":
-                        // Handle Attribute Update (e.g., STR, AGI)
-                        results = _service.UpdateStat(message.Stat, message.NewValue);
+                        // Use ClassName field for class changes
+                        string jobName = message.ClassName ?? "Novice";
+                        results = _service.UpdateJob(jobName);
                         break;
 
                     case "JOB_LEVEL_CHANGE":
-                        // Handle Level Change
-                        results = _service.UpdateStat("JOBLV", message.NewValue);
+                        // Use Value field for job level
+                        int jobLevel = message.Value > 0 ? message.Value : message.NewValue;
+                        results = _service.UpdateStat("JOBLV", jobLevel);
                         break;
 
+                    case "WEAPON_CHANGE":
+                        // TODO: Handle weapon changes when implemented
+                        //string weapon = message.Weapon ?? "bare_hands";
+                        string weaponStr = message.Weapon ?? "Hand";
+                        charData.EquippedWeapon = ParseWeaponType(weaponStr);
+                        MessageBox.Show($"Weapon changed to: {charData.EquippedWeapon}");
+
+                        // For now, just recalculate without changing anything
+                        results = Calculator.CalculateAll(_service.CurrentCharacter);
+                        break;
+
+                    case "STAT_CHANGE":
                     default:
-                        // Fallback for simple stat updates if type is missing
-                        results = _service.UpdateStat(message.Stat, message.NewValue);
+                        // „Ÿ„Ÿ CRITICAL: Check if Stat is provided „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
+                        if (string.IsNullOrEmpty(message.Stat))
+                        {
+                            // If no stat specified, just return current state
+                            results = Calculator.CalculateAll(_service.CurrentCharacter);
+                            break;
+                        }
+
+                        // Use NewValue, fallback to Value if NewValue is 0
+                        int statValue = message.NewValue > 0 ? message.NewValue : message.Value;
+                        results = _service.UpdateStat(message.Stat, statValue);
                         break;
                 }
-                // Serialize and Encode
-                string json = JsonConvert.SerializeObject(results);
-                string safeJson = HttpUtility.JavaScriptStringEncode(json);
 
-                // Dispatch to UI
-                await wb1.CoreWebView2.ExecuteScriptAsync($"CharacterUI.render('{safeJson}')");
-                // Prevents the user from typing a number that makes points negative
-                await wb1.CoreWebView2.ExecuteScriptAsync($"CharacterUI.syncInputs('{safeJson}')");
+                // „Ÿ„Ÿ Send results back to UI „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
+                if (results != null)
+                {
+                    string json = JsonConvert.SerializeObject(results);
+                    string safeJson = System.Web.HttpUtility.JavaScriptStringEncode(json);
+
+                    await wb1.CoreWebView2.ExecuteScriptAsync($"CharacterUI.render('{safeJson}')");
+                    await wb1.CoreWebView2.ExecuteScriptAsync($"CharacterUI.syncInputs('{safeJson}')");
+                }
             }
             catch (JsonException ex)
             {
-                Debug.WriteLine($"JSON Deserialization failed: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[JSON Error]: {ex.Message}");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[Bridge Error]: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[Bridge Error]: {ex.Message}\n{ex.StackTrace}");
             }
+        }
+
+        // Helper method to parse weapon strings from JavaScript
+        private WeaponType ParseWeaponType(string weaponStr)
+        {
+            // Normalize: lowercase, replace spaces/hyphens with underscores
+            string normalized = weaponStr
+                .ToLower()
+                .Replace(" ", "_")
+                .Replace("-", "_")
+                .Replace("&", "and");  // "Rod & Staff" ¨ "rod_and_staff"
+
+            return normalized switch
+            {
+                "hand" or "hands" => WeaponType.Hand,
+                "dagger" => WeaponType.Dagger,
+                "one_handed_sword" => WeaponType.OnehandedSword,
+                "two_handed_sword" => WeaponType.TwohandedSword,
+                "one_handed_axe" => WeaponType.OnehandedAxe,
+                "two_handed_axe" => WeaponType.TwohandedAxe,
+                "one_handed_mace" => WeaponType.OnehandedMace,
+                "two_handed_mace" => WeaponType.TwohandedMace,
+                "rod_and_staff" => WeaponType.RodStaff,
+                "two_handed_staff" => WeaponType.TwohandedStaff,
+                "one_handed_spear" => WeaponType.OnehandedSpear,
+                "two_handed_spear" => WeaponType.TwohandedSpear,
+                "bow" => WeaponType.Bow,
+                _ => WeaponType.Hand
+            };
         }
     }
 }

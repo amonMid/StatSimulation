@@ -1,32 +1,72 @@
-﻿
-'use strict';
+﻿'use strict';
 
-// ── CHARACTER REGISTRY ───────────────────────────────────────
-// Matches C# JobRegistry exactly
-const CHARACTERS = {
-    Novice: { sprite: 'img/Novice.png', name: 'Novice', stars: 3, maxJobLv: 10 },
-    Swordsman: { sprite: 'img/Swordman.png', name: 'Swordsman', stars: 4, maxJobLv: 50 },
-    Mage: { sprite: 'img/Mage.png', name: 'Mage', stars: 4, maxJobLv: 50 },
-    Archer: { sprite: 'img/Archer.png', name: 'Archer', stars: 4, maxJobLv: 50 },
-    Acolyte: { sprite: 'img/Acolyte.png', name: 'Acolyte', stars: 4, maxJobLv: 50 },
-    Merchant: { sprite: 'img/Merchant.png', name: 'Merchant', stars: 4, maxJobLv: 50 },
-    Thief: { sprite: 'img/Thief.png', name: 'Thief', stars: 4, maxJobLv: 50 },
-};
+    // ── CHARACTER REGISTRY ───────────────────────────────────────
+    const CHARACTERS = {
+        Novice: {
+            sprite: 'img/Novice.png',
+            name: 'NOVICE',
+            stars: 3,
+            maxJobLv: 10,
+            weapons: ['Hand', 'Dagger', 'One-handed Sword', 'One-handed Axe', 'One-handed Mace', 'Two-handed Mace', 'Rod & Staff', 'Two-handed  Staff']
+        },
+        Swordsman: {
+            sprite: 'img/Swordman.png',
+            name: 'SWORDMAN',
+            stars: 4,
+            maxJobLv: 50,
+            weapons: ['Hand', 'Dagger', 'One-handed sword', 'Two-handed Sword', 'One-handed Spear', 'Two-handed Spear', 'One-handed Axe', 'Two-handed Axe', 'One-handed Mace', 'Two-handed Mace']
+        },
+        Magician: {
+            sprite: 'img/Mage.png',
+            name: 'MAGE',
+            stars: 4,
+            maxJobLv: 50,
+            weapons: ['Hand', 'Dagger', 'Rod & Staff', 'Two-handed Staff']
+        },
+        Archer: {
+            sprite: 'img/Archer.png',
+            name: 'ARCHER',
+            stars: 4,
+            maxJobLv: 50,
+            weapons: ['Hand', 'Dagger', 'Bow']
+        },
+        Acolyte: {
+            sprite: 'img/Acolyte.png',
+            name: 'ACOLYTE',
+            stars: 4,
+            maxJobLv: 50,
+            weapons: ['Hands', 'One-handed Mace', 'Two-handed Mace', 'Rod & Staff', 'Two-handed Staff']
+        },
+        Merchant: {
+            sprite: 'img/Merchant.png',
+            name: 'MERCHANT',
+            stars: 4,
+            maxJobLv: 50,
+            weapons: ['Hand', 'Dagger', 'One-handed Sword', 'One-handed Axe', 'Two-handed Axe', 'One-handed Mace', 'Two-handed Mace']
+        },
+        Thief: {
+            sprite: 'img/Thief.png',
+            name: 'THIEF',
+            stars: 4,
+            maxJobLv: 50,
+            weapons: ['Hand', 'Dagger', 'One-handed Sword', 'One-handed Axe', 'Bow']
+        },
+    };
 
 // ── DOM REFS ─────────────────────────────────────────────────
 const classSelect = document.querySelector('.hsr-select');
 const sprite = document.querySelector('.hsr-sprite');
 const namePlate = document.querySelector('.character-name-plate h2');
 const starsEl = document.querySelector('.rarity-stars');
-const pathLabel = document.querySelector('.job-info .label');  
 const jobLvSelect = document.querySelector('.job-level-badge select');
+const weaponSelect = document.getElementById('weaponSelect');
 
 // ── UPDATER ──────────────────────────────────────────────────
 function applyCharacter(className) {
     const char = CHARACTERS[className];
     if (!char) return;
 
-    // Sprite — brief fade-swap 
+    // Sprite fade-swap
     sprite.style.opacity = '0';
     sprite.style.transform = 'translateY(12px)';
 
@@ -46,6 +86,9 @@ function applyCharacter(className) {
     // Populate job level dropdown
     populateJobLevels(char.maxJobLv);
 
+    // Populate weapon dropdown
+    populateWeapons(char.weapons);
+
     // Notify C# of class change
     if (window.chrome?.webview) {
         window.chrome.webview.postMessage({
@@ -53,7 +96,6 @@ function applyCharacter(className) {
             class: className
         });
     }
-
 }
 
 // ── POPULATE JOB LEVEL DROPDOWN ──────────────────────────────
@@ -70,18 +112,36 @@ function populateJobLevels(maxLevel) {
         jobLvSelect.appendChild(opt);
     }
 
-    // Restore previous value if still valid, otherwise reset to 1
     jobLvSelect.value = currentValue <= maxLevel ? currentValue : 1;
-
-    // Trigger change event so C# gets the corrected value
     jobLvSelect.dispatchEvent(new Event('change'));
 }
 
+// ── POPULATE WEAPON DROPDOWN ─────────────────────────────────
+function populateWeapons(weapons) {
+    if (!weaponSelect) return;
+
+    const currentValue = weaponSelect.value;
+    weaponSelect.innerHTML = '';
+
+    weapons.forEach(weapon => {
+        const opt = document.createElement('option');
+        opt.value = weapon.toLowerCase().replace(/\s+/g, '_');
+        opt.textContent = weapon;
+        weaponSelect.appendChild(opt);
+    });
+
+    // Restore previous value if still valid, otherwise default to first
+    const stillValid = weapons.some(w => w.toLowerCase().replace(/\s+/g, '_') === currentValue);
+    weaponSelect.value = stillValid ? currentValue : weapons[0].toLowerCase().replace(/\s+/g, '_');
+
+    // Trigger change event
+    weaponSelect.dispatchEvent(new Event('change'));
+}
 
 // ── SPRITE TRANSITION STYLE ───────────────────────────────────
 sprite.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
 
-// ── INIT + LISTENER ──────────────────────────────────────────
+// ── INIT + LISTENERS ──────────────────────────────────────────
 applyCharacter(classSelect.value);
 
 classSelect.addEventListener('change', (e) => {
@@ -95,6 +155,18 @@ if (jobLvSelect) {
             window.chrome.webview.postMessage({
                 type: 'JOB_LEVEL_CHANGE',
                 value: parseInt(e.target.value) || 1
+            });
+        }
+    });
+}
+
+// Weapon change
+if (weaponSelect) {
+    weaponSelect.addEventListener('change', (e) => {
+        if (window.chrome?.webview) {
+            window.chrome.webview.postMessage({
+                type: 'WEAPON_CHANGE',
+                weapon: e.target.value
             });
         }
     });

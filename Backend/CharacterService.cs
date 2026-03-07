@@ -10,9 +10,14 @@ namespace StatSimulation.Backend
     {
         public CharacterData CurrentCharacter { get; private set; } = new CharacterData();
 
-
         public CalculationResult UpdateStat(string statName, int value)
         {
+            // ── GUARD: Null or empty stat name ──────────────────────────
+            if (string.IsNullOrEmpty(statName))
+            {
+                // Return current state without changes
+                return Calculator.CalculateAll(CurrentCharacter);
+            }
 
             // Get current value to see if user is decreasing it
             int oldValue = GetCurrentValue(statName);
@@ -37,14 +42,6 @@ namespace StatSimulation.Backend
             // Test the points
             var testResult = Calculator.CalculateAll(tempChar);
 
-            // Always allow Job Level or Base Level changes (they usually don't cost points)
-            //if (testResult.StatusPoints >= 0 || value < oldValue ||
-            //    statName.ToUpper() == "BASELV" || statName.ToUpper() == "JOBLV")
-            //{
-            //    ApplyValue(CurrentCharacter, statName, value);
-            //    return testResult;
-            //}
-
             // Check if the change resulted in negative points
             if (testResult.StatusPoints < 0)
             {
@@ -64,7 +61,6 @@ namespace StatSimulation.Backend
             // If points are fine, apply the change normally
             ApplyValue(CurrentCharacter, statName, value);
 
-            // If invalid, return the calculation of the LAST GOOD state
             return Calculator.CalculateAll(CurrentCharacter);
         }
 
@@ -78,22 +74,35 @@ namespace StatSimulation.Backend
             data.Dex = 1;
             data.Luk = 1;
         }
-        private int GetCurrentValue(string stat) => stat.ToUpper() switch
+
+        private int GetCurrentValue(string stat)
         {
-            "STR" => CurrentCharacter.Str,
-            "AGI" => CurrentCharacter.Agi,
-            "VIT" => CurrentCharacter.Vit,
-            "INT" => CurrentCharacter.Int,
-            "DEX" => CurrentCharacter.Dex,
-            "LUK" => CurrentCharacter.Luk,
-            "BASELV" => CurrentCharacter.BaseLevel,
-            "JOBLV" => CurrentCharacter.JobLevel,
-            _ => 1
-        };
+            // ── GUARD: Null check ────────────────────────────────────
+            if (string.IsNullOrEmpty(stat))
+                return 1;
+
+            return stat.ToUpper() switch
+            {
+                "STR" => CurrentCharacter.Str,
+                "AGI" => CurrentCharacter.Agi,
+                "VIT" => CurrentCharacter.Vit,
+                "INT" => CurrentCharacter.Int,
+                "DEX" => CurrentCharacter.Dex,
+                "LUK" => CurrentCharacter.Luk,
+                "BASELV" => CurrentCharacter.BaseLevel,
+                "JOBLV" => CurrentCharacter.JobLevel,
+                _ => 1
+            };
+        }
 
         private void ApplyValue(CharacterData data, string stat, int val)
         {
+            // ── GUARD: Null check ────────────────────────────────────
+            if (string.IsNullOrEmpty(stat))
+                return;
+
             if (val < 1) val = 1; // Minimum stat is 1
+
             switch (stat.ToUpper())
             {
                 case "STR": data.Str = val; break;
@@ -109,16 +118,20 @@ namespace StatSimulation.Backend
 
         public CalculationResult UpdateJob(string newJob)
         {
+            // ── GUARD: Null or empty job name ───────────────────────
+            if (string.IsNullOrEmpty(newJob))
+                newJob = "Novice";
+
             // Update the job class string in your character data
             CurrentCharacter.Job = newJob;
 
-            // Most RO-based systems reset Job LV or stats on change
-            // If you don't want to reset, just skip this line:
+            // Reset Job LV to 1 on class change
             CurrentCharacter.JobLevel = 1;
 
             // Re-run all calculations because HP/SP multipliers depend on Job
             return Calculator.CalculateAll(CurrentCharacter);
         }
+
         public void Reset() => CurrentCharacter = new CharacterData();
     }
 }
