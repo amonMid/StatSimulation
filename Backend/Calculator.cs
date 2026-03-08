@@ -39,10 +39,31 @@ namespace StatSimulation.Backend
 
             // Formula: STR + (STR/10)^2 + (DEX/5) + (LUK/5)
             // ── ATK ──────────────────────────────────────────────────────
-            int strAtk = totalStr + (int)Math.Pow(totalStr / 10, 2);
-            int dexMeleeBonus = totalDex / 5;
-            int lukAtkBonus = totalLuk / 5;
-            res.Atk = $"{strAtk + dexMeleeBonus + lukAtkBonus} + 0";
+            int batk;
+            int temp_dex;
+            bool isRangedWeapon = IsRangedWeapon(charData.EquippedWeapon);
+
+            if (isRangedWeapon)
+            {
+                // Ranged weapons: DEX is primary stat, STR is secondary
+                batk = totalDex;
+                temp_dex = totalStr;
+            }
+            else
+            {
+                // Melee weapons: STR is primary stat, DEX is secondary
+                batk = totalStr;
+                temp_dex = totalDex;
+            }
+
+            // (primary_stat / 10)^2
+            int dstr = batk / 10;
+            batk += dstr * dstr;
+
+            // Add secondary stat bonus and LUK bonus
+            batk += temp_dex / 5 + totalLuk / 5;
+
+            res.Atk = $"{batk} + 0";
 
             // --- WEIGHT LIMIT ---
             // Formula: Base Job Weight + (Base STR * 30)
@@ -58,28 +79,97 @@ namespace StatSimulation.Backend
 
             // --- ASPD CALCULATION (RMS Style) ---
             // Get BTBA (e.g., 1.0 for Novice Hand)
-            double btba = job.GetBTBA(charData.EquippedWeapon);
+            // double btba = job.GetBTBA(charData.EquippedWeapon);
 
-            // Calculate WD (Weapon Delay) 
-            double wd = 500.0 * btba;
+            // // Calculate WD (Weapon Delay) 
+            // double wd = 500.0 * btba;
 
-            // Stat Reductions [WD * AGI / 25] and [WD * DEX / 100]
-            double effectiveAgi = Math.Max(0, totalAgi - 1);
-            double effectiveDex = Math.Max(0, totalDex - 1);
+            // // Stat Reductions [WD * AGI / 25] and [WD * DEX / 100]
+            // double effectiveAgi = Math.Max(0, totalAgi - 1);
+            // double effectiveDex = Math.Max(0, totalDex - 1);
 
-            double agiRed = Math.Floor((wd * effectiveAgi) / 25.0);
-            double dexRed = Math.Floor((wd * effectiveDex) / 100.0);
+            // double agiRed = Math.Floor((wd * effectiveAgi) / 25.0);
+            // double dexRed = Math.Floor((wd * effectiveDex) / 100.0);
 
-            // RMS floors the result of (WD - StatReductions) / 10.0
-            double totalReductions = agiRed + dexRed;
-            double finalDelay = Math.Floor((wd - totalReductions) / 10.0);
+            // // RMS floors the result of (WD - StatReductions) / 10.0
+            // double totalReductions = agiRed + dexRed;
+            // double finalDelay = Math.Floor((wd - totalReductions) / 10.0);
 
-            // Formula: 200 - FinalDelay * (1 - SM)
-            double sm = 0.0; // Potion/Skill bonus
-            double aspdResult = 200.0 - (finalDelay * (1.0 - sm));
+            // // Formula: 200 - FinalDelay * (1 - SM)
+            // double sm = 0.0; // Potion/Skill bonus
+            // double aspdResult = 200.0 - (finalDelay * (1.0 - sm));
 
-            // Cap and Output
-            res.Aspd = Math.Floor(Math.Min(aspdResult, MAX_ASPD)).ToString();
+            // // Cap and Output
+            // res.Aspd = Math.Floor(Math.Min(aspdResult, MAX_ASPD)).ToString();
+
+            // ── ASPD ─────────────────────────────────────────────────
+            // double btba = job.GetBTBA(charData.EquippedWeapon);
+            // double wd = 50.0 * btba;
+
+            // double agiReduction = Math.Floor((wd * totalAgi) / 25.0);
+            // double dexReduction = Math.Floor((wd * totalDex) / 100.0);
+            // double totalReduction = agiReduction + dexReduction;
+
+            // double delayAfterStats = (wd - totalReduction) / 10.0;
+            // double aspd = 200.0 - delayAfterStats;
+
+            // aspd = Math.Min(aspd, MAX_ASPD);
+
+            // res.Aspd = Math.Floor(aspd).ToString();
+
+            // double baseAspd = job.GetWeaponDelay(charData.EquippedWeapon);
+
+            // // Add stat bonuses
+            // // AGI bonus: approximately +0.4 to +0.5 ASPD per AGI point
+            // // DEX bonus: approximately +0.1 to +0.2 ASPD per DEX point
+            // double agiBonus = (totalAgi - 1) * 0.5;  // -1 because base stat is 1
+            // double dexBonus = (totalDex - 1) * 0.15;
+
+            // double finalAspd = baseAspd + agiBonus + dexBonus;
+            // finalAspd = Math.Min(finalAspd, MAX_ASPD);
+
+            // res.Aspd = Math.Floor(finalAspd).ToString();
+
+            //         double aMotion = job.WeaponDelays.TryGetValue(charData.EquippedWeapon, out double delay)
+            // ? delay
+            // : 150.0;
+
+
+
+            //         aMotion -= aMotion * ((4.0 * totalAgi) + totalDex) / 1000.0;
+
+            //         double internalAspd = (2000.0 - aMotion) / 10.0;
+
+            //         // CONVERSION TO RATEMYSERVER DISPLAY FORMAT
+            //         // Based on observation: their display is roughly (internal - 44) for low stats
+            //         // This varies by weapon/job but this is an approximation
+            //         double displayAspd = internalAspd - 44.0;
+
+            //         displayAspd = Math.Min(displayAspd, MAX_ASPD - 44.0);
+
+            //         res.Aspd = Math.Floor(displayAspd).ToString();
+
+            //// 1. Define Magician Base Stats
+            //double baseAspd = 151.0; // Magician Unarmed Base
+            //int penalty = 0;         // "Hand" has 0 penalty
+
+            //// 2. Calculate the "Weapon Delay" (aMotion) from the base
+            //// Formula: aMotion = 2000 - (BaseASPD - Penalty) * 10
+            //double aMotion = 2000.0 - (baseAspd - penalty) * 10.0;
+
+            //// 3. Apply Stat Reduction (The 4:1 AGI/DEX Ratio)
+            //// aMotion -= aMotion * (4 * AGI + DEX) / 1000
+            //aMotion -= aMotion * ((4.0 * totalAgi) + totalDex) / 1000.0;
+
+            //// 4. Convert back to ASPD
+            //// Formula: (2000 - aMotion) / 10
+            //double finalAspd = (2000.0 - aMotion) / 10.0;
+
+            //// 5. Result
+            //// finalAspd will be 157.14 -> Floored to 157
+            //res.Aspd = Math.Floor(finalAspd).ToString();
+
+            res.Aspd = UpdateAspd(charData, job, res);
 
             // --- AGI: FLEE ---
             // Formula:  BaseLevel + AGI + 10 (base bonus)
@@ -87,17 +177,22 @@ namespace StatSimulation.Backend
             res.Flee = $"{charData.BaseLevel + totalAgi} + {(totalLuk + 10) * 10 / 100}";
 
             // --- DEF --- 
-            // VIT-based soft DEF ≈ floor(VIT × 0.8)
-            // Shown as "EquipDef + VitSoftDef" (equip portion is 0 here)
-            int vitSoftDef = (int)Math.Floor(totalVit * 0.8);
-            if (vitSoftDef <= 0) vitSoftDef = 1;
-            res.Def = $"0 + {vitSoftDef}";
+            // Hard DEF (equipment)
+            int hardDef = 0;  // No equipment in calculator
+
+            // Soft DEF (VIT-based)
+            int softDef = (int)Math.Floor(totalVit * 0.5);
+            int vitLinear = (int)Math.Floor(totalVit * 0.3);
+            int vitQuadratic = (int)Math.Floor((totalVit * totalVit) / 150.0) - 1;
+            softDef += Math.Max(vitLinear, vitQuadratic);
+
+            res.Def = $"{hardDef} + {totalVit}";
 
             // --- MDEF ---
             // INT-based soft MDEF = 1 per INT
             // VIT also grants: floor(VIT / 2) soft MDEF
             int vitMdefBonus = totalVit / 2;
-            res.Mdef = $"0 + {totalInt + vitMdefBonus}";
+            res.Mdef = $"0 + {totalInt}";
 
             // --- HP CALCULATIONS ---
             // Uses the accurate job-growth loop; VIT scales the result
@@ -274,5 +369,49 @@ namespace StatSimulation.Backend
 
             return maxSp;
         }
+
+        // HELPER: Check if weapon is ranged type
+
+        private static bool IsRangedWeapon(WeaponType weapon)
+        {
+            return weapon switch
+            {
+                WeaponType.Bow => true,
+                // Add more ranged types if you add them later:
+                // WeaponType.Musical => true,
+                // WeaponType.Whip => true,
+                // WeaponType.Revolver => true,
+                // WeaponType.Rifle => true,
+                // WeaponType.Gatling => true,
+                // WeaponType.Shotgun => true,
+                // WeaponType.Grenade => true,
+                _ => false
+            };
+        }
+
+        public static string UpdateAspd(CharacterData charData, JobData job, CalculationResult res)
+        {
+            // 1. Get total stats (Base + Job Bonus)
+            int totalAgi = charData.Agi + job.GetStatBonus(job.AgiBonusTable, charData.JobLevel);
+            int totalDex = charData.Dex + job.GetStatBonus(job.DexBonusTable, charData.JobLevel);
+
+            // 2. Get the specific delay for the weapon (e.g., 500 for Hand)
+            double aMotion = job.GetWeaponDelay(charData.EquippedWeapon);
+
+            // 3. Apply the 4:1 AGI/DEX Reduction
+            // This is the "0.4% per AGI" and "0.1% per DEX" logic
+            aMotion -= aMotion * ((4.0 * totalAgi) + totalDex) / 1000.0;
+
+            // 4. Convert to final ASPD
+            // Standard Formula: (2000 - aMotion) / 10
+            double finalAspd = (2000.0 - aMotion) / 10.0;
+
+            // 5. Apply Pre-Renewal Cap (190)
+            finalAspd = Math.Min(finalAspd, 190.0);
+
+            // 6. Floor and Save
+            return Math.Floor(finalAspd).ToString();
+        }
+
     }
 }

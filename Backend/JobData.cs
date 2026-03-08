@@ -30,7 +30,14 @@ namespace StatSimulation.Backend
         public Dictionary<int, int> LukBonusTable { get; set; } = new Dictionary<int, int>();
 
         public double WeaponDelay { get; set; }
+        //public int AspdOffset { get; set; } = 35;  // Default AspdOffSet
 
+        public Dictionary<WeaponType, int> WeaponAspdOffsets { get; set; } = new Dictionary<WeaponType, int>();
+
+        public int GetAspdOffset(WeaponType weapon)
+        {
+            return WeaponAspdOffsets.TryGetValue(weapon, out int offset) ? offset : 35;
+        }
 
         //Weapon-specific delays
         public Dictionary<WeaponType, double> WeaponDelays { get; set; } = new Dictionary<WeaponType, double>();
@@ -86,14 +93,14 @@ namespace StatSimulation.Backend
 
                 WeaponDelays = new Dictionary<WeaponType, double>
                 {
-                    { WeaponType.Hand, 150 },
-                    { WeaponType.Dagger, 135},
-                    { WeaponType.OnehandedSword, 130 },
-                    { WeaponType.OnehandedAxe, 120 },
-                    { WeaponType.OnehandedMace, 130 },
-                    { WeaponType.TwohandedMace, 130 },
-                    { WeaponType.RodStaff, 135 },
-                    { WeaponType.TwohandedStaff, 135 }
+                    { WeaponType.Hand, 495 },            
+                    { WeaponType.Dagger, 650 },          
+                    { WeaponType.OnehandedSword, 698 },  
+                    { WeaponType.OnehandedAxe, 803 },    
+                    { WeaponType.OnehandedMace, 698 },   
+                    { WeaponType.TwohandedMace, 698 },   
+                    { WeaponType.RodStaff, 650 },        
+                    { WeaponType.TwohandedStaff, 650 }   
                 },
 
                 //BTBAs value
@@ -146,16 +153,16 @@ namespace StatSimulation.Backend
 
                 WeaponDelays = new Dictionary<WeaponType, double>
                 {
-                    { WeaponType.Hand, 160 },
-                    { WeaponType.Dagger, 150},
-                    { WeaponType.OnehandedSword, 145 },
-                    { WeaponType.TwohandedSword, 140 },
-                    { WeaponType.OnehandedSpear, 135 },
-                    { WeaponType.TwohandedSpear, 130 },
-                    { WeaponType.OnehandedAxe, 130 },
-                    { WeaponType.TwohandedAxe, 125 },
-                    { WeaponType.OnehandedMace, 135 },
-                    { WeaponType.TwohandedMace, 130 }
+                    { WeaponType.Hand, 405 },            
+                    { WeaponType.Dagger, 500 },          
+                    { WeaponType.OnehandedSword, 555 }, 
+                    { WeaponType.TwohandedSword, 608 },  
+                    { WeaponType.OnehandedSpear, 650 },  
+                    { WeaponType.TwohandedSpear, 700 },  
+                    { WeaponType.OnehandedAxe, 700 },    
+                    { WeaponType.TwohandedAxe, 755 },    
+                    { WeaponType.OnehandedMace, 650 },   
+                    { WeaponType.TwohandedMace, 700 }    
                 },
 
                 //BTBAs value
@@ -173,7 +180,7 @@ namespace StatSimulation.Backend
                     { WeaponType.TwohandedMace, 1.4 }
                 }
 
-                
+
             },
 
             // ── Mage ─────────────────────────────────────────────────
@@ -186,6 +193,7 @@ namespace StatSimulation.Backend
                 SpJobA = 1.5,
                 SpJobB = 6.0,
                 Weight = 200,
+
 
                 AgiBonusTable = new Dictionary<int, int>
                 {
@@ -204,12 +212,21 @@ namespace StatSimulation.Backend
                     { 30, 1 }, { 42, 2 }, {49, 3 }
                 },
 
+
+                WeaponAspdOffsets = new Dictionary<WeaponType, int>
+                {
+                    { WeaponType.Hand, 35 },
+                    { WeaponType.Dagger, 46 },
+                    { WeaponType.RodStaff,  57 },
+                    { WeaponType.TwohandedStaff, 57 }
+                },
+
                 WeaponDelays = new Dictionary<WeaponType, double>
                 {
-                    { WeaponType.Hand, 150 },
-                    { WeaponType.Dagger, 140},
-                    { WeaponType.RodStaff, 130 },
-                    { WeaponType.TwohandedStaff, 150 }
+                    { WeaponType.Hand, 500 },
+                    { WeaponType.Dagger, 600 },
+                    { WeaponType.RodStaff, 700 },
+                    { WeaponType.TwohandedStaff, 700 }
                 },
 
                 //BTBAs value
@@ -257,13 +274,13 @@ namespace StatSimulation.Backend
                 {
                     { 22, 1 }, { 44, 2 }
                 },
-                
+
                 //WeaponDelay values
                 WeaponDelays = new Dictionary<WeaponType, double>
                 {
-                    { WeaponType.Hand, 160 },
-                    { WeaponType.Dagger, 140},
-                    { WeaponType.Bow, 130 },
+                    { WeaponType.Hand, 405 },    
+                    { WeaponType.Dagger, 600 },  
+                    { WeaponType.Bow, 700 }      
                 },
 
                 //BTBAs value
@@ -312,14 +329,14 @@ namespace StatSimulation.Backend
                     { 26, 1 }, { 40, 2 }, {46, 3 }
                 },
 
-                //BTBAs value
+                //Weapon delays value
                 WeaponDelays = new Dictionary<WeaponType, double>
                 {
-                    { WeaponType.Hand, 160 },
-                    { WeaponType.Dagger, 150 },
-                    { WeaponType.OnehandedSword, 135 },
-                    { WeaponType.OnehandedAxe, 120 },
-                    { WeaponType.Bow, 120 },
+                    { WeaponType.Hand, 405 },            
+                    { WeaponType.Dagger, 500 },          
+                    { WeaponType.OnehandedSword, 650 },  
+                    { WeaponType.OnehandedAxe, 803 },    
+                    { WeaponType.Bow, 803 },             
                 },
 
                 //BTBAs value
@@ -373,11 +390,11 @@ namespace StatSimulation.Backend
 
                 WeaponDelays = new Dictionary<WeaponType, double>
                 {
-                    { WeaponType.Hand, 160 },
-                    { WeaponType.OnehandedMace, 140 },
-                    { WeaponType.TwohandedMace, 140 },
-                    { WeaponType.RodStaff, 140 },
-                    { WeaponType.TwohandedStaff, 140 }
+                    { WeaponType.Hand, 405 },            
+                    { WeaponType.OnehandedMace, 600 },   
+                    { WeaponType.TwohandedMace, 600 },   
+                    { WeaponType.RodStaff, 600 },        
+                    { WeaponType.TwohandedStaff, 600 }   
                 },
 
                 //BTBAs value
@@ -431,13 +448,13 @@ namespace StatSimulation.Backend
 
                 WeaponDelays = new Dictionary<WeaponType, double>
                 {
-                    { WeaponType.Hand, 160 },
-                    { WeaponType.Dagger, 140 },
-                    { WeaponType.OnehandedSword, 130 },
-                    { WeaponType.OnehandedAxe, 130 },
-                    { WeaponType.TwohandedAxe, 125 },
-                    { WeaponType.OnehandedMace, 130 },
-                    { WeaponType.TwohandedMace, 130 }
+                    { WeaponType.Hand, 415 },            // Result: 164
+                    { WeaponType.Dagger, 615 },          // Result: 147
+                    { WeaponType.OnehandedSword, 720 },  // Result: 138
+                    { WeaponType.OnehandedAxe, 720 },    // Result: 138
+                    { WeaponType.TwohandedAxe, 765 },    // Result: 134
+                    { WeaponType.OnehandedMace, 720 },   // Result: 138
+                    { WeaponType.TwohandedMace, 720 }    // Result: 138
                 },
 
                 //BTBAs value
