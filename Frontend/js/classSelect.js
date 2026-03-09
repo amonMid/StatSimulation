@@ -3,7 +3,7 @@
     // ── CHARACTER REGISTRY ───────────────────────────────────────
     const CHARACTERS = {
         Novice: {
-            sprite: 'img/Novice.png',
+            sprite: 'img/Novice_Animation.gif',
             name: 'NOVICE',
             stars: 3,
             maxJobLv: 10,

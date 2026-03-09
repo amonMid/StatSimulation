@@ -10,6 +10,7 @@ namespace StatSimulation.Backend
 {
     public class CalculationResult
     {
+        //Stat Declaration
         public string MaxHp { get; set; }
         public string MaxSp { get; set; }
         public decimal MaxWeight { get; set; }
