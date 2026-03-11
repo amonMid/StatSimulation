@@ -28,7 +28,7 @@ namespace StatSimulation
 
                 CalculationResult results = null;
 
-                // „Ÿ„Ÿ Handle different message types „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
+                //   Handle different message types 
                 switch (message.Type?.ToUpper())
                 {
                     case "CLASS_CHANGE":
