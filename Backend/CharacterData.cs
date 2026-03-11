@@ -27,6 +27,8 @@ namespace StatSimulation.Backend
         // Weapons
         public WeaponType EquippedWeapon { get; set; } = WeaponType.Hand;
     }
+
+    // Weapons
     public enum WeaponType
     {
         Hand,

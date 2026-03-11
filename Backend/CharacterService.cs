@@ -95,6 +95,8 @@ namespace StatSimulation.Backend
             };
         }
 
+
+        //Apply the value to the Character Data
         private void ApplyValue(CharacterData data, string stat, int val)
         {
             // ── GUARD: Null check ────────────────────────────────────

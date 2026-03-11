@@ -71,105 +71,7 @@ namespace StatSimulation.Backend
             res.MaxWeight = 2000 + job.Weight + (charData.Str * 30);
 
             // ── ASPD ─────────────────────────────────────────────────────
-            //double reduction = totalAgi * 0.004 + totalDex * 0.001;
-            //double delay = weapondelay * (1.0 - reduction);
-            //double finalAspd = 200.0 - Math.Floor(delay);
-            //finalAspd = Math.Min(finalAspd, MAX_ASPD);
-            //res.Aspd = Math.Floor(finalAspd).ToString();
-
-            // --- ASPD CALCULATION (RMS Style) ---
-            // Get BTBA (e.g., 1.0 for Novice Hand)
-            // double btba = job.GetBTBA(charData.EquippedWeapon);
-
-            // // Calculate WD (Weapon Delay) 
-            // double wd = 500.0 * btba;
-
-            // // Stat Reductions [WD * AGI / 25] and [WD * DEX / 100]
-            // double effectiveAgi = Math.Max(0, totalAgi - 1);
-            // double effectiveDex = Math.Max(0, totalDex - 1);
-
-            // double agiRed = Math.Floor((wd * effectiveAgi) / 25.0);
-            // double dexRed = Math.Floor((wd * effectiveDex) / 100.0);
-
-            // // RMS floors the result of (WD - StatReductions) / 10.0
-            // double totalReductions = agiRed + dexRed;
-            // double finalDelay = Math.Floor((wd - totalReductions) / 10.0);
-
-            // // Formula: 200 - FinalDelay * (1 - SM)
-            // double sm = 0.0; // Potion/Skill bonus
-            // double aspdResult = 200.0 - (finalDelay * (1.0 - sm));
-
-            // // Cap and Output
-            // res.Aspd = Math.Floor(Math.Min(aspdResult, MAX_ASPD)).ToString();
-
-            // ── ASPD ─────────────────────────────────────────────────
-            // double btba = job.GetBTBA(charData.EquippedWeapon);
-            // double wd = 50.0 * btba;
-
-            // double agiReduction = Math.Floor((wd * totalAgi) / 25.0);
-            // double dexReduction = Math.Floor((wd * totalDex) / 100.0);
-            // double totalReduction = agiReduction + dexReduction;
-
-            // double delayAfterStats = (wd - totalReduction) / 10.0;
-            // double aspd = 200.0 - delayAfterStats;
-
-            // aspd = Math.Min(aspd, MAX_ASPD);
-
-            // res.Aspd = Math.Floor(aspd).ToString();
-
-            // double baseAspd = job.GetWeaponDelay(charData.EquippedWeapon);
-
-            // // Add stat bonuses
-            // // AGI bonus: approximately +0.4 to +0.5 ASPD per AGI point
-            // // DEX bonus: approximately +0.1 to +0.2 ASPD per DEX point
-            // double agiBonus = (totalAgi - 1) * 0.5;  // -1 because base stat is 1
-            // double dexBonus = (totalDex - 1) * 0.15;
-
-            // double finalAspd = baseAspd + agiBonus + dexBonus;
-            // finalAspd = Math.Min(finalAspd, MAX_ASPD);
-
-            // res.Aspd = Math.Floor(finalAspd).ToString();
-
-            //         double aMotion = job.WeaponDelays.TryGetValue(charData.EquippedWeapon, out double delay)
-            // ? delay
-            // : 150.0;
-
-
-
-            //         aMotion -= aMotion * ((4.0 * totalAgi) + totalDex) / 1000.0;
-
-            //         double internalAspd = (2000.0 - aMotion) / 10.0;
-
-            //         // CONVERSION TO RATEMYSERVER DISPLAY FORMAT
-            //         // Based on observation: their display is roughly (internal - 44) for low stats
-            //         // This varies by weapon/job but this is an approximation
-            //         double displayAspd = internalAspd - 44.0;
-
-            //         displayAspd = Math.Min(displayAspd, MAX_ASPD - 44.0);
-
-            //         res.Aspd = Math.Floor(displayAspd).ToString();
-
-            //// 1. Define Magician Base Stats
-            //double baseAspd = 151.0; // Magician Unarmed Base
-            //int penalty = 0;         // "Hand" has 0 penalty
-
-            //// 2. Calculate the "Weapon Delay" (aMotion) from the base
-            //// Formula: aMotion = 2000 - (BaseASPD - Penalty) * 10
-            //double aMotion = 2000.0 - (baseAspd - penalty) * 10.0;
-
-            //// 3. Apply Stat Reduction (The 4:1 AGI/DEX Ratio)
-            //// aMotion -= aMotion * (4 * AGI + DEX) / 1000
-            //aMotion -= aMotion * ((4.0 * totalAgi) + totalDex) / 1000.0;
-
-            //// 4. Convert back to ASPD
-            //// Formula: (2000 - aMotion) / 10
-            //double finalAspd = (2000.0 - aMotion) / 10.0;
-
-            //// 5. Result
-            //// finalAspd will be 157.14 -> Floored to 157
-            //res.Aspd = Math.Floor(finalAspd).ToString();
-
-            res.Aspd = UpdateAspd(charData, job, res);
+            res.Aspd = UpdateAspd(charData, job, res, false);
 
             // --- AGI: FLEE ---
             // Formula:  BaseLevel + AGI + 10 (base bonus)
@@ -205,7 +107,7 @@ namespace StatSimulation.Backend
             // HpRegen
             // Formula:  floor(MaxHP / 200) + floor(VIT / 5)   every 6 seconds
             //int baseHpr = Math.Max(1, totalMaxHp / 200);
-            int hpRegenValue = CalculateHPRegen(totalMaxHp, totalVit);
+            int hpRegenValue = (int)CalculateHPRegen(totalMaxHp, totalVit);
 
             res.HpRegen = $"{hpRegenValue} per 6s standing (per 3s sitting)";
 
@@ -304,54 +206,66 @@ namespace StatSimulation.Backend
             return spent;
         }
 
-        private static int CalculateMaxHP(int baseLevel, int vit, JobData job)
+        private static int CalculateMaxHP(int baseLevel, int totalVit, JobData job, bool isTrans = false)
         {
+            //// Calculate BASE_HP
+            //// Starting with 35 + (Level * JobB)
+            //double baseHpSum = 35.0 + (baseLevel * job.HpJobB);
 
-            // Calculate the BASE_HP (The sum of growth across levels)
-            // Formula: 35 + (BaseLevel * JobB) + Sigma(JobA * i)
-            double baseHpSum = 35.0 + (baseLevel * job.HpJobB);
+            //// Sum growth from level 2 to baseLevel
+            //for (int i = 2; i <= baseLevel; i++)
+            //{
+            //    // Use standard Rounding for the growth increment as per pseudo-code
+            //    baseHpSum += Math.Round(job.HpJobA * i, MidpointRounding.AwayFromZero);
+            //}
+
+            //// Apply VIT Modifier
+            //// Formula: floor( BASE_HP * (1 + VIT * 0.01) * TRANS_MOD )
+            //double transMod = isTrans ? 1.25 : 1.0;
+
+            //int currentMaxHp = (int)Math.Floor(baseHpSum * (1.0 + vit * 0.01) * transMod);
+
+            //return currentMaxHp;
+            // Calculate the growth part only
+            double growthSum = 0;
             for (int i = 2; i <= baseLevel; i++)
             {
-                baseHpSum += (int)Math.Round(job.HpJobA * i, MidpointRounding.AwayFromZero);
+                // Use standard Rounding for the growth increment
+                growthSum += Math.Round(job.HpJobA * i, MidpointRounding.AwayFromZero);
             }
 
-            // Apply VIT and Trans Mod (MAX_HP = floor( BASE_HP * (1 + VIT * 0.01) * TRANS_MOD ))
-            //double transMod = isTrans ? 1.25 : 1.0;
-            double vitMod = 1.0 + (vit * 0.01);
+            // Define the "Base HP" as a whole number
+            // 35 + (Level * JobB) + sum of rounded levels
+            int baseHp = (int)(35 + (baseLevel * job.HpJobB) + growthSum);
 
-            int currentMaxHp = (int)Math.Floor(baseHpSum * vitMod);
+            // Apply Multipliers to the integer baseHp
+            double vitMultiplier = 1.0 + (totalVit * 0.01);
+            double transMod = isTrans ? 1.25 : 1.0;
 
-            // Multiplicative Modifiers (MAX_HP = floor( MAX_HP * (1 + HP_MOD_B * 0.01) ))
-            // We floor again after applying multiplicative mods like Matyr Card
-            //if (hpModB != 0)
-            //{
-            //    currentMaxHp = (int)Math.Floor(currentMaxHp * (1.0 + hpModB * 0.01));
-            //}
+            // Final Calculation: Floor then add the +2 offset for RMS alignment
+            int currentMaxHp = (int)Math.Floor(baseHp * vitMultiplier * transMod) + 2;
 
             return currentMaxHp;
         }
 
-        private static int CalculateHPRegen(int totalMaxHp, int totalVit)
+        private static double CalculateHPRegen(int totalMaxHp, int totalVit, double hprMod = 0)
         {
-            // Every character starts with a base of 1 HPR
-            int baseValue = 1;
+            // Base: 1 per 200 HP, minimum 1
+            // (1768 / 200) = 8.84 -> truncated to 8 in integer division
+            int baseHpr = Math.Max(1, totalMaxHp / 200);
 
-            // Calculate the part based on Max HP
-            // JS: Math.floor(MAX_HP / 200)
-            int hpPart = totalMaxHp / 200;
+            // Add VIT bonus: +1 for every 5 VIT
+            // (50 / 5) = 10
+            int vitBonus = totalVit / 5;
 
-            // Calculate the part based on VIT
-            // JS: Math.floor(VIT / 5)
-            int vitPart = totalVit / 5;
+            // Combine them BEFORE applying modifiers
+            int totalBase = baseHpr + vitBonus; // 8 + 10 = 18
 
-            // Sum them and ensure a minimum of 1
-            // JS: Math.max( 1, floor(HP/200) + floor(VIT/5) )
-            int baseHpr = Math.Max(1, hpPart + vitPart);
+            //Apply Modifiers and FLOOR the result
+            double finalHpr = (baseHpr + vitBonus + 1) * (1.0 + (hprMod * 0.01));
 
-            // Note: If add HPR_MOD (like Increase HP Recovery skill) later:
-            // baseHpr = (int)Math.Floor(baseHpr * (1 + hprMod * 0.01));
+            return (int)Math.Floor(finalHpr);
 
-            return baseHpr + baseValue;
         }
 
         // ── SP CALCULATION ────────────────────────────────────────────────────
@@ -359,7 +273,7 @@ namespace StatSimulation.Backend
         private static int CalculateBaseSP(int baseLevel, int intel, JobData job)
         {
             // Calculate BASE_SP
-            // Using your pseudo-code: 10 + (Level * Job_Multiplier)
+            // 10 + (Level * Job_Multiplier)
             double baseSp = 10.0 + (baseLevel * job.SpJobB);
 
             // Apply INT Bonus
@@ -371,13 +285,12 @@ namespace StatSimulation.Backend
         }
 
         // HELPER: Check if weapon is ranged type
-
         private static bool IsRangedWeapon(WeaponType weapon)
         {
             return weapon switch
             {
                 WeaponType.Bow => true,
-                // Add more ranged types if you add them later:
+                // Add more ranged types
                 // WeaponType.Musical => true,
                 // WeaponType.Whip => true,
                 // WeaponType.Revolver => true,
@@ -389,28 +302,33 @@ namespace StatSimulation.Backend
             };
         }
 
-        public static string UpdateAspd(CharacterData charData, JobData job, CalculationResult res)
+        public static string UpdateAspd(CharacterData charData, JobData job, CalculationResult res, bool showDebug = false)
         {
-            // 1. Get total stats (Base + Job Bonus)
             int totalAgi = charData.Agi + job.GetStatBonus(job.AgiBonusTable, charData.JobLevel);
             int totalDex = charData.Dex + job.GetStatBonus(job.DexBonusTable, charData.JobLevel);
 
-            // 2. Get the specific delay for the weapon (e.g., 500 for Hand)
-            double aMotion = job.GetWeaponDelay(charData.EquippedWeapon);
+            double btba = job.GetBTBA(charData.EquippedWeapon);
+            double wd = 50.0 * btba;
 
-            // 3. Apply the 4:1 AGI/DEX Reduction
-            // This is the "0.4% per AGI" and "0.1% per DEX" logic
-            aMotion -= aMotion * ((4.0 * totalAgi) + totalDex) / 1000.0;
+            double agiReduction = Math.Floor((wd * totalAgi) / 25.0);
+            double dexReduction = Math.Floor((wd * totalDex) / 100.0);
+            double totalReduction = agiReduction + dexReduction;
 
-            // 4. Convert to final ASPD
-            // Standard Formula: (2000 - aMotion) / 10
-            double finalAspd = (2000.0 - aMotion) / 10.0;
+            double delayAfterStats = (wd - totalReduction) / 10.0;
+            double internalAspd = 200.0 - delayAfterStats;
 
-            // 5. Apply Pre-Renewal Cap (190)
-            finalAspd = Math.Min(finalAspd, 190.0);
+            double offset = 45.0 + ((btba - 1.0) * 45.0);
+            double displayAspd = internalAspd - offset;
+            displayAspd = Math.Min(displayAspd, 190.0);
 
-            // 6. Floor and Save
-            return Math.Floor(finalAspd).ToString();
+            if (showDebug)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ASPD] Weapon: {charData.EquippedWeapon}, BTBA: {btba}");
+                System.Diagnostics.Debug.WriteLine($"[ASPD] Internal: {internalAspd:F1}, Offset: {offset:F1}");
+                System.Diagnostics.Debug.WriteLine($"[ASPD] Display: {displayAspd:F1} → {Math.Floor(displayAspd)}");
+            }
+
+            return Math.Floor(displayAspd).ToString();
         }
 
     }

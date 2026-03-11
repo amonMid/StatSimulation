@@ -10,6 +10,8 @@ namespace StatSimulation.Backend
 {
     public class CalculationResult
     {
+        // Calculation result
+        // Stats Declaration
         public string MaxHp { get; set; }
         public string MaxSp { get; set; }
         public decimal MaxWeight { get; set; }
@@ -35,6 +37,7 @@ namespace StatSimulation.Backend
         public int NextDexCost { get; set; }
         public int NextLukCost { get; set; }
         public bool IsOverspent { get; set; }
+
         // Base stats (what the user invested points into)
         public int Str { get; set; }
         public int Agi { get; set; }

@@ -20,7 +20,7 @@
 
         if (bonus > 0) {
             bonusEl.textContent = `+${bonus}`;
-            bonusEl.style.color = '#4de8ff';  // Cyan glow for job bonuses
+            bonusEl.style.color = '##5fb05f';  
             bonusEl.style.fontWeight = '600';
         } else {
             bonusEl.textContent = '';
