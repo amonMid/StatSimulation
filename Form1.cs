@@ -34,7 +34,26 @@ namespace StatSimulation
                     case "CLASS_CHANGE":
                         // Use ClassName field for class changes
                         string jobName = message.ClassName ?? "Novice";
-                        results = _service.UpdateJob(jobName);
+
+                        // Update the job
+                        _service.UpdateJob(jobName);
+
+                        // Reset stats in backend
+                        _service.CurrentCharacter.Str = 1;
+                        _service.CurrentCharacter.Agi = 1;
+                        _service.CurrentCharacter.Vit = 1;
+                        _service.CurrentCharacter.Int = 1;
+                        _service.CurrentCharacter.Dex = 1;
+                        _service.CurrentCharacter.Luk = 1;
+                        _service.CurrentCharacter.JobLevel = 1;
+                        _service.CurrentCharacter.BaseLevel = 1;
+
+
+                        // IMPORTANT: Generate the result object here
+                        results = Calculator.CalculateAll(_service.CurrentCharacter);
+
+                        // Update the physical Inputs (Base Level, Job Level dropdowns)
+                        UpdateUIStats();
                         break;
 
                     case "JOB_LEVEL_CHANGE":
@@ -87,6 +106,77 @@ namespace StatSimulation
             {
                 System.Diagnostics.Debug.WriteLine($"[Bridge Error]: {ex.Message}\n{ex.StackTrace}");
             }
+        }
+
+        // Update the UI inputs based on the current character data
+        private void UpdateUIStats()
+        {
+            var job = JobRegistry.Get(_service.CurrentCharacter.Job);
+
+            string jsCode = $@"
+            (function() {{
+
+                isInternalUpdate = true;
+
+                try {{
+                // 1. Update Primary Stats
+                const statMapping = {{
+                    'str-input': {_service.CurrentCharacter.Str},
+                    'agi-input': {_service.CurrentCharacter.Agi},
+                    'vit-input': {_service.CurrentCharacter.Vit},
+                    'int-input': {_service.CurrentCharacter.Int},
+                    'dex-input': {_service.CurrentCharacter.Dex},
+                    'luk-input': {_service.CurrentCharacter.Luk}
+                }};
+
+                for (const [id, val] of Object.entries(statMapping)) {{
+                    const el = document.getElementById(id);
+                    if (el) el.value = val;
+                }}
+
+                // „Ÿ„Ÿ„Ÿ NEW: Reset Bonus Labels „Ÿ„Ÿ„Ÿ
+                // This assumes your labels have IDs like 'str-bonus', etc.
+                const stats = ['str', 'agi', 'vit', 'int', 'dex', 'luk'];
+                stats.forEach(s => {{
+                    const bonusEl = document.getElementById(s + '-bonus');
+                    if (bonusEl) bonusEl.innerText = '+0';
+                }});
+
+                // 2. Update Levels
+                const baseLvInput = document.querySelector('[data-stat-input=""BASELV""]');
+                if (baseLvInput) baseLvInput.value = {_service.CurrentCharacter.BaseLevel};
+
+                // 3. Update Job Level
+                if (typeof populateJobLevels === 'function') {{
+                    populateJobLevels({job.MaxJobLevel});
+                    const jobLvEl = document.querySelector('[data-stat-input=""JOBLV""]');
+                    if (jobLvEl) jobLvEl.value = {_service.CurrentCharacter.JobLevel};
+                }}
+
+                // 4. Trigger UI Refresh
+                if (baseLvInput) {{
+                    baseLvInput.dispatchEvent(new Event('change'));
+                }}
+
+                // Update Job Level
+                    if (typeof populateJobLevels === 'function') {{
+                        populateJobLevels({job.MaxJobLevel});
+                        const jobLvEl = document.querySelector('[data-stat-input=""JOBLV""]');
+                        if (jobLvEl) jobLvEl.value = {_service.CurrentCharacter.JobLevel};
+                    }}
+
+                    // Update Weapon (If needed, reset to Hand on class change)
+                    const weaponEl = document.getElementById('weaponSelect');
+                    if (weaponEl) weaponEl.value = 'hand';
+
+                }} finally {{
+                    // „Ÿ„Ÿ UNLOCK: Allow user interaction again
+                    // Delay slightly to ensure events finish bubbling
+                    setTimeout(() => {{ isInternalUpdate = false; }}, 50);
+                }}
+            }})();";
+
+            wb1.ExecuteScriptAsync(jsCode);
         }
 
         // Helper method to parse weapon strings from JavaScript

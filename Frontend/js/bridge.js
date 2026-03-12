@@ -20,10 +20,11 @@
 
         if (bonus > 0) {
             bonusEl.textContent = `+${bonus}`;
-            bonusEl.style.color = '##5fb05f';  
+            bonusEl.style.color = '#5fb05f'; 
             bonusEl.style.fontWeight = '600';
+            bonusEl.style.display = 'inline'; 
         } else {
-            bonusEl.textContent = '';
+            bonusEl.textContent = '0';
         }
     };
 

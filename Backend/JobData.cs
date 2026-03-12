@@ -60,16 +60,22 @@ namespace StatSimulation.Backend
 
         //Get stat bonus for a specific job level.
         // Returns the highest bonus where jobLevel >= threshold.
-        public int GetStatBonus(Dictionary<int, int> table, int jobLevel)
+        public int GetStatBonus(Dictionary<int, int> bonusTable, int currentJobLevel)
         {
-            int bonus = 0;
-            foreach (var kvp in table)
-            {
-                if (jobLevel >= kvp.Key)
-                    bonus = kvp.Value;
-                else
-                    break;
-            }
+
+            // If table is empty or we are level 0/1 (usually no bonuses at lv 1), return 0
+            if (bonusTable == null || bonusTable.Count == 0 || currentJobLevel <= 1)
+                return 0;
+
+            // Direct Lookup Logic:
+            // Find all bonuses assigned to a level equal to or LOWER than current level.
+            // Then, take the one with the HIGHEST level (the most recent one reached).
+            var bonus = bonusTable
+                .Where(kvp => kvp.Key <= currentJobLevel)
+                .OrderByDescending(kvp => kvp.Key)
+                .Select(kvp => kvp.Value)
+                .FirstOrDefault();
+
             return bonus;
         }
     }

@@ -1,51 +1,53 @@
 ﻿'use strict';
 
+let isInternalUpdate = false;
+
     // ── CHARACTER REGISTRY ───────────────────────────────────────
     const CHARACTERS = {
         Novice: {
             sprite: 'img/Novice_Animation.gif',
             name: 'NOVICE',
             stars: 3,
-            maxJobLv: 10,
+            maxJobLv: 9,
             weapons: ['Hand', 'Dagger', 'One-handed Sword', 'One-handed Axe', 'One-handed Mace', 'Two-handed Mace', 'Rod & Staff', 'Two-handed  Staff']
         },
         Swordsman: {
-            sprite: 'img/Swordman.png',
+            sprite: 'img/Swordsman.gif',
             name: 'SWORDMAN',
             stars: 4,
             maxJobLv: 50,
             weapons: ['Hand', 'Dagger', 'One-handed sword', 'Two-handed Sword', 'One-handed Spear', 'Two-handed Spear', 'One-handed Axe', 'Two-handed Axe', 'One-handed Mace', 'Two-handed Mace']
         },
         Magician: {
-            sprite: 'img/Mage.png',
+            sprite: 'img/Magician.gif',
             name: 'MAGICIAN',
             stars: 4,
             maxJobLv: 50,
             weapons: ['Hand', 'Dagger', 'Rod & Staff', 'Two-handed Staff']
         },
         Archer: {
-            sprite: 'img/Archer.png',
+            sprite: 'img/Archer.gif',
             name: 'ARCHER',
             stars: 4,
             maxJobLv: 50,
             weapons: ['Hand', 'Dagger', 'Bow']
         },
         Acolyte: {
-            sprite: 'img/Acolyte.png',
+            sprite: 'img/Acolyte.gif',
             name: 'ACOLYTE',
             stars: 4,
             maxJobLv: 50,
             weapons: ['Hands', 'One-handed Mace', 'Two-handed Mace', 'Rod & Staff', 'Two-handed Staff']
         },
         Merchant: {
-            sprite: 'img/Merchant.png',
+            sprite: 'img/Merchant.gif',
             name: 'MERCHANT',
             stars: 4,
             maxJobLv: 50,
             weapons: ['Hand', 'Dagger', 'One-handed Sword', 'One-handed Axe', 'Two-handed Axe', 'One-handed Mace', 'Two-handed Mace']
         },
         Thief: {
-            sprite: 'img/Thief.png',
+            sprite: 'img/Thief.gif',
             name: 'THIEF',
             stars: 4,
             maxJobLv: 50,
@@ -151,6 +153,9 @@ classSelect.addEventListener('change', (e) => {
 // Job level change
 if (jobLvSelect) {
     jobLvSelect.addEventListener('change', (e) => {
+
+        if (isInternalUpdate) return;
+
         if (window.chrome?.webview) {
             window.chrome.webview.postMessage({
                 type: 'JOB_LEVEL_CHANGE',

@@ -28,6 +28,7 @@ namespace StatSimulation.Backend
             int bonusLuk = job.GetStatBonus(job.LukBonusTable, charData.JobLevel);
 
 
+
             // ── Apply bonuses to stats ────────────────────────────────────
             int totalStr = charData.Str + bonusStr;
             int totalAgi = charData.Agi + bonusAgi;
@@ -71,7 +72,7 @@ namespace StatSimulation.Backend
             res.MaxWeight = 2000 + job.Weight + (charData.Str * 30);
 
             // ── ASPD ─────────────────────────────────────────────────────
-            res.Aspd = UpdateAspd(charData, job, res, false);
+            res.Aspd = UpdateAspd(charData, job, res, totalAgi, totalDex, false);
 
             // --- AGI: FLEE ---
             // Formula:  BaseLevel + AGI + 10 (base bonus)
@@ -208,63 +209,72 @@ namespace StatSimulation.Backend
 
         private static int CalculateMaxHP(int baseLevel, int totalVit, JobData job, bool isTrans = false)
         {
-            //// Calculate BASE_HP
-            //// Starting with 35 + (Level * JobB)
-            //double baseHpSum = 35.0 + (baseLevel * job.HpJobB);
+            // Calculate Base HP growth
+            
+            double baseHp = 35 + (baseLevel * job.HpJobB);
 
-            //// Sum growth from level 2 to baseLevel
-            //for (int i = 2; i <= baseLevel; i++)
-            //{
-            //    // Use standard Rounding for the growth increment as per pseudo-code
-            //    baseHpSum += Math.Round(job.HpJobA * i, MidpointRounding.AwayFromZero);
-            //}
-
-            //// Apply VIT Modifier
-            //// Formula: floor( BASE_HP * (1 + VIT * 0.01) * TRANS_MOD )
-            //double transMod = isTrans ? 1.25 : 1.0;
-
-            //int currentMaxHp = (int)Math.Floor(baseHpSum * (1.0 + vit * 0.01) * transMod);
-
-            //return currentMaxHp;
-            // Calculate the growth part only
-            double growthSum = 0;
+            // Add the rounded growth per level
             for (int i = 2; i <= baseLevel; i++)
             {
-                // Use standard Rounding for the growth increment
-                growthSum += Math.Round(job.HpJobA * i, MidpointRounding.AwayFromZero);
+                
+                baseHp += Math.Round(job.HpJobA * i, MidpointRounding.AwayFromZero);
             }
 
-            // Define the "Base HP" as a whole number
-            // 35 + (Level * JobB) + sum of rounded levels
-            int baseHp = (int)(35 + (baseLevel * job.HpJobB) + growthSum);
-
-            // Apply Multipliers to the integer baseHp
+            // Apply VIT Multiplier
+            // IMPORTANT: In RO, the VIT multiplier is applied to the FLOOR of the baseHp
             double vitMultiplier = 1.0 + (totalVit * 0.01);
             double transMod = isTrans ? 1.25 : 1.0;
 
-            // Final Calculation: Floor then add the +2 offset for RMS alignment
-            int currentMaxHp = (int)Math.Floor(baseHp * vitMultiplier * transMod) + 2;
+            // The "Master Floor"
+            // We floor the product of (BaseHP * VitMod * TransMod)
+            int maxHp = (int)Math.Floor(baseHp * vitMultiplier * transMod);
 
-            return currentMaxHp;
+            // Add any Flat Modifiers (HP_MOD_A)
+            // Most jobs have a hidden +0 or +2. 
+            // If you are off by 1, try checking if the specific job on RMS includes a flat bonus.
+            // For First Jobs/Novices, the result is usually the floored value.
+
+            return maxHp;
         }
 
         private static double CalculateHPRegen(int totalMaxHp, int totalVit, double hprMod = 0)
         {
-            // Base: 1 per 200 HP, minimum 1
-            // (1768 / 200) = 8.84 -> truncated to 8 in integer division
-            int baseHpr = Math.Max(1, totalMaxHp / 200);
+            //// Base: 1 per 200 HP, minimum 1
+            //// (1768 / 200) = 8.84 -> truncated to 8 in integer division
+            //int baseHpr = Math.Max(1, totalMaxHp / 200);
 
-            // Add VIT bonus: +1 for every 5 VIT
-            // (50 / 5) = 10
+            //// Add VIT bonus: +1 for every 5 VIT
+            //// (50 / 5) = 10
+            //int vitBonus = totalVit / 5;
+
+            //// Combine them BEFORE applying modifiers
+            //int totalBase = baseHpr + vitBonus; // 8 + 10 = 18
+
+            ////Apply Modifiers and FLOOR the result
+            //double finalHpr = (baseHpr + vitBonus + 1) * (1.0 + (hprMod * 0.01));
+
+            //return (int)Math.Floor(finalHpr);
+
+            // 1. Base: floor(MaxHP / 200)
+            int baseHpr = totalMaxHp / 200;
+
+            // 2. VIT Bonus: floor(VIT / 5)
             int vitBonus = totalVit / 5;
 
-            // Combine them BEFORE applying modifiers
-            int totalBase = baseHpr + vitBonus; // 8 + 10 = 18
+            // 3. Combine them AND add the base 1
+            // The official formula is (floor(MaxHP/200) + floor(VIT/5) + 1)
+            int combinedBase = baseHpr + vitBonus + 1;
 
-            //Apply Modifiers and FLOOR the result
-            double finalHpr = (baseHpr + vitBonus + 1) * (1.0 + (hprMod * 0.01));
+            // Ensure it's at least 1 (though the +1 handles this)
+            combinedBase = Math.Max(1, combinedBase);
 
-            return (int)Math.Floor(finalHpr);
+            // 4. Apply Modifiers: floor( CombinedBase * (1 + hprMod/100) )
+            double modifierScale = 1.0 + (hprMod * 0.01);
+
+            // Using a small epsilon to handle double precision issues
+            int finalHpr = (int)Math.Floor((combinedBase * modifierScale) + 0.00001);
+
+            return finalHpr;
 
         }
 
@@ -302,10 +312,10 @@ namespace StatSimulation.Backend
             };
         }
 
-        public static string UpdateAspd(CharacterData charData, JobData job, CalculationResult res, bool showDebug = false)
+        public static string UpdateAspd(CharacterData charData, JobData job, CalculationResult res, int totalAgi, int totalDex, bool showDebug = false)
         {
-            int totalAgi = charData.Agi + job.GetStatBonus(job.AgiBonusTable, charData.JobLevel);
-            int totalDex = charData.Dex + job.GetStatBonus(job.DexBonusTable, charData.JobLevel);
+            //int totalAgi = charData.Agi + job.GetStatBonus(job.AgiBonusTable, charData.JobLevel);
+            //int totalDex = charData.Dex + job.GetStatBonus(job.DexBonusTable, charData.JobLevel);
 
             double btba = job.GetBTBA(charData.EquippedWeapon);
             double wd = 50.0 * btba;
