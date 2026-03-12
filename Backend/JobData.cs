@@ -16,6 +16,7 @@ namespace StatSimulation.Backend
         public int Weight { get; set; }
 
         // HP/SP growth constants
+        public int HpBaseOffset { get; set; } = 0;
         public double HpJobA { get; set; }
         public double HpJobB { get; set; }
         public double SpJobA { get; set; }
@@ -133,6 +134,7 @@ namespace StatSimulation.Backend
                 SpJobA = 1.0,
                 SpJobB = 2.0,
                 Weight = 800,
+                HpBaseOffset = 1,
 
                 StrBonusTable = new Dictionary<int, int>
                 {

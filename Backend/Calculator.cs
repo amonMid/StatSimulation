@@ -216,59 +216,45 @@ namespace StatSimulation.Backend
             // Add the rounded growth per level
             for (int i = 2; i <= baseLevel; i++)
             {
-                
+
                 baseHp += Math.Round(job.HpJobA * i, MidpointRounding.AwayFromZero);
             }
 
+
+            if (baseLevel > 1)
+            {
+                baseHp += job.HpBaseOffset;
+            }
             // Apply VIT Multiplier
-            // IMPORTANT: In RO, the VIT multiplier is applied to the FLOOR of the baseHp
+
             double vitMultiplier = 1.0 + (totalVit * 0.01);
             double transMod = isTrans ? 1.25 : 1.0;
 
-            // The "Master Floor"
-            // We floor the product of (BaseHP * VitMod * TransMod)
+            // Floor the product of (BaseHP * VitMod * TransMod)
             int maxHp = (int)Math.Floor(baseHp * vitMultiplier * transMod);
 
             // Add any Flat Modifiers (HP_MOD_A)
-            // Most jobs have a hidden +0 or +2. 
-            // If you are off by 1, try checking if the specific job on RMS includes a flat bonus.
-            // For First Jobs/Novices, the result is usually the floored value.
+            
 
             return maxHp;
         }
 
         private static double CalculateHPRegen(int totalMaxHp, int totalVit, double hprMod = 0)
         {
-            //// Base: 1 per 200 HP, minimum 1
-            //// (1768 / 200) = 8.84 -> truncated to 8 in integer division
-            //int baseHpr = Math.Max(1, totalMaxHp / 200);
-
-            //// Add VIT bonus: +1 for every 5 VIT
-            //// (50 / 5) = 10
-            //int vitBonus = totalVit / 5;
-
-            //// Combine them BEFORE applying modifiers
-            //int totalBase = baseHpr + vitBonus; // 8 + 10 = 18
-
-            ////Apply Modifiers and FLOOR the result
-            //double finalHpr = (baseHpr + vitBonus + 1) * (1.0 + (hprMod * 0.01));
-
-            //return (int)Math.Floor(finalHpr);
-
-            // 1. Base: floor(MaxHP / 200)
+            // Base: floor(MaxHP / 200)
             int baseHpr = totalMaxHp / 200;
 
-            // 2. VIT Bonus: floor(VIT / 5)
+            // VIT Bonus: floor(VIT / 5)
             int vitBonus = totalVit / 5;
 
-            // 3. Combine them AND add the base 1
+            // Combine them AND add the base 1
             // The official formula is (floor(MaxHP/200) + floor(VIT/5) + 1)
             int combinedBase = baseHpr + vitBonus + 1;
 
             // Ensure it's at least 1 (though the +1 handles this)
             combinedBase = Math.Max(1, combinedBase);
 
-            // 4. Apply Modifiers: floor( CombinedBase * (1 + hprMod/100) )
+            // Apply Modifiers: floor( CombinedBase * (1 + hprMod/100) )
             double modifierScale = 1.0 + (hprMod * 0.01);
 
             // Using a small epsilon to handle double precision issues
