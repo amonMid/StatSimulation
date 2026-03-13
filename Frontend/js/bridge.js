@@ -4,12 +4,19 @@
         const resultData = event.data;
         const jsonString = typeof resultData === 'string' ? resultData : JSON.stringify(resultData);
 
-        // 1. Update all the labels, bonuses, and button states
+        // Update all the labels, bonuses, and button states
         CharacterUI.render(jsonString);
 
-        // 2. Force the <input> fields to match the C# values 
-        // This is what reverts the text if the user overspent!
-        CharacterUI.syncInputs(jsonString);
+        /// If C# says we are overspent, trigger the "Snap-back"
+        if (data.IsOverspent) {
+
+            // Find the input that was just changed (we can use a 'lastChangedStat' variable)
+            // Or simply force all inputs to sync with the "last safe values" from C#
+            CharacterUI.syncInputs(JSON.stringify(data));
+
+            // Optional: play a subtle shake animation or sound
+            console.warn("Overspent! Reverting stats...");
+        }
     });
 }
 

@@ -41,31 +41,34 @@
             if (!statName) return;
 
             let val = parseInt(e.target.value);
-            if (isNaN(val)) val = 1;
 
-            if (statName === 'BASELV') {
-                val = this.#clampLevel(val);
+            // If they left it empty or typed something invalid, snap to 1
+            if (isNaN(val) || val < 1) {
+                val = 1;
+                e.target.value = val;
+                this.sendToCSharp(statName, val);
             }
-
-            e.target.value = val;
-            this.sendToCSharp(statName, val);
         });
 
-        // 4. Listen for typing/changes in input fields
+
+        // ── Allow empty input while typing ───────────────────────────
         document.addEventListener('input', (e) => {
             const statName = e.target.dataset.statInput;
             if (!statName) return;
 
+            if (e.target.value === '') return;
+
+            const val = parseInt(e.target.value);
+
+            // Level cap guard for BASELV
             if (statName === 'BASELV') {
-                const clamped = this.#clampLevel(e.target.value);
-                if (parseInt(e.target.value) !== clamped) {
-                    e.target.value = clamped;
-                }
+                const clamped = this.#clampLevel(val);
+                if (val !== clamped) e.target.value = clamped;
                 this.sendToCSharp(statName, clamped);
                 return;
             }
 
-            this.sendToCSharp(statName, e.target.value);
+            this.sendToCSharp(statName, val);
         });
 
         // 5. Handle button clicks for +/-

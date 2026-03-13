@@ -74,17 +74,35 @@ namespace StatSimulation
 
                     case "STAT_CHANGE":
                     default:
-                        // „Ÿ„Ÿ CRITICAL: Check if Stat is provided „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
                         if (string.IsNullOrEmpty(message.Stat))
                         {
-                            // If no stat specified, just return current state
                             results = Calculator.CalculateAll(_service.CurrentCharacter);
                             break;
                         }
 
-                        // Use NewValue, fallback to Value if NewValue is 0
-                        int statValue = message.NewValue > 0 ? message.NewValue : message.Value;
-                        results = _service.UpdateStat(message.Stat, statValue);
+                        // Capture the "Old Value" before applying the change
+                        // This allows us to revert if the user overspends points
+                        int oldValue = GetCurrentStatValue(message.Stat);
+
+                        // Enforce minimum of 1 (handles empty/0 strings from JS)
+                        int newValue = message.NewValue > 0 ? message.NewValue : message.Value;
+                        int safeValue = Math.Max(1, newValue);
+
+                        // Apply the change and calculate
+                        results = _service.UpdateStat(message.Stat, safeValue);
+
+                        // Check if this change made the user go negative
+                        if (results != null && results.IsOverspent)
+                        {
+                            // Revert the backend data so it doesn't stay "broken"
+                            _service.UpdateStat(message.Stat, oldValue);
+
+                            // Recalculate one more time with the old value to send a "safe" state back to UI
+                            results = Calculator.CalculateAll(_service.CurrentCharacter);
+
+                            // Optional: Debug log
+                            Debug.WriteLine($"[Overspent] Reverted {message.Stat} from {safeValue} to {oldValue}");
+                        }
                         break;
                 }
 
@@ -178,6 +196,24 @@ namespace StatSimulation
 
             wb1.ExecuteScriptAsync(jsCode);
         }
+
+        // Get the current stat value
+        private int GetCurrentStatValue(string statName)
+        {
+            return statName.ToUpper() switch
+            {
+                "STR" => charData.Str,
+                "AGI" => charData.Agi,
+                "VIT" => charData.Vit,
+                "INT" => charData.Int,
+                "DEX" => charData.Dex,
+                "LUK" => charData.Luk,
+                "BASELV" => charData.BaseLevel,
+                "JOBLV" => charData.JobLevel,
+                _ => 1
+            };
+        }
+
 
         // Helper method to parse weapon strings from JavaScript
         private WeaponType ParseWeaponType(string weaponStr)
