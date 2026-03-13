@@ -1,4 +1,20 @@
-﻿const CharacterUI = (() => {
+﻿if (window.chrome && window.chrome.webview) {
+    window.chrome.webview.addEventListener('message', event => {
+        // C# sends a JSON string or object
+        const resultData = event.data;
+        const jsonString = typeof resultData === 'string' ? resultData : JSON.stringify(resultData);
+
+        // 1. Update all the labels, bonuses, and button states
+        CharacterUI.render(jsonString);
+
+        // 2. Force the <input> fields to match the C# values 
+        // This is what reverts the text if the user overspent!
+        CharacterUI.syncInputs(jsonString);
+    });
+}
+
+
+const CharacterUI = (() => {
     // ── Private helper to update individual text values ──────
     const updateElement = (key, value) => {
         const targets = document.querySelectorAll(`[data-display="${key}"]`);
@@ -87,15 +103,34 @@
 
         syncInputs: (jsonString) => {
             const data = JSON.parse(jsonString);
-            const stats = ['Str', 'Agi', 'Vit', 'Int', 'Dex', 'Luk'];
+            // Include all fields that have inputs
+            const fieldMap = {
+                'STR': data.Str,
+                'AGI': data.Agi,
+                'VIT': data.Vit,
+                'INT': data.Int,
+                'DEX': data.Dex,
+                'LUK': data.Luk,
+                'BASELV': data.BaseLv,
+                'JOBLV': data.JobLv
+            };
 
-            stats.forEach(s => {
-                const input = document.querySelector(`[data-stat-input="${s.toUpperCase()}"]`);
-                if (input && input.value != (data[s] || data.BaseLv)) {
-                    input.value = data[s] || data.BaseLv;
-                    // Add visual feedback that the stat was forced to change
-                    input.classList.add('flash-reset');
-                    setTimeout(() => input.classList.remove('flash-reset'), 500);
+            Object.keys(fieldMap).forEach(key => {
+                const input = document.querySelector(`[data-stat-input="${key}"]`);
+                const backendValue = fieldMap[key];
+
+                if (input && backendValue !== undefined) {
+                    // Only update and flash if the UI is out of sync with C#
+                    if (parseInt(input.value) !== backendValue) {
+                        input.value = backendValue;
+
+                        // Visual feedback
+                        input.classList.add('flash-reset');
+                        setTimeout(() => input.classList.remove('flash-reset'), 500);
+                    }
+
+                    // Also update the 'oldValue' used by your StatBridge logic
+                    input.dataset.oldValue = backendValue;
                 }
             });
         }

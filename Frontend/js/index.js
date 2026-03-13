@@ -1,10 +1,8 @@
 ﻿class StatBridge {
-
     static LEVEL_MIN = 1;
     static LEVEL_MAX = 99;
 
     constructor() {
-        // 1. Define the debounced function first so it's ready for listeners
         this.sendToCSharp = this.debounce((statName, value) => {
             if (window.chrome?.webview) {
                 window.chrome.webview.postMessage({
@@ -18,16 +16,50 @@
     }
 
     initListeners() {
-        // Listen for typing/changes in input fields
+        // 1. Select all text when focusing an input
+        document.addEventListener('focus', (e) => {
+            if (e.target.dataset.statInput !== undefined) {
+                e.target.select();
+                // Store the current value as a "safe" value for your validation logic
+                e.target.dataset.oldValue = e.target.value;
+            }
+        }, true); // Use capture phase to ensure it catches focus events
+
+        // 2. Block special characters IMMEDIATELY while typing
+        document.addEventListener('keydown', (e) => {
+            const statName = e.target.dataset.statInput;
+            if (!statName) return;
+
+            if (['-', '+', 'e', '.'].includes(e.key)) {
+                e.preventDefault();
+            }
+        });
+
+        // 3. Only send to C# when the user LEAVES the input field
+        document.addEventListener('focusout', (e) => {
+            const statName = e.target.dataset.statInput;
+            if (!statName) return;
+
+            let val = parseInt(e.target.value);
+            if (isNaN(val)) val = 1;
+
+            if (statName === 'BASELV') {
+                val = this.#clampLevel(val);
+            }
+
+            e.target.value = val;
+            this.sendToCSharp(statName, val);
+        });
+
+        // 4. Listen for typing/changes in input fields
         document.addEventListener('input', (e) => {
             const statName = e.target.dataset.statInput;
             if (!statName) return;
 
-            // Level cap guard 
             if (statName === 'BASELV') {
                 const clamped = this.#clampLevel(e.target.value);
                 if (parseInt(e.target.value) !== clamped) {
-                    e.target.value = clamped; // correct field visually while typing
+                    e.target.value = clamped;
                 }
                 this.sendToCSharp(statName, clamped);
                 return;
@@ -36,19 +68,17 @@
             this.sendToCSharp(statName, e.target.value);
         });
 
-        // Handle button clicks for +/-
+        // 5. Handle button clicks for +/-
         document.addEventListener('click', (e) => {
             const btn = e.target.closest('button');
             if (!btn || !btn.dataset.stat) return;
 
             const statName = btn.dataset.stat;
-            const action = btn.dataset.type; // 'plus' or 'minus'
+            const action = btn.dataset.type;
             const input = document.querySelector(`[data-stat-input="${statName}"]`);
 
             if (input) {
                 let val = parseInt(input.value) || 0;
-
-                // Update the value based on the button type
                 if (action === 'plus') val++;
                 else if (action === 'minus' && val > 1) val--;
 
@@ -57,11 +87,8 @@
                 }
 
                 input.value = val;
-
-                // Manually trigger 'input' so the listener above catches the change
                 input.dispatchEvent(new Event('input', { bubbles: true }));
             }
-
         });
     }
 
@@ -69,7 +96,7 @@
         const n = parseInt(value) || StatBridge.LEVEL_MIN;
         return Math.min(Math.max(n, StatBridge.LEVEL_MIN), StatBridge.LEVEL_MAX);
     }
-    // Helper: Debounce prevents spamming C# while the user types rapidly
+
     debounce(func, timeout = 100) {
         let timer;
         return (...args) => {

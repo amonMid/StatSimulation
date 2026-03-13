@@ -943,3 +943,32 @@ body {
     ::-webkit-scrollbar-thumb:hover {
         background: var(--ro-wood-dark);
     }
+
+@keyframes flash-red {
+    0% {
+        background-color: rgba(255, 77, 77, 0.5);
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    50% {
+        transform: translateX(5px);
+    }
+
+    75% {
+        transform: translateX(-5px);
+    }
+
+    100% {
+        background-color: transparent;
+        transform: translateX(0);
+    }
+}
+
+.flash-reset {
+    animation: flash-red 0.4s ease-in-out;
+    border-color: #ff4d4d !important;
+}
