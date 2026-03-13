@@ -5,12 +5,12 @@ using System.Web;
 
 namespace StatSimulation
 {
-    public partial class Form1 : Form
+    public partial class Main : Form
     {
         private readonly CharacterService _service = new CharacterService();
         private CharacterData charData => _service.CurrentCharacter;
 
-        public Form1()
+        public Main()
         {
             InitializeComponent();
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
