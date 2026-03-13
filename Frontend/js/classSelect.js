@@ -37,7 +37,7 @@ let isInternalUpdate = false;
             name: 'ACOLYTE',
             stars: 4,
             maxJobLv: 50,
-            weapons: ['Hands', 'One-handed Mace', 'Two-handed Mace', 'Rod & Staff', 'Two-handed Staff']
+            weapons: ['Hand', 'One-handed Mace', 'Two-handed Mace', 'Rod & Staff', 'Two-handed Staff']
         },
         Merchant: {
             sprite: 'img/Merchant.gif',
