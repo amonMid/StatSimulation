@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             wb1 = new Microsoft.Web.WebView2.WinForms.WebView2();
             ((System.ComponentModel.ISupportInitialize)wb1).BeginInit();
             SuspendLayout();
@@ -39,21 +40,24 @@
             wb1.DefaultBackgroundColor = Color.White;
             wb1.Dock = DockStyle.Fill;
             wb1.Location = new Point(0, 0);
+            wb1.Margin = new Padding(3, 2, 3, 2);
             wb1.Name = "wb1";
-            wb1.Size = new Size(800, 450);
+            wb1.Size = new Size(700, 338);
             wb1.TabIndex = 0;
             wb1.ZoomFactor = 1D;
             wb1.WebMessageReceived += wb1_WebMessageReceived;
             // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(700, 338);
             Controls.Add(wb1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            Margin = new Padding(3, 2, 3, 2);
             Name = "Form1";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Form1";
+            Text = "RO ";
             WindowState = FormWindowState.Maximized;
             ((System.ComponentModel.ISupportInitialize)wb1).EndInit();
             ResumeLayout(false);
