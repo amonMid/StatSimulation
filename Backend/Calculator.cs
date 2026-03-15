@@ -209,34 +209,20 @@ namespace StatSimulation.Backend
 
         private static int CalculateMaxHP(int baseLevel, int totalVit, JobData job, bool isTrans = false)
         {
-            // Calculate Base HP growth
-            
-            double baseHp = 35 + (baseLevel * job.HpJobB);
+            decimal hpJobA = (decimal)job.HpJobA;
+            decimal hpJobB = (decimal)job.HpJobB;
 
-            // Add the rounded growth per level
+            decimal baseHp = 35 + (baseLevel * hpJobB);
+
             for (int i = 2; i <= baseLevel; i++)
             {
-
-                baseHp += Math.Round(job.HpJobA * i, MidpointRounding.AwayFromZero);
+                baseHp += Math.Round(hpJobA * i, MidpointRounding.AwayFromZero);
             }
-
-
-            if (baseLevel > 1)
-            {
-                baseHp += job.HpBaseOffset;
-            }
-            // Apply VIT Multiplier
 
             double vitMultiplier = 1.0 + (totalVit * 0.01);
             double transMod = isTrans ? 1.25 : 1.0;
 
-            // Floor the product of (BaseHP * VitMod * TransMod)
-            int maxHp = (int)Math.Floor(baseHp * vitMultiplier * transMod);
-
-            // Add any Flat Modifiers (HP_MOD_A)
-            
-
-            return maxHp;
+            return (int)Math.Floor((double)baseHp * vitMultiplier * transMod);
         }
 
         private static double CalculateHPRegen(int totalMaxHp, int totalVit, double hprMod = 0)
