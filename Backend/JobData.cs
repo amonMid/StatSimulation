@@ -89,7 +89,7 @@ namespace StatSimulation.Backend
             ["Novice"] = new JobData
             {
                 Name = "Novice",
-                MaxJobLevel = 10,
+                MaxJobLevel = 9,
                 HpJobA = 0,
                 HpJobB = 5.0,
                 SpJobA = 1.0,

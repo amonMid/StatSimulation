@@ -26,12 +26,62 @@
         }, true); // Use capture phase to ensure it catches focus events
 
         // 2. Block special characters IMMEDIATELY while typing
+        const KEY_COOLDOWN_MS = 100;
+        const SPAM_THRESHOLD = 3;
+        const DISABLE_MS = 2000;
+
+        // Per-input state map instead of shared variables
+        const inputStates = new WeakMap();
+
+        const getState = (el) => {
+            if (!inputStates.has(el)) {
+                inputStates.set(el, { lastKeyTime: 0, spamCount: 0, disableTimer: null });
+            }
+            return inputStates.get(el);
+        };
+
         document.addEventListener('keydown', (e) => {
             const statName = e.target.dataset.statInput;
             if (!statName) return;
 
             if (['-', '+', 'e', '.'].includes(e.key)) {
                 e.preventDefault();
+                return;
+            }
+
+            if (e.repeat) {
+                e.preventDefault();
+                return;
+            }
+
+            if (e.key >= '0' && e.key <= '9') {
+                const state = getState(e.target); // ← each input has its own state
+                const now = Date.now();
+                const timeSinceLast = now - state.lastKeyTime;
+
+                if (timeSinceLast < KEY_COOLDOWN_MS) {
+                    state.spamCount++;
+
+                    if (state.spamCount >= SPAM_THRESHOLD) {
+                        e.target.value = e.target.dataset.oldValue || 1;
+                        e.target.disabled = true;
+                        e.target.style.opacity = '0.4';
+
+                        clearTimeout(state.disableTimer);
+                        state.disableTimer = setTimeout(() => {
+                            e.target.disabled = false;
+                            e.target.style.opacity = '';
+                            state.spamCount = 0;
+                        }, DISABLE_MS);
+                    }
+
+                    e.preventDefault();
+                    return;
+                }
+
+                // Normal pace — reset this input's counter
+                state.spamCount = 0;
+                state.lastKeyTime = now;
             }
         });
 
