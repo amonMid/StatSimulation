@@ -1,0 +1,1781 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RO Skill Tree</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+                :root {
+                    --ro-cream: #f4ead5;
+                    --ro-parchment: #dcc896;
+                    --ro-parchment-light: #ede0b0;
+                    --ro-wood: #8b6f47;
+                    --ro-wood-dark: #5d4a30;
+                    --ro-wood-light: #b08c5e;
+                    --ro-gold: #f4c542;
+                    --ro-gold-dim: #d4a73a;
+                    --ro-gold-deep: #a07820;
+                    --ro-ruby: #d84a3f;
+                    --ro-ruby-dark: #a83228;
+                    --ro-emerald: #4a9a5a;
+                    --ro-emerald-dark: #2e6438;
+                    --ro-sky: #5fa8d3;
+                    --ro-sky-dark: #3a7aa8;
+                    --ro-glow: rgba(244,197,66,0.4);
+                    --bg-panel: #f0e2c4;
+                    --text-primary: #2e1f0e;
+                    --text-secondary: #5a3e24;
+                    --text-muted: #8a6e50;
+                    --font-pixel: 'VT323', monospace;
+                    --font-body: 'Noto Sans', sans-serif;
+                }
+
+                *, *::before, *::after {
+                    box-sizing: border-box;
+                    margin: 0;
+                    padding: 0;
+                }
+
+                body {
+                    font-family: var(--font-body);
+                    background: linear-gradient(160deg,#c2e8f5 0%,#90c8e0 50%,#7ab8d4 100%);
+                    color: var(--text-primary);
+                    height: 100vh;
+                    overflow: hidden;
+                }
+
+                /* animated clouds */
+                .sky-bg {
+                    position: fixed;
+                    inset: 0;
+                    z-index: -1;
+                    overflow: hidden;
+                }
+
+                .cloud {
+                    position: absolute;
+                    border-radius: 50px;
+                    background: rgba(255,255,255,0.55);
+                    filter: blur(2px);
+                    animation: cloudFloat linear infinite;
+                }
+
+                    .cloud:nth-child(1) {
+                        width: 280px;
+                        height: 55px;
+                        top: 8%;
+                        left: -280px;
+                        animation-duration: 38s;
+                        animation-delay: 0s;
+                    }
+
+                    .cloud:nth-child(2) {
+                        width: 190px;
+                        height: 40px;
+                        top: 22%;
+                        left: -190px;
+                        animation-duration: 52s;
+                        animation-delay: -18s;
+                    }
+
+                    .cloud:nth-child(3) {
+                        width: 340px;
+                        height: 65px;
+                        top: 14%;
+                        left: -340px;
+                        animation-duration: 44s;
+                        animation-delay: -9s;
+                    }
+
+                    .cloud:nth-child(4) {
+                        width: 150px;
+                        height: 34px;
+                        top: 35%;
+                        left: -150px;
+                        animation-duration: 60s;
+                        animation-delay: -30s;
+                    }
+
+                @keyframes cloudFloat {
+                    from {
+                        transform: translateX(0)
+                    }
+
+                    to {
+                        transform: translateX(calc(100vw + 400px))
+                    }
+                }
+
+                /* ── APP LAYOUT ── */
+                .app {
+                    display: flex;
+                    height: 100vh;
+                    overflow: hidden;
+                }
+
+                /* ═══════════════════════════════════
+           LEFT PANEL
+        ═══════════════════════════════════ */
+                .left-panel {
+                    width: 390px;
+                    flex-shrink: 0;
+                    display: flex;
+                    flex-direction: column;
+                    background: linear-gradient(180deg,#efe2c6 0%,#e8d8b4 100%);
+                    border-right: 5px solid var(--ro-wood-dark);
+                    box-shadow: 6px 0 24px rgba(45,28,10,0.35);
+                    overflow: hidden;
+                    position: relative;
+                    z-index: 5;
+                }
+
+                    /* wood grain overlay on left panel */
+                    .left-panel::before {
+                        content: '';
+                        position: absolute;
+                        inset: 0;
+                        pointer-events: none;
+                        background: repeating-linear-gradient(170deg,transparent,transparent 8px,rgba(100,65,20,0.03) 8px,rgba(100,65,20,0.03) 9px);
+                        z-index: 0;
+                    }
+
+                /* ── CAROUSEL SECTION ── */
+                .carousel-section {
+                    flex-shrink: 0;
+                    position: relative;
+                    z-index: 1;
+                }
+
+                /* stage */
+                .stage-wrap {
+                    position: relative;
+                    height: 188px;
+                    overflow: hidden;
+                    background: linear-gradient(180deg,#d8f0fc 0%,#b8dff5 60%,#9ecfe8 100%);
+                    border-bottom: 4px solid var(--ro-wood-dark);
+                }
+
+                    /* horizon line */
+                    .stage-wrap::before {
+                        content: '';
+                        position: absolute;
+                        bottom: 18px;
+                        left: 0;
+                        right: 0;
+                        height: 2px;
+                        background: linear-gradient(90deg,transparent,rgba(139,111,71,0.3),transparent);
+                        pointer-events: none;
+                    }
+
+                    /* ground platform */
+                    .stage-wrap::after {
+                        content: '';
+                        position: absolute;
+                        bottom: 0;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        width: 290px;
+                        height: 18px;
+                        background: repeating-linear-gradient(90deg,#9e7848 0px,#9e7848 10px,#7a5c34 10px,#7a5c34 12px), #8b6f47;
+                        border-radius: 4px 4px 0 0;
+                        box-shadow: 0 -3px 0 var(--ro-wood-dark), 0 5px 12px rgba(0,0,0,0.3);
+                    }
+
+                /* glow under sprite */
+                .stage-glow {
+                    position: absolute;
+                    bottom: 16px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 140px;
+                    height: 20px;
+                    background: radial-gradient(ellipse,rgba(244,197,66,0.55) 0%,transparent 70%);
+                    filter: blur(6px);
+                    pointer-events: none;
+                    z-index: 2;
+                }
+
+                /* arrow buttons */
+                .arr-btn {
+                    position: absolute;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    z-index: 10;
+                    width: 36px;
+                    height: 36px;
+                    background: linear-gradient(180deg,#fef5e0 0%,#e8d09a 100%);
+                    border: 3px solid var(--ro-wood-dark);
+                    border-radius: 8px;
+                    font-family: var(--font-pixel);
+                    font-size: 24px;
+                    color: var(--text-primary);
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 4px 0 var(--ro-wood-dark), 0 6px 10px rgba(0,0,0,0.22);
+                    transition: all 0.1s;
+                    line-height: 1;
+                    padding: 0;
+                    user-select: none;
+                }
+
+                    .arr-btn:hover {
+                        background: linear-gradient(180deg,var(--ro-gold),var(--ro-gold-dim));
+                        transform: translateY(-50%) scale(1.05);
+                    }
+
+                    .arr-btn:active {
+                        transform: translateY(calc(-50% + 3px));
+                        box-shadow: 0 1px 0 var(--ro-wood-dark),0 2px 4px rgba(0,0,0,0.2);
+                    }
+
+                    .arr-btn.left {
+                        left: 8px;
+                    }
+
+                    .arr-btn.right {
+                        right: 8px;
+                    }
+
+                /* sprite track */
+                .sprite-track {
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: flex-end;
+                    justify-content: center;
+                }
+
+                .sprite-slide {
+                    position: absolute;
+                    bottom: 20px;
+                    display: flex;
+                    align-items: flex-end;
+                    justify-content: center;
+                    transition: transform 0.38s cubic-bezier(0.4,0,0.2,1),opacity 0.32s ease,filter 0.32s ease;
+                    pointer-events: none;
+                }
+
+                    .sprite-slide.s-current {
+                        transform: translateX(0) scale(1);
+                        opacity: 1;
+                        filter: none;
+                        z-index: 4;
+                    }
+
+                    .sprite-slide.s-prev {
+                        transform: translateX(-76%) scale(0.62);
+                        opacity: 0.38;
+                        filter: grayscale(0.5) brightness(0.85);
+                        z-index: 3;
+                    }
+
+                    .sprite-slide.s-next {
+                        transform: translateX(76%) scale(0.62);
+                        opacity: 0.38;
+                        filter: grayscale(0.5) brightness(0.85);
+                        z-index: 3;
+                    }
+
+                    .sprite-slide.s-far-prev {
+                        transform: translateX(-130%)scale(0.42);
+                        opacity: 0;
+                        filter: grayscale(1);
+                        z-index: 1;
+                    }
+
+                    .sprite-slide.s-far-next {
+                        transform: translateX(130%) scale(0.42);
+                        opacity: 0;
+                        filter: grayscale(1);
+                        z-index: 1;
+                    }
+
+                    .sprite-slide.s-hidden {
+                        transform: translateX(0) scale(0.3);
+                        opacity: 0;
+                        z-index: 0;
+                    }
+
+                .cls-sprite {
+                    height: 150px;
+                    object-fit: contain;
+                    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.32));
+                }
+
+                .sprite-emoji {
+                    font-size: 96px;
+                    line-height: 1;
+                    display: flex;
+                    align-items: flex-end;
+                    height: 150px;
+                }
+
+                /* name plate */
+                .name-plate {
+                    text-align: center;
+                    background: linear-gradient(180deg,#dcc896 0%,#c8ae7a 100%);
+                    padding: 6px 28px 8px;
+                    border-bottom: 4px solid var(--ro-wood-dark);
+                    position: relative;
+                    box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -2px 0 rgba(0,0,0,0.1);
+                }
+
+                    .name-plate::before, .name-plate::after {
+                        content: '◆';
+                        position: absolute;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        font-size: 12px;
+                        color: var(--ro-gold);
+                        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+                    }
+
+                    .name-plate::before {
+                        left: 10px;
+                    }
+
+                    .name-plate::after {
+                        right: 10px;
+                    }
+
+                    .name-plate h2 {
+                        font-family: var(--font-pixel);
+                        font-size: 24px;
+                        font-weight: 400;
+                        color: var(--text-primary);
+                        text-shadow: 1px 1px 0 rgba(255,255,255,0.6),0 2px 4px rgba(0,0,0,0.15);
+                        letter-spacing: 3px;
+                        transition: opacity 0.18s,transform 0.18s;
+                    }
+
+                    .name-plate.fading h2 {
+                        opacity: 0;
+                        transform: translateY(5px);
+                    }
+
+                .rarity-stars {
+                    font-size: 14px;
+                    color: var(--ro-gold);
+                    letter-spacing: 3px;
+                    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                    animation: starTwinkle 2.5s ease-in-out infinite;
+                }
+
+                @keyframes starTwinkle {
+                    0%,100% {
+                        opacity: 0.85;
+                        text-shadow: 0 1px 3px rgba(0,0,0,0.3)
+                    }
+
+                    50% {
+                        opacity: 1;
+                        text-shadow: 0 0 8px var(--ro-gold),0 1px 3px rgba(0,0,0,0.2)
+                    }
+                }
+
+                /* dots */
+                .dots-row {
+                    display: flex;
+                    justify-content: center;
+                    gap: 8px;
+                    padding: 8px 0 4px;
+                    background: var(--bg-panel);
+                    border-bottom: 1px solid rgba(139,111,71,0.2);
+                }
+
+                .dot {
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 50%;
+                    border: 2px solid var(--ro-wood);
+                    background: rgba(139,111,71,0.15);
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+
+                    .dot.active {
+                        background: var(--ro-gold);
+                        border-color: var(--ro-gold-deep);
+                        box-shadow: 0 0 6px var(--ro-glow),0 2px 0 var(--ro-gold-deep);
+                        transform: scale(1.3);
+                    }
+
+                    .dot:hover:not(.active) {
+                        background: var(--ro-parchment);
+                        border-color: var(--ro-wood-dark);
+                    }
+
+                /* quick grid */
+                .quick-grid {
+                    display: grid;
+                    grid-template-columns: repeat(7,1fr);
+                    gap: 5px;
+                    padding: 8px 12px 10px;
+                    background: var(--bg-panel);
+                    border-bottom: 3px solid var(--ro-wood-dark);
+                }
+
+                .quick-btn {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 2px;
+                    padding: 5px 2px 4px;
+                    background: linear-gradient(180deg,#fdf5e4 0%,#ecddb8 100%);
+                    border: 2px solid var(--ro-wood);
+                    border-radius: 6px;
+                    cursor: pointer;
+                    transition: all 0.14s;
+                    box-shadow: 0 2px 0 var(--ro-wood-dark);
+                }
+
+                    .quick-btn .qb-gif {
+                        width: 28px;
+                        height: 28px;
+                        object-fit: contain;
+                        image-rendering: pixelated;
+                        display: block;
+                    }
+
+                    .quick-btn .qb-icon {
+                        font-size: 17px;
+                        line-height: 1;
+                    }
+
+                    .quick-btn .qb-name {
+                        font-size: 7px;
+                        color: var(--text-muted);
+                        text-align: center;
+                        font-family: var(--font-body);
+                        font-weight: 700;
+                        line-height: 1.2;
+                    }
+
+                    .quick-btn:hover {
+                        background: linear-gradient(180deg,var(--ro-gold) 0%,var(--ro-gold-dim) 100%);
+                        border-color: var(--ro-gold-deep);
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 0 var(--ro-gold-deep);
+                    }
+
+                    .quick-btn.active {
+                        background: linear-gradient(180deg,#fff8d0 0%,#f4dc7a 100%);
+                        border-color: var(--ro-gold-deep);
+                        box-shadow: 0 0 8px var(--ro-glow),0 2px 0 var(--ro-gold-deep);
+                    }
+
+                        .quick-btn.active .qb-name {
+                            color: var(--ro-gold-deep);
+                        }
+
+                /* ── JOB LEVEL ── */
+                .joblv-section {
+                    padding: 10px 16px 12px;
+                    border-bottom: 3px solid var(--ro-wood);
+                    background: var(--bg-panel);
+                    flex-shrink: 0;
+                    position: relative;
+                    z-index: 1;
+                }
+
+                .section-label {
+                    font-size: 9px;
+                    font-weight: 700;
+                    letter-spacing: 0.14em;
+                    text-transform: uppercase;
+                    color: var(--text-muted);
+                    margin-bottom: 7px;
+                }
+
+                .joblv-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+
+                    .joblv-row input[type=range] {
+                        flex: 1;
+                        -webkit-appearance: none;
+                        height: 6px;
+                        background: linear-gradient(180deg,#c8a870,#dcc090);
+                        border-radius: 3px;
+                        outline: none;
+                        border: 1px solid var(--ro-wood-dark);
+                        box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+                    }
+
+                        .joblv-row input[type=range]::-webkit-slider-thumb {
+                            -webkit-appearance: none;
+                            width: 20px;
+                            height: 20px;
+                            border-radius: 50%;
+                            background: radial-gradient(circle at 35% 35%,#ffe86a,var(--ro-gold) 50%,var(--ro-gold-dim));
+                            cursor: pointer;
+                            border: 3px solid var(--ro-wood-dark);
+                            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+                        }
+
+                .joblv-right {
+                    text-align: right;
+                    flex-shrink: 0;
+                }
+
+                .joblv-val {
+                    font-family: var(--font-pixel);
+                    font-size: 26px;
+                    color: var(--ro-ruby);
+                    line-height: 1;
+                    text-shadow: 1px 1px 0 rgba(0,0,0,0.15);
+                }
+
+                .joblv-max {
+                    font-size: 10px;
+                    color: var(--text-muted);
+                    font-weight: 700;
+                }
+
+                /* ── STATS ROW ── */
+                .stats-section {
+                    padding: 10px 14px 12px;
+                    border-bottom: 3px solid var(--ro-wood);
+                    background: var(--bg-panel);
+                    flex-shrink: 0;
+                    position: relative;
+                    z-index: 1;
+                }
+
+                .stats-row {
+                    display: flex;
+                    gap: 7px;
+                    margin-bottom: 9px;
+                }
+
+                .stat-pill {
+                    flex: 1;
+                    border-radius: 8px;
+                    padding: 8px 8px 7px;
+                    text-align: center;
+                    position: relative;
+                    overflow: hidden;
+                    border: 2px solid var(--ro-wood-dark);
+                    box-shadow: 0 3px 0 var(--ro-wood-dark),inset 0 1px 0 rgba(255,255,255,0.5);
+                }
+
+                    .stat-pill.pts-pill {
+                        background: linear-gradient(180deg,#d4f0d4 0%,#b0dab0 100%);
+                    }
+
+                    .stat-pill.cnt-pill {
+                        background: linear-gradient(180deg,#c8e8f8 0%,#a0ccec 100%);
+                    }
+
+                    .stat-pill.spnt-pill {
+                        background: linear-gradient(180deg,#fbeec8 0%,#e8d090 100%);
+                    }
+
+                .sp-label {
+                    font-size: 8px;
+                    font-weight: 700;
+                    letter-spacing: 0.1em;
+                    text-transform: uppercase;
+                    color: rgba(0,0,0,0.45);
+                    margin-bottom: 2px;
+                }
+
+                .sp-val {
+                    font-family: var(--font-pixel);
+                    font-size: 26px;
+                    line-height: 1;
+                }
+
+                    .sp-val.pts {
+                        color: var(--ro-emerald-dark);
+                        text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+                    }
+
+                    .sp-val.cnt {
+                        color: var(--ro-sky-dark);
+                        text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+                    }
+
+                    .sp-val.spnt {
+                        color: var(--ro-gold-deep);
+                        text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+                    }
+
+                .reset-btn {
+                    width: 100%;
+                    padding: 8px;
+                    cursor: pointer;
+                    background: linear-gradient(180deg,#fdf0e8 0%,#f0d4c0 100%);
+                    border: 2px solid var(--ro-wood-dark);
+                    border-radius: 7px;
+                    box-shadow: 0 3px 0 var(--ro-wood-dark);
+                    color: var(--text-muted);
+                    font-family: var(--font-pixel);
+                    font-size: 15px;
+                    transition: all 0.12s;
+                    letter-spacing: 0.05em;
+                }
+
+                    .reset-btn:hover {
+                        background: linear-gradient(180deg,#fde0d0,#e8b090);
+                        border-color: var(--ro-ruby-dark);
+                        color: var(--ro-ruby-dark);
+                        box-shadow: 0 3px 0 var(--ro-ruby-dark);
+                    }
+
+                    .reset-btn:active {
+                        transform: translateY(2px);
+                        box-shadow: 0 1px 0 var(--ro-wood-dark);
+                    }
+
+                /* ── LEARNED LIST ── */
+                .skills-scroll {
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: 10px 14px 16px;
+                    background: var(--bg-panel);
+                    position: relative;
+                    z-index: 1;
+                    scrollbar-width: thin;
+                    scrollbar-color: var(--ro-wood) rgba(220,200,150,0.3);
+                }
+
+                    .skills-scroll::-webkit-scrollbar {
+                        width: 6px;
+                    }
+
+                    .skills-scroll::-webkit-scrollbar-track {
+                        background: rgba(220,200,150,0.3);
+                        border-radius: 3px;
+                    }
+
+                    .skills-scroll::-webkit-scrollbar-thumb {
+                        background: var(--ro-wood);
+                        border-radius: 3px;
+                    }
+
+                .learned-label {
+                    font-size: 9px;
+                    font-weight: 700;
+                    letter-spacing: 0.14em;
+                    text-transform: uppercase;
+                    color: var(--text-muted);
+                    margin-bottom: 8px;
+                }
+
+                .skill-chip {
+                    display: flex;
+                    align-items: center;
+                    gap: 9px;
+                    padding: 7px 9px;
+                    background: linear-gradient(180deg,#fdf5e4 0%,#f0e4c4 100%);
+                    border: 2px solid var(--ro-wood);
+                    border-radius: 7px;
+                    margin-bottom: 5px;
+                    cursor: pointer;
+                    transition: all 0.15s;
+                    box-shadow: 0 2px 0 var(--ro-wood-dark), 0 3px 6px rgba(0,0,0,0.08);
+                }
+
+                    .skill-chip:hover {
+                        background: linear-gradient(180deg,#fff8e0,#f4e4a8);
+                        border-color: var(--ro-gold-deep);
+                        transform: translateX(3px);
+                        box-shadow: 0 2px 0 var(--ro-gold-deep),0 4px 10px rgba(0,0,0,0.12);
+                    }
+
+                .sc-icon {
+                    width: 28px;
+                    height: 28px;
+                    font-size: 16px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: var(--ro-parchment);
+                    border-radius: 5px;
+                    border: 2px solid var(--ro-wood);
+                    flex-shrink: 0;
+                    box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+                }
+
+                .sc-info {
+                    flex: 1;
+                    min-width: 0;
+                }
+
+                .sc-name {
+                    font-size: 12px;
+                    font-weight: 700;
+                    color: var(--text-primary);
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                .sc-sub {
+                    font-size: 10px;
+                    color: var(--text-muted);
+                }
+
+                .sc-lv {
+                    font-family: var(--font-pixel);
+                    font-size: 16px;
+                    color: var(--ro-gold-deep);
+                    background: var(--ro-parchment);
+                    border: 2px solid var(--ro-wood-dark);
+                    border-radius: 5px;
+                    padding: 0 7px;
+                    flex-shrink: 0;
+                    box-shadow: 0 1px 0 var(--ro-wood-dark);
+                }
+
+                .empty-msg {
+                    font-size: 12px;
+                    color: var(--text-muted);
+                    font-style: italic;
+                    text-align: center;
+                    margin-top: 24px;
+                    line-height: 1.6;
+                }
+
+                /* ═══════════════════════════════════
+           RIGHT — SKILL TREE
+        ═══════════════════════════════════ */
+                .right-panel {
+                    flex: 1;
+                    position: relative;
+                    overflow: hidden;
+                    cursor: grab;
+                    background: repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(139,111,71,0.07) 40px), repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(139,111,71,0.07) 40px), linear-gradient(160deg,#d0eefa 0%,#a8d8f0 50%,#90cce8 100%);
+                    user-select: none;
+                }
+
+                    .right-panel:active {
+                        cursor: grabbing;
+                    }
+
+                /* top bar */
+                .tree-topbar {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 40px;
+                    background: linear-gradient(180deg,#a07848 0%,#7a5630 100%);
+                    border-bottom: 5px solid var(--ro-wood-dark);
+                    box-shadow: 0 5px 12px rgba(0,0,0,0.28),inset 0 1px 0 rgba(255,255,255,0.18);
+                    display: flex;
+                    align-items: center;
+                    padding: 0 18px;
+                    gap: 14px;
+                    z-index: 10;
+                    position: absolute;
+                }
+
+                    .tree-topbar::before {
+                        content: '';
+                        position: absolute;
+                        inset: 0;
+                        pointer-events: none;
+                        background: repeating-linear-gradient(90deg,transparent,transparent 3px,rgba(0,0,0,0.06) 3px,rgba(0,0,0,0.06) 4px);
+                    }
+                    /* corner nails */
+                    .tree-topbar::after {
+                        content: '';
+                        position: absolute;
+                        width: 8px;
+                        height: 8px;
+                        background: radial-gradient(circle,#4a3220,#2a1e10);
+                        border-radius: 50%;
+                        top: 7px;
+                        left: 10px;
+                        box-shadow: calc(100vw - 28px) 0 0 #2a1e10;
+                    }
+
+                .tb-title {
+                    font-family: var(--font-pixel);
+                    font-size: 20px;
+                    color: #f4ead5;
+                    text-shadow: 2px 2px 0 rgba(0,0,0,0.45),0 0 12px rgba(244,197,66,0.2);
+                    letter-spacing: 2px;
+                    position: relative;
+                    z-index: 1;
+                }
+
+                .tb-sep {
+                    width: 1px;
+                    height: 20px;
+                    background: rgba(255,255,255,0.2);
+                }
+
+                .tb-hint {
+                    font-size: 11px;
+                    color: rgba(244,234,213,0.55);
+                    font-style: italic;
+                    position: relative;
+                    z-index: 1;
+                }
+
+                .canvas-inner {
+                    position: absolute;
+                    top: 45px;
+                    left: 0;
+                    transform-origin: 0 0;
+                    will-change: transform;
+                }
+
+                .conn-svg {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    pointer-events: none;
+                    overflow: visible;
+                }
+
+                /* ── SKILL NODE ── */
+                .skill-node {
+                    position: absolute;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    cursor: pointer;
+                    z-index: 2;
+                    width: 94px;
+                }
+
+                .node-frame {
+                    width: 66px;
+                    height: 66px;
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 28px;
+                    position: relative;
+                    transition: transform 0.15s, box-shadow 0.15s;
+                }
+
+                    /* LOCKED */
+                    .node-frame.locked {
+                        background: linear-gradient(180deg,#d4c8a8 0%,#b8aa88 100%);
+                        border: 3px solid #9a8868;
+                        box-shadow: 0 3px 0 #7a6848, inset 0 1px 0 rgba(255,255,255,0.3);
+                        opacity: 0.45;
+                        filter: grayscale(0.7);
+                    }
+
+                    /* AVAILABLE */
+                    .node-frame.available {
+                        background: linear-gradient(180deg,#fdf5e0 0%,#eddba8 100%);
+                        border: 3px dashed var(--ro-wood);
+                        box-shadow: 0 3px 0 var(--ro-wood-dark), inset 0 1px 0 rgba(255,255,255,0.6);
+                        animation: availPulse 2s ease-in-out infinite;
+                    }
+
+                @keyframes availPulse {
+                    0%,100% {
+                        box-shadow: 0 3px 0 var(--ro-wood-dark),inset 0 1px 0 rgba(255,255,255,0.6)
+                    }
+
+                    50% {
+                        box-shadow: 0 3px 0 var(--ro-wood-dark),0 0 10px rgba(244,197,66,0.35),inset 0 1px 0 rgba(255,255,255,0.6)
+                    }
+                }
+
+                /* LEARNED */
+                .node-frame.learned {
+                    background: linear-gradient(180deg,#fffae0 0%,#f4e890 50%,#e8d060 100%);
+                    border: 3px solid var(--ro-gold-deep);
+                    box-shadow: 0 3px 0 var(--ro-gold-deep), 0 0 14px rgba(244,197,66,0.45), inset 0 1px 0 rgba(255,255,255,0.7);
+                }
+
+                /* MAXED */
+                .node-frame.maxed {
+                    background: linear-gradient(180deg,#fff0d8 0%,#f8c878 50%,#e89828 100%);
+                    border: 3px solid var(--ro-ruby-dark);
+                    box-shadow: 0 3px 0 var(--ro-ruby-dark), 0 0 18px rgba(216,74,63,0.35), inset 0 1px 0 rgba(255,255,255,0.7);
+                }
+
+                .skill-node:hover .node-frame {
+                    transform: translateY(-4px) scale(1.08);
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.26), 0 0 18px rgba(244,197,66,0.3) !important;
+                }
+
+                .node-badge {
+                    position: absolute;
+                    bottom: -9px;
+                    right: -9px;
+                    font-family: var(--font-pixel);
+                    font-size: 12px;
+                    font-weight: 700;
+                    background: linear-gradient(180deg,#f4ead5,#dcc896);
+                    border: 2px solid var(--ro-wood-dark);
+                    border-radius: 5px;
+                    padding: 0 5px;
+                    line-height: 17px;
+                    color: var(--text-muted);
+                    box-shadow: 0 2px 0 var(--ro-wood-dark);
+                }
+
+                    .node-badge.on {
+                        background: linear-gradient(180deg,#ffe890,var(--ro-gold-dim));
+                        border-color: var(--ro-gold-deep);
+                        color: var(--ro-gold-deep);
+                    }
+
+                .node-name {
+                    margin-top: 12px;
+                    font-size: 10px;
+                    font-weight: 700;
+                    color: var(--text-secondary);
+                    text-align: center;
+                    max-width: 92px;
+                    line-height: 1.3;
+                    pointer-events: none;
+                    text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+                }
+
+                    .node-name.on {
+                        color: var(--ro-wood-dark);
+                    }
+
+                /* zoom buttons */
+                .zoom-btns {
+                    position: absolute;
+                    bottom: 18px;
+                    right: 18px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 5px;
+                    z-index: 10;
+                }
+
+                .zoom-btn {
+                    width: 34px;
+                    height: 34px;
+                    background: linear-gradient(180deg,#fef5e0 0%,#e8d098 100%);
+                    border: 3px solid var(--ro-wood-dark);
+                    border-radius: 8px;
+                    font-family: var(--font-pixel);
+                    font-size: 22px;
+                    color: var(--text-primary);
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 3px 0 var(--ro-wood-dark),0 5px 10px rgba(0,0,0,0.2);
+                    transition: all 0.1s;
+                }
+
+                    .zoom-btn:hover {
+                        background: linear-gradient(180deg,var(--ro-gold),var(--ro-gold-dim));
+                    }
+
+                    .zoom-btn:active {
+                        transform: translateY(2px);
+                        box-shadow: 0 1px 0 var(--ro-wood-dark);
+                    }
+
+                    .zoom-btn.sm {
+                        font-size: 11px;
+                        font-weight: 700;
+                    }
+
+                /* ═══════════════════════════════════
+           TOOLTIP
+        ═══════════════════════════════════ */
+                .tooltip {
+                    position: fixed;
+                    z-index: 9999;
+                    background: linear-gradient(180deg,#faf0d8 0%,#f0e4c0 100%);
+                    border: 3px solid var(--ro-wood-dark);
+                    border-radius: 12px;
+                    width: 270px;
+                    pointer-events: none;
+                    opacity: 0;
+                    transform: translateY(8px) scale(0.97);
+                    transition: opacity 0.18s,transform 0.18s;
+                    overflow: hidden;
+                    box-shadow: 0 5px 0 var(--ro-wood-dark),0 10px 32px rgba(45,28,10,0.35),inset 0 1px 0 rgba(255,255,255,0.6);
+                }
+
+                    .tooltip.show {
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                    }
+
+                    /* torn top */
+                    .tooltip::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        height: 5px;
+                        background: var(--ro-wood-dark);
+                        clip-path: polygon(0% 50%,2.5% 100%,5% 20%,7.5% 90%,10% 35%,12.5% 85%,15% 15%,17.5% 75%,20% 50%,22.5% 95%,25% 30%,27.5% 80%,30% 50%,32.5% 100%,35% 25%,37.5% 80%,40% 45%,42.5% 90%,45% 20%,47.5% 75%,50% 50%,52.5% 95%,55% 30%,57.5% 80%,60% 50%,62.5% 95%,65% 20%,67.5% 70%,70% 45%,72.5% 90%,75% 30%,77.5% 80%,80% 55%,82.5% 95%,85% 25%,87.5% 75%,90% 45%,92.5% 90%,95% 30%,97.5% 70%,100% 50%);
+                        z-index: 3;
+                    }
+
+                .tt-preview {
+                    width: 100%;
+                    height: 78px;
+                    background: linear-gradient(180deg,#d8f0fc 0%,#b8dcf4 100%);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-bottom: 3px solid var(--ro-wood);
+                    font-size: 38px;
+                    position: relative;
+                }
+
+                .tt-preview-badge {
+                    position: absolute;
+                    bottom: 5px;
+                    right: 7px;
+                    font-size: 8px;
+                    color: rgba(90,62,36,0.6);
+                    letter-spacing: 0.06em;
+                    text-transform: uppercase;
+                    font-family: var(--font-body);
+                    font-weight: 700;
+                }
+
+                .tt-body {
+                    padding: 10px 13px 13px;
+                }
+
+                .tt-top {
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: space-between;
+                    margin-bottom: 6px;
+                }
+
+                .tt-name {
+                    font-family: var(--font-pixel);
+                    font-size: 19px;
+                    color: var(--text-primary);
+                    line-height: 1.2;
+                    flex: 1;
+                    text-shadow: 1px 1px 0 rgba(255,255,255,0.6);
+                }
+
+                .tt-maxlv {
+                    font-size: 8px;
+                    font-weight: 700;
+                    color: var(--text-muted);
+                    background: var(--ro-parchment);
+                    border: 2px solid var(--ro-wood);
+                    border-radius: 4px;
+                    padding: 2px 6px;
+                    flex-shrink: 0;
+                    margin-left: 8px;
+                    margin-top: 3px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.06em;
+                    box-shadow: 0 1px 0 var(--ro-wood-dark);
+                }
+
+                .tt-desc {
+                    font-size: 12px;
+                    color: var(--text-secondary);
+                    line-height: 1.6;
+                    font-style: italic;
+                    margin-bottom: 9px;
+                }
+
+                .tt-divider {
+                    height: 2px;
+                    background: linear-gradient(90deg,transparent,var(--ro-wood),transparent);
+                    margin-bottom: 9px;
+                    opacity: 0.4;
+                }
+
+                .tt-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 7px;
+                    margin-bottom: 4px;
+                }
+
+                .tt-rl {
+                    font-size: 9px;
+                    font-weight: 700;
+                    color: var(--text-muted);
+                    min-width: 72px;
+                    flex-shrink: 0;
+                    text-transform: uppercase;
+                    letter-spacing: 0.06em;
+                }
+
+                .tt-rv {
+                    font-family: var(--font-pixel);
+                    font-size: 15px;
+                    color: var(--text-primary);
+                }
+
+                    .tt-rv.ok {
+                        color: var(--ro-emerald);
+                    }
+
+                    .tt-rv.warn {
+                        color: var(--ro-ruby);
+                    }
+
+                .tt-status {
+                    margin-top: 9px;
+                    padding: 5px 12px;
+                    border-radius: 6px;
+                    font-family: var(--font-pixel);
+                    font-size: 14px;
+                    text-align: center;
+                    border: 2px solid transparent;
+                    box-shadow: 0 2px 0 transparent;
+                }
+
+                    .tt-status.learned {
+                        background: linear-gradient(180deg,#d8f0d0,#b8e0a8);
+                        border-color: var(--ro-emerald-dark);
+                        color: var(--ro-emerald-dark);
+                        box-shadow: 0 2px 0 var(--ro-emerald-dark);
+                    }
+
+                    .tt-status.available {
+                        background: linear-gradient(180deg,#d0e8f8,#a8d0f0);
+                        border-color: var(--ro-sky-dark);
+                        color: var(--ro-sky-dark);
+                        box-shadow: 0 2px 0 var(--ro-sky-dark);
+                    }
+
+                    .tt-status.locked {
+                        background: linear-gradient(180deg,#e8e0d0,#d0c8b0);
+                        border-color: var(--text-muted);
+                        color: var(--text-muted);
+                        box-shadow: 0 2px 0 #6a5038;
+                    }
+
+                    .tt-status.maxed {
+                        background: linear-gradient(180deg,#f8e0c8,#f0b888);
+                        border-color: var(--ro-ruby-dark);
+                        color: var(--ro-ruby-dark);
+                        box-shadow: 0 2px 0 var(--ro-ruby-dark);
+                    }
+
+                .tt-hint {
+                    font-size: 10px;
+                    color: var(--text-muted);
+                    text-align: center;
+                    margin-top: 6px;
+                    font-style: italic;
+                }
+        .node-icon {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            image-rendering: pixelated;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- inside .tree-topbar, after the hint span -->
+
+    <div class="sky-bg">
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+    </div>
+
+    <div class="app">
+        <!-- LEFT PANEL -->
+        <div class="left-panel">
+            <div class="carousel-section">
+                <div class="stage-wrap">
+                    <button class="arr-btn left" id="btnPrev">&#8249;</button>
+                    <button class="arr-btn right" id="btnNext">&#8250;</button>
+                    <div class="stage-glow"></div>
+                    <div class="sprite-track" id="spriteTrack"></div>
+                </div>
+                <div class="name-plate" id="namePlate">
+                    <h2 id="className">NOVICE</h2>
+                    <div class="rarity-stars" id="classStars">★★★</div>
+                </div>
+                <div class="dots-row" id="dotsRow"></div>
+                <div class="quick-grid" id="quickGrid"></div>
+            </div>
+
+            <div class="joblv-section">
+                <div class="section-label">Job Level</div>
+                <div class="joblv-row">
+                    <input type="range" id="jobLvSlider" min="50" max="255" value="50">
+                    <div class="joblv-right">
+                        <div class="joblv-val" id="jobLvVal">50</div>
+                        <div class="joblv-max" id="jobLvMax">/ 255</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-section">
+                <div class="stats-row">
+                    <div class="stat-pill pts-pill"><div class="sp-label">Skill Pts</div><div class="sp-val pts" id="remainPts">0</div></div>
+                    <div class="stat-pill cnt-pill"><div class="sp-label">Learned</div><div class="sp-val cnt" id="learnedCount">0</div></div>
+                    <div class="stat-pill spnt-pill"><div class="sp-label">Spent</div><div class="sp-val spnt" id="spentPts">0</div></div>
+                </div>
+                <button class="reset-btn" id="resetBtn">✕  RESET ALL SKILLS</button>
+            </div>
+
+            <div class="skills-scroll">
+                <div class="learned-label">Learned Skills</div>
+                <div id="learnedList"></div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="right-panel" id="treePanel">
+            <div class="tree-topbar">
+                <button class="zoom-btn sm" style="margin-left:auto; padding: 8px 5px;" onclick="window.location.href='https://app.local/index.html'">← Back</button>
+                <span class="tb-title">⚔ SKILL TREE</span>
+                <div class="tb-sep"></div>
+                <span class="tb-hint">Left-click to learn · Right-click to reduce · Scroll/drag to navigate</span>
+            </div>
+            <div class="canvas-inner" id="canvasInner">
+                <svg class="conn-svg" id="connSvg"></svg>
+            </div>
+            <div class="zoom-btns">
+                <button class="zoom-btn" id="zoomIn">+</button>
+                <button class="zoom-btn" id="zoomOut">−</button>
+                <button class="zoom-btn sm" id="zoomFit">FIT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOOLTIP -->
+    <div class="tooltip" id="tooltip">
+        <div class="tt-preview"><span id="ttIcon"></span><span class="tt-preview-badge">skill preview</span></div>
+        <div class="tt-body">
+            <div class="tt-top"><div class="tt-name" id="ttName"></div><div class="tt-maxlv" id="ttMaxLv"></div></div>
+            <div class="tt-desc" id="ttDesc"></div>
+            <div class="tt-divider"></div>
+            <div class="tt-row"><span class="tt-rl">Current Lv</span><span class="tt-rv" id="ttCurLv"></span></div>
+            <div class="tt-row"><span class="tt-rl">Requires</span><span class="tt-rv" id="ttReq"></span></div>
+            <div class="tt-row"><span class="tt-rl">SP Cost</span><span class="tt-rv">1 per level</span></div>
+            <div class="tt-status" id="ttStatus"></div>
+            <div class="tt-hint" id="ttHint"></div>
+        </div>
+    </div>
+
+    <script>
+        const CLASSES = [
+            {
+                key: 'Novice', label: 'NOVICE', icon: '🌱', stars: 3, maxJobLv: 255, sprite: 'img/Novice_Animation.gif',
+                skills: [
+                    { id: 'basic_skill', name: 'Basic Skill', icon: 'img/skills/Basic_Skill.png', gif: 'img/skills/Basic_Skill.png', max: 9, x: 80, y: 80, req: null, desc: 'Passive: Enables the use of Basic Interface Skills such as Trading, Kafra use, Chatroom and Party creation.' },
+                    { id: 'first_aid', name: 'First Aid', icon: 'img/skills/First_Aid.png', gif: 'img/skills/First_Aid.png', max: 1, x: 280, y: 80, req: null, desc: 'Supportive: Consume 3 SP to restore 5 HP. Quest skill — available from the start.' },
+                    { id: 'play_dead', name: 'Play Dead', icon: 'img/skills/Play_Dead.png', gif: 'img/skills/Play_Dead.png', max: 1, x: 480, y: 80, req: null, desc: 'Supportive: Pretend to fall dead on the ground, becoming immune from all attacks from Players and monsters. Quest skill — available from the start.' },
+                ]
+            },
+            {
+                key: 'Swordman', label: 'SWORDMAN', icon: '⚔️', stars: 4, maxJobLv: 255, sprite: 'img/Swordsman.gif',
+                skills: [
+                    // ── ROW 1 (y:80) — No requirements ──
+                    { id: 'sword_mastery', name: 'Sword Mastery', icon: 'img/skills/Sword_Mastery.png', gif: 'img/skills/Sword_Mastery.gif', max: 10, x: 80, y: 80, req: null, req2: null, desc: 'Passive: Increases damage done with One-Handed Swords.' },
+                    { id: 'hp_recovery', name: 'Increase HP Recovery', icon: 'img/skills/Increase_HP_Recovery.png', gif: 'img/skills/Increase_HP_Recovery.png', max: 10, x: 440, y: 80, req: null, req2: null, desc: 'Passive: Increases HP recovery while not moving. Also increases efficiency of healing items and Alchemist\'s Aid Potion.' },
+                    { id: 'bash', name: 'Bash', icon: 'img/skills/Bash.png', gif: 'img/skills/Bash.png', max: 10, x: 620, y: 80, req: null, req2: null, desc: 'Offensive: Melee attack with additional accuracy, causing up to 400% damage to a single target. After learning Fatal Blow, also has a chance of stunning the target.' },
+                    { id: 'provoke', name: 'Provoke', icon: 'img/skills/Provoke.png', gif: 'img/skills/Provoke.png', max: 10, x: 800, y: 80, req: null, req2: null, desc: 'Active: Increases a target\'s attack by up to 32% and decreases its defense by up to 55%.' },
+
+                    // ── Quest Skills — no req ──
+                    { id: 'fatal_blow', name: 'Fatal Blow', icon: 'img/skills/Fatal_Blow.png', gif: 'img/skills/Fatal_Blow.png', max: 1, x: 980, y: 80, req: null, req2: null, desc: 'Passive: Adds a chance to stun targets hit with Bash level 6 and up. Quest skill — requires Job Lv 30.' },
+                    { id: 'hp_move', name: 'Moving HP Recovery', icon: 'img/skills/HP_Recovery_While_Moving.png', gif: 'img/skills/HP_Recovery_While_Moving.png', max: 1, x: 980, y: 230, req: null, req2: null, desc: 'Passive: Allows HP recovery while walking. Quest skill — requires Job Lv 35.' },
+                    { id: 'berserk', name: 'Auto Berserk', icon: 'img/skills/Berserk.png', gif: 'img/skills/Berserk.png', max: 1, x: 980, y: 380, req: null, req2: null, desc: 'Passive: Increases attack but decreases Defense as per Provoke level 10 when HP drops below 25%. Quest skill — requires Job Lv 30.' },
+
+                    // ── ROW 2 (y:230) — Require row 1 ──
+                    { id: 'two_mastery', name: 'Two-Handed Sword Mastery', icon: 'img/skills/Two-Handed_Sword_Mastery.png', gif: 'img/skills/Two-Handed_Sword_Mastery.png', max: 10, x: 260, y: 230, req: { id: 'sword_mastery', lv: 1 }, req2: null, desc: 'Passive: Increases damage done with Two-Handed Swords.' },
+                    { id: 'magnum_break', name: 'Magnum Break', icon: 'img/skills/Magnum_Break.png', gif: 'img/skills/Magnum_Break.png', max: 10, x: 620, y: 230, req: { id: 'bash', lv: 5 }, req2: null, desc: 'Offensive: Melee AoE attack with added accuracy, dealing up to 300% damage in a 5x5 area. Pushes back enemies and gives fire damage bonus for 10 seconds.' },
+                    { id: 'endure', name: 'Endure', icon: 'img/skills/Endure.png', gif: 'img/skills/Endure.png', max: 10, x: 800, y: 230, req: { id: 'provoke', lv: 5 }, req2: null, desc: 'Active: Disables Flinching Status for up to 7 Hits and up to 37 seconds. Also grants 10 bonus MDEF when cast.' },
+                ]
+            },
+            {
+                key: 'Mage', label: 'MAGICIAN', icon: '🔮', stars: 4, maxJobLv: 255, sprite: 'img/Magician.gif',
+                skills: [
+                    // ── ROW 1 (y:80) — No requirements, 5 columns ──
+                    { id: 'napalmbeat', name: 'Napalm Beat', icon: 'img/skills/mage/Napalm_Beat.png', gif: 'img/skills/mage/Napalm_Beat.png', max: 10, x: 80, y: 80, req: null, req2: null, desc: 'Offensive: Deal up to 170% MATK Ghost-element damage to target and all enemies in a 3×3 area around it.' },
+                    { id: 'cold_bolt', name: 'Cold Bolt', icon: 'img/skills/mage/Cold_Bolt.png', gif: 'img/skills/mage/Cold_Bolt.png', max: 10, x: 260, y: 80, req: null, req2: null, desc: 'Offensive: Attack a single target with up to 10× MATK Water-element damage.' },
+                    { id: 'fire_bolt', name: 'Fire Bolt', icon: 'img/skills/mage/Fire_Bolt.png', gif: 'img/skills/mage/Fire_Bolt.png', max: 10, x: 440, y: 80, req: null, req2: null, desc: 'Offensive: Attack a single target with up to 10× MATK Fire-element damage.' },
+                    { id: 'sight', name: 'Sight', icon: 'img/skills/mage/Sight.png', gif: 'img/skills/mage/Sight.png', max: 1, x: 620, y: 80, req: null, req2: null, desc: 'Active: Reveal hidden enemies in a 7×7 area around the user.' },
+                    { id: 'lightning_bolt', name: 'Lightning Bolt', icon: 'img/skills/mage/Lightning_Bolt.png', gif: 'img/skills/mage/Lightning_Bolt.png', max: 10, x: 800, y: 80, req: null, req2: null, desc: 'Offensive: Attack a single target with up to 10× MATK Wind-element damage.' },
+
+                    // ── No-req standalone skills (side column) ──
+                    { id: 'sp_recovery', name: 'Increase SP Recovery', icon: 'img/skills/mage/Increase_SP_Recovery.png', gif: 'img/skills/mage/Increase_SP_Recovery.png', max: 10, x: 980, y: 80, req: null, req2: null, desc: 'Passive: Passively increases SP recovery speed when not moving.' },
+                    { id: 'stone_curse', name: 'Stone Curse', icon: 'img/skills/mage/Stone_Curse.png', gif: 'img/skills/mage/Stone_Curse.png', max: 10, x: 980, y: 230, req: null, req2: null, desc: 'Active: Attempt to turn target into stone, rendering it immobile and turning it to Earth 1 element.' },
+                    { id: 'energy_coat', name: 'Energy Coat', icon: 'img/skills/mage/Energy_Coat.png', gif: 'img/skills/mage/Energy_Coat.png', max: 1, x: 980, y: 380, req: null, req2: null, desc: 'Supportive: Reduces damage from incoming physical attacks while consuming SP. Quest skill — requires Job Lv 35.' },
+
+                    // ── ROW 2 (y:230) — Require row 1 ──
+                    { id: 'soul_strike', name: 'Soul Strike', icon: 'img/skills/mage/Soul_Strike.png', gif: 'img/skills/mage/Soul_Strike.png', max: 10, x: 80, y: 230, req: { id: 'napalmbeat', lv: 4 }, req2: null, desc: 'Offensive: Ghost-element attack dealing up to 5× MATK damage. Does additional damage to Undead-element enemies.' },
+                    { id: 'frost_diver', name: 'Frost Diver', icon: 'img/skills/mage/Frost_Diver.png', gif: 'img/skills/mage/Frost_Diver.png', max: 10, x: 260, y: 230, req: { id: 'cold_bolt', lv: 5 }, req2: null, desc: 'Offensive: Attack a target for up to 200% Water-element damage with a chance to freeze it.' },
+                    { id: 'fire_ball', name: 'Fire Ball', icon: 'img/skills/mage/Fire_Ball.png', gif: 'img/skills/mage/Fire_Ball.png', max: 10, x: 440, y: 230, req: { id: 'fire_bolt', lv: 4 }, req2: null, desc: 'Offensive: Attack a target and enemies in a 5×5 area around it for up to 170% Fire-element damage.' },
+                    { id: 'thunderstorm', name: 'Thunder Storm', icon: 'img/skills/mage/Thunderstorm.png', gif: 'img/skills/mage/Thunderstorm.png', max: 10, x: 800, y: 230, req: { id: 'lightning_bolt', lv: 4 }, req2: null, desc: 'Offensive: Wind-element AoE attack dealing up to 8× MATK damage to targets in a 5×5 area.' },
+
+                    // ── ROW 3 (y:380) — Require row 2 ──
+                    { id: 'safety_wall', name: 'Safety Wall', icon: 'img/skills/mage/Safety_Wall.png', gif: 'img/skills/mage/Safety_Wall.png', max: 10, x: 80, y: 380, req: { id: 'soul_strike', lv: 5 }, req2: { id: 'napalmbeat', lv: 7 }, desc: 'Supportive: Use a Blue Gemstone to create a pillar on a cell that protects whoever stands in it from melee attacks.' },
+                    { id: 'fire_wall', name: 'Fire Wall', icon: 'img/skills/mage/Fire_Wall.png', gif: 'img/skills/mage/Fire_Wall.png', max: 10, x: 440, y: 380, req: { id: 'fire_ball', lv: 5 }, req2: { id: 'sight', lv: 1 }, desc: 'Offensive: Put up a small fire wall that causes 50% Fire-element damage to enemies passing through and pushes them back.' },
+                ]
+            },
+            {
+                key: 'Archer', label: 'ARCHER', icon: '🏹', stars: 4, maxJobLv: 255, sprite: 'img/Archer.gif',
+                skills: [
+                    // ── ROW 1 (y:80) — No requirements ──
+                    { id: 'owl_eye', name: "Owl's Eye", icon: 'img/skills/archer/Owls_Eye.png', gif: 'img/skills/archer/Owls_Eye.png', max: 10, x: 80, y: 80, req: null, req2: null, desc: "Passive: Increases DEX by up to 10." },
+                    { id: 'double_strafe', name: 'Double Strafe', icon: 'img/skills/archer/Double_Strafe.png', gif: 'img/skills/archer/Double_Strafe.png', max: 10, x: 260, y: 80, req: null, req2: null, desc: 'Offensive: Deal up to 380% damage to a single target.' },
+
+                    // ── Quest skills — no req ──
+                    { id: 'arrow_crafting', name: 'Arrow Crafting', icon: 'img/skills/archer/Arrow_Crafting.png', gif: 'img/skills/archer/Arrow_Crafting.png', max: 1, x: 440, y: 80, req: null, req2: null, desc: 'Active: Create arrows from various items. Quest skill — requires Job Lv 30.' },
+                    { id: 'arrow_repel', name: 'Arrow Repel', icon: 'img/skills/archer/Arrow_Repel.png', gif: 'img/skills/archer/Arrow_Repel.png', max: 1, x: 620, y: 80, req: null, req2: null, desc: 'Offensive: Shoot a target to inflict 150% damage and push it back 6 cells. Quest skill — requires Job Lv 35.' },
+
+                    // ── ROW 2 (y:230) — Require row 1 ──
+                    { id: 'vulture_eye', name: "Vulture's Eye", icon: 'img/skills/archer/Vultures_Eye.png', gif: 'img/skills/archer/Vultures_Eye.png', max: 10, x: 80, y: 230, req: { id: 'owl_eye', lv: 3 }, req2: null, desc: "Passive: Increases range and HIT when using bows." },
+                    { id: 'arrow_shower', name: 'Arrow Shower', icon: 'img/skills/archer/Arrow_Shower.png', gif: 'img/skills/archer/Arrow_Shower.png', max: 10, x: 260, y: 230, req: { id: 'double_strafe', lv: 5 }, req2: null, desc: 'Offensive: Deal up to 125% damage to targets in a 5×5 area around target.' },
+
+                    // ── ROW 3 (y:380) — Require row 2 ──
+                    { id: 'improve_conc', name: 'Improve Concentration', icon: 'img/skills/archer/Improve_Concentration.png', gif: 'img/skills/archer/Improve_Concentration.png', max: 10, x: 80, y: 380, req: { id: 'vulture_eye', lv: 1 }, req2: null, desc: 'Supportive: Increase DEX and AGI by up to 12% for a duration. Uncovers hidden enemies in a 3×3 area when activated.' },
+                ]
+            },
+            {
+                key: 'Merchant', label: 'MERCHANT', icon: '💰', stars: 4, maxJobLv: 255, sprite: 'img/Merchant.gif',
+                skills: [
+                    // ── ROW 1 (y:80) — No requirements ──
+                    { id: 'enlarge_weight', name: 'Enlarge Weight Limit', icon: 'img/skills/merchant/Enlarge_Weight_Limit.png', gif: 'img/skills/merchant/Enlarge_Weight_Limit.png', max: 10, x: 80, y: 80, req: null, req2: null, desc: 'Passive: Increase your character\'s maximum Weight Limit by up to 2000 points.' },
+                    { id: 'identify', name: 'Item Appraisal', icon: 'img/skills/merchant/Item_Appraisal.png', gif: 'img/skills/merchant/Item_Appraisal.png', max: 1, x: 440, y: 80, req: null, req2: null, desc: 'Active: Identify items without a magnifier.' },
+                    { id: 'mammonite', name: 'Mammonite', icon: 'img/skills/merchant/Mammonite.png', gif: 'img/skills/merchant/Mammonite.png', max: 10, x: 620, y: 80, req: null, req2: null, desc: 'Offensive: Powerful melee attack dealing up to 600% damage that costs up to 1000 Zeny.' },
+                    { id: 'cart_decoration', name: 'Cart Decoration', icon: 'img/skills/merchant/mc_cartdecorate.gif', max: 1, x: 620, y: 230, req: null, req2: null, desc: 'Active: Decorate your pushcart. Quest skill.' },
+
+                    // ── Quest skills — no req ──
+                    { id: 'cart_revolution', name: 'Cart Revolution', icon: 'img/skills/merchant/Cart_Revolution.png', gif: 'img/skills/merchant/Cart_Revolution.png', max: 1, x: 800, y: 80, req: null, req2: null, desc: 'Offensive: Melee AoE attack that gets stronger as your cart gets heavier. Quest skill — requires Job Lv 35.' },
+                    { id: 'change_cart', name: 'Change Cart', icon: 'img/skills/merchant/Change_Cart.png', gif: 'img/skills/merchant/Change_Cart.png', max: 1, x: 800, y: 230, req: null, req2: null, desc: 'Active: Change your cart\'s appearance as you gain levels. Quest skill — requires Job Lv 30.' },
+                    { id: 'crazy_uproar', name: 'Crazy Uproar', icon: 'img/skills/merchant/Crazy_Uproar.png', gif: 'img/skills/merchant/Crazy_Uproar.png', max: 1, x: 800, y: 380, req: null, req2: null, desc: 'Supportive: A self-buff that grants +4 Strength. Quest skill — requires Job Lv 15.' },
+
+                    // ── ROW 2 (y:230) — Require Enlarge Weight Limit ──
+                    { id: 'discount', name: 'Discount', icon: 'img/skills/merchant/Discount.png', gif: 'img/skills/merchant/Discount.png', max: 10, x: 80, y: 230, req: { id: 'enlarge_weight', lv: 3 }, req2: null, desc: 'Passive: Buy items from NPCs with an up to 24% discount.' },
+                    { id: 'pushcart', name: 'Pushcart', icon: 'img/skills/merchant/Pushcart.png', gif: 'img/skills/merchant/Pushcart.png', max: 10, x: 260, y: 230, req: { id: 'enlarge_weight', lv: 5 }, req2: null, desc: 'Passive: Carry an additional 8000 weight units and/or 100 items in a separate inventory.' },
+
+                    // ── ROW 3 (y:380) — Require row 2 ──
+                    { id: 'overcharge', name: 'Overcharge', icon: 'img/skills/merchant/Overcharge.png', gif: 'img/skills/merchant/Overcharge.png', max: 10, x: 80, y: 380, req: { id: 'discount', lv: 3 }, req2: null, desc: 'Passive: Get up to 24% more Zeny from selling items to NPCs.' },
+                    { id: 'vending', name: 'Vending', icon: 'img/skills/merchant/Vending.png', gif: 'img/skills/merchant/Vending.png', max: 10, x: 260, y: 380, req: { id: 'pushcart', lv: 3 }, req2: null, desc: 'Active: Open a shop with up to 12 item stacks for other players to buy.' },
+
+                    // ── ROW 4 (y:530) — Require row 3 ──
+                    { id: 'buying_store', name: 'Buying Store', icon: 'img/skills/merchant/all_buying_store.gif', gif: 'img/skills/merchant/all_buying_store.gif', max: 1, x: 260, y: 530, req: { id: 'vending', lv: 1 }, req2: null, desc: 'Active: Open a shop to buy items from other players at set prices.' },
+                ]
+            },
+            {
+                key: 'Thief', label: 'THIEF', icon: '🗡️', stars: 4, maxJobLv: 255, sprite: 'img/Thief.gif',
+                skills: [
+                    // ── ROW 1 (y:80) — No requirements ──
+                    { id: 'double_attack', name: 'Double Attack', icon: 'img/skills/thief/Double_Attack.png', gif: 'img/skills/thief/Double_Attack.png', max: 10, x: 80, y: 80, req: null, req2: null, desc: 'Passive: Adds a high chance to deal double damage when attacking with a dagger.' },
+                    { id: 'improve_dodge', name: 'Improve Dodge', icon: 'img/skills/thief/Improve_Dodge.png', gif: 'img/skills/thief/Improve_Dodge.png', max: 10, x: 260, y: 80, req: null, req2: null, desc: 'Passive: Adds up to 30 Flee. Bonus increases when you become a Rogue or Assassin. Also increases Movement Speed if you\'re an Assassin.' },
+                    { id: 'steal', name: 'Steal', icon: 'img/skills/thief/Steal.png', gif: 'img/skills/thief/Steal.png', max: 10, x: 440, y: 80, req: null, req2: null, desc: 'Active: Steal items from monsters. Affected monster may still drop the stolen item normally.' },
+                    { id: 'envenom', name: 'Envenom', icon: 'img/skills/thief/Envenom.png', gif: 'img/skills/thief/Envenom.png', max: 10, x: 620, y: 80, req: null, req2: null, desc: 'Offensive: Poison-element melee attack that deals up to 150 additional damage and has a chance of poisoning its target.' },
+
+                    // ── Quest skills — no req ──
+                    { id: 'sand_attack', name: 'Sand Attack', icon: 'img/skills/thief/Sand_Attack.png', gif: 'img/skills/thief/Sand_Attack.png', max: 1, x: 800, y: 80, req: null, req2: null, desc: 'Offensive: Earth-element attack dealing 125% damage with a 15% chance of blinding its target. Quest skill — requires Job Lv 25.' },
+                    { id: 'backslide', name: 'Back Slide', icon: 'img/skills/thief/Back_Slide.png', gif: 'img/skills/thief/Back_Slide.png', max: 1, x: 800, y: 230, req: null, req2: null, desc: 'Active: Instantly move back 5 cells. Quest skill — requires Job Lv 35.' },
+                    { id: 'find_stone', name: 'Find Stone', icon: 'img/skills/thief/Find_Stone.png', gif: 'img/skills/thief/Find_Stone.png', max: 1, x: 800, y: 380, req: null, req2: null, desc: 'Active: Provide ammunition for Stone Fling or other creative uses. Quest skill — requires Job Lv 20.' },
+                    { id: 'stone_fling', name: 'Stone Fling', icon: 'img/skills/thief/Stone_Fling.png', gif: 'img/skills/thief/Stone_Fling.png', max: 1, x: 800, y: 530, req: null, req2: null, desc: 'Offensive: Throw a stone at a target for 50 neutral-element, armor-ignoring damage. Has a 5% chance to blind and/or stun its target. Quest skill — requires Job Lv 15.' },
+
+                    // ── ROW 2 (y:230) — Require row 1 ──
+                    { id: 'hiding', name: 'Hiding', icon: 'img/skills/thief/Hiding.png', gif: 'img/skills/thief/Hiding.png', max: 10, x: 440, y: 230, req: { id: 'steal', lv: 5 }, req2: null, desc: 'Active: Hide to protect yourself. Does not work against Boss, Insect and Demon monsters, counterable by some AoE skills and items.' },
+                    { id: 'detoxify', name: 'Detoxify', icon: 'img/skills/thief/Detoxify.png', gif: 'img/skills/thief/Detoxify.png', max: 1, x: 620, y: 230, req: { id: 'envenom', lv: 3 }, req2: null, desc: 'Supportive: Cures yourself or a target from being poisoned.' },
+                ]
+            },
+            {
+                key: 'Acolyte', label: 'ACOLYTE', icon: '✨', stars: 4, maxJobLv: 255, sprite: 'img/Acolyte.gif',
+                skills: [
+                    // ── ROW 1 (y:80) — No requirements ──
+                    { id: 'divine_prot', name: 'Divine Protection', icon: 'img/skills/acolyte/Divine_Protection.png', gif: 'img/skills/acolyte/Divine_Protection.png', max: 10, x: 80, y: 80, req: null, req2: null, desc: 'Passive: Increases VIT defense against Demons and Undead monsters by 3~30.' },
+                    { id: 'ruwach', name: 'Ruwach', icon: 'img/skills/acolyte/Ruwach.png', gif: 'img/skills/acolyte/Ruwach.png', max: 1, x: 620, y: 80, req: null, req2: null, desc: 'Offensive: Reveal hidden enemies in a 5×5 area around the user and deal 145% MATK damage to them.' },
+                    { id: 'heal', name: 'Heal', icon: 'img/skills/acolyte/Heal.png', gif: 'img/skills/acolyte/Heal.png', max: 10, x: 800, y: 80, req: null, req2: null, desc: 'Supportive: Restore a target\'s HP, or damage Undead targets. (Base factor 12~84)' },
+                    { id: 'aqua_benedicta', name: 'Aqua Benedicta', icon: 'img/skills/acolyte/Aqua_Benedicta.png', gif: 'img/skills/acolyte/Aqua_Benedicta.png', max: 1, x: 1160, y: 80, req: null, req2: null, desc: 'Active: Create 1 Holy Water while standing in shallow water. Each use consumes an Empty Bottle.' },
+                    { id: 'holy_light', name: 'Holy Light', icon: 'img/skills/acolyte/Holy_Light.png', gif: 'img/skills/acolyte/Holy_Light.png', max: 1, x: 1340, y: 80, req: null, req2: null, desc: 'Offensive: Holy-element attack that deals 125% MATK damage. Quest skill — requires Job Lv 30.' },
+
+                    // ── ROW 2 (y:230) ──
+                    { id: 'demon_bane', name: 'Demon Bane', icon: 'img/skills/acolyte/Demon_Bane.png', gif: 'img/skills/acolyte/Demon_Bane.png', max: 10, x: 80, y: 230, req: { id: 'divine_prot', lv: 3 }, req2: null, desc: 'Passive: Increases attack against Demons and Undead monsters by 3~30.' },
+                    { id: 'angelus', name: 'Angelus', icon: 'img/skills/acolyte/Angelus.png', gif: 'img/skills/acolyte/Angelus.png', max: 10, x: 260, y: 230, req: { id: 'divine_prot', lv: 3 }, req2: null, desc: 'Supportive: Increase VIT DEF of the user and all party members nearby for 5~50% for 30~300 seconds.' },
+                    { id: 'blessing', name: 'Blessing', icon: 'img/skills/acolyte/Blessing.png', gif: 'img/skills/acolyte/Blessing.png', max: 10, x: 440, y: 230, req: { id: 'divine_prot', lv: 5 }, req2: null, desc: 'Supportive: For 60~240 seconds, increase a target\'s STR, DEX and INT by 1~10.' },
+                    { id: 'teleport', name: 'Teleportation', icon: 'img/skills/acolyte/Teleport.png', gif: 'img/skills/acolyte/Teleport.png', max: 2, x: 620, y: 230, req: { id: 'ruwach', lv: 1 }, req2: null, desc: 'Supportive: Instantly move to a random spot on the map or the user\'s save spot.' },
+                    { id: 'increase_agi', name: 'Increase Agility', icon: 'img/skills/acolyte/Increase_AGI.png', gif: 'img/skills/acolyte/Increase_AGI.png', max: 10, x: 800, y: 230, req: { id: 'heal', lv: 3 }, req2: null, desc: 'Supportive: For 60~240 seconds, increase target\'s AGI by 3~12.' },
+                    { id: 'cure', name: 'Cure', icon: 'img/skills/acolyte/Cure.png', gif: 'img/skills/acolyte/Cure.png', max: 1, x: 980, y: 230, req: { id: 'heal', lv: 2 }, req2: null, desc: 'Supportive: Cures a target from Silence, Blind and Chaos statuses.' },
+
+                    // ── ROW 3 (y:380) — 
+                    { id: 'signum_crucis', name: 'Signum Crucis', icon: 'img/skills/acolyte/Signum_Crusis.png', gif: 'img/skills/acolyte/Signum_Crusis.png', max: 10, x: 80, y: 380, req: { id: 'demon_bane', lv: 3 }, req2: null, desc: 'Supportive: Decrease Undead-element and Demon monsters\' DEF by 14~50% in a wide radius.' },
+                    { id: 'warp_portal', name: 'Warp Portal', icon: 'img/skills/acolyte/Warp_Portal.png', gif: 'img/skills/acolyte/Warp_Portal.png', max: 4, x: 620, y: 380, req: { id: 'teleport', lv: 2 }, req2: null, desc: 'Supportive: Use a Blue Gemstone to open a portal to the user\'s save spot for up to 8 players.' },
+                    { id: 'decrease_agi', name: 'Decrease Agility', icon: 'img/skills/acolyte/Decrease_AGI.png', gif: 'img/skills/acolyte/Decrease_AGI.png', max: 10, x: 800, y: 380, req: { id: 'increase_agi', lv: 1 }, req2: null, desc: 'Active: Attempts to lower a target\'s AGI by 3~12 with 42~60% chance of success.' },
+
+                    // ── ROW 4 (y:530) — 
+                    { id: 'pneuma', name: 'Pneuma', icon: 'img/skills/acolyte/Pneuma.png', gif: 'img/skills/acolyte/Pneuma.png', max: 1, x: 620, y: 530, req: { id: 'warp_portal', lv: 4 }, req2: null, desc: 'Supportive: Protects a 3×3 area from incoming ranged attacks.' },
+                ]
+            },
+        ];
+
+        // ── CAROUSEL ─────────────────────────────────────────────────
+        let carouselIdx = 0, carouselBusy = false;
+
+        const spriteTrack = document.getElementById('spriteTrack');
+        const dotsRow = document.getElementById('dotsRow');
+        const quickGrid = document.getElementById('quickGrid');
+
+        const slides = CLASSES.map((c, i) => {
+            const div = document.createElement('div');
+            div.className = 'sprite-slide' + (i === 0 ? ' s-current' : ' s-hidden');
+            const img = document.createElement('img');
+            img.className = 'cls-sprite'; img.alt = c.label; img.src = c.sprite;
+            img.onerror = () => { const em = document.createElement('span'); em.className = 'sprite-emoji'; em.textContent = c.icon; div.replaceChild(em, img); };
+            div.appendChild(img); spriteTrack.appendChild(div); return div;
+        });
+
+        CLASSES.forEach((_, i) => {
+            const d = document.createElement('div');
+            d.className = 'dot' + (i === 0 ? ' active' : '');
+            d.onclick = () => goTo(i);
+            dotsRow.appendChild(d);
+        });
+
+        //CLASSES.forEach((c, i) => {
+        //    const b = document.createElement('button');
+        //    b.className = 'quick-btn' + (i === 0 ? ' active' : '');
+        //    b.innerHTML = `<img class="qb-gif" src="${c.sprite}" alt="${c.label}" onerror="this.outerHTML='<span class=\\"qb-icon\\">${c.icon}</span><span class="qb-name">${c.label}</span>`;
+        //    b.onclick = () => goTo(i);
+        //    quickGrid.appendChild(b);
+        //});
+
+        CLASSES.forEach((c, i) => {
+            const b = document.createElement('button');
+            b.className = 'quick-btn' + (i === 0 ? ' active' : '');
+            const img = document.createElement('img');
+            img.className = 'qb-gif';
+            img.src = c.sprite;
+            img.alt = c.label;
+            img.onerror = function () {
+                const span = document.createElement('span');
+                span.className = 'qb-icon';
+                span.textContent = c.icon;
+                this.replaceWith(span);
+            };
+            const name = document.createElement('span');
+            name.className = 'qb-name';
+            name.textContent = c.label;
+            b.appendChild(img);
+            b.appendChild(name);
+            b.onclick = () => goTo(i);
+            quickGrid.appendChild(b);
+        });
+
+        function slideRole(idx, cur, n) {
+            const d = ((idx - cur) % n + n) % n;
+            return d === 0 ? 's-current' : d === 1 ? 's-next' : d === n - 1 ? 's-prev' : d === 2 ? 's-far-next' : d === n - 2 ? 's-far-prev' : 's-hidden';
+        }
+
+        function goTo(idx) {
+            if (carouselBusy || idx === carouselIdx) return;
+            carouselBusy = true;
+            carouselIdx = ((idx % CLASSES.length) + CLASSES.length) % CLASSES.length;
+            slides.forEach((s, i) => { s.className = 'sprite-slide ' + slideRole(i, carouselIdx, CLASSES.length); });
+            const c = CLASSES[carouselIdx];
+            const plate = document.getElementById('namePlate');
+            plate.classList.add('fading');
+            setTimeout(() => {
+                document.getElementById('className').textContent = c.label;
+                document.getElementById('classStars').textContent = '★'.repeat(c.stars);
+                plate.classList.remove('fading');
+            }, 160);
+            document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === carouselIdx));
+            document.querySelectorAll('.quick-btn').forEach((b, i) => b.classList.toggle('active', i === carouselIdx));
+            currentClass = c.key; learned = {}; jobLevel = 50; fullRender();
+            setTimeout(() => { carouselBusy = false; }, 420);
+        }
+
+        document.getElementById('btnPrev').onclick = () => goTo((carouselIdx - 1 + CLASSES.length) % CLASSES.length);
+        document.getElementById('btnNext').onclick = () => goTo((carouselIdx + 1) % CLASSES.length);
+        document.addEventListener('keydown', e => { if (e.key === 'ArrowRight') goTo((carouselIdx + 1) % CLASSES.length); if (e.key === 'ArrowLeft') goTo((carouselIdx - 1 + CLASSES.length) % CLASSES.length); });
+        let tx0 = null;
+        spriteTrack.addEventListener('touchstart', e => { tx0 = e.touches[0].clientX; }, { passive: true });
+        spriteTrack.addEventListener('touchend', e => { if (tx0 === null) return; const dx = e.changedTouches[0].clientX - tx0; if (Math.abs(dx) > 40) dx < 0 ? goTo((carouselIdx + 1) % CLASSES.length) : goTo((carouselIdx - 1 + CLASSES.length) % CLASSES.length); tx0 = null; });
+
+        // ── SKILL TREE ────────────────────────────────────────────────
+        let currentClass = 'Novice', jobLevel = 50, learned = {};
+        let panX = 60, panY = 20, zoom = 1, dragging = false, dSX, dSY, pSX, pSY;
+
+        const clsData = () => CLASSES.find(c => c.key === currentClass);
+        const pts = () => Math.max(0, jobLevel - 1);
+        const spent = () => Object.values(learned).reduce((a, b) => a + b, 0);
+        const rem = () => Math.max(0, pts() - spent());
+        const meetsReq = sk => {
+            const r1 = !sk.req || (learned[sk.req.id] || 0) >= sk.req.lv;
+            const r2 = !sk.req2 || (learned[sk.req2.id] || 0) >= sk.req2.lv;
+            return r1 && r2;
+        };
+        const getState = sk => { const lv = learned[sk.id] || 0; if (lv >= sk.max) return 'maxed'; if (!meetsReq(sk)) return 'locked'; if (lv > 0) return 'learned'; return 'available'; };
+        const findSk = id => clsData().skills.find(s => s.id === id);
+
+        // Build ordered list of prerequisite chain needed to learn a skill
+        function getPrereqChain(id) {
+            const chain = [];
+            function walk(skillId) {
+                const s = findSk(skillId);
+                if (!s) return;
+                [s.req, s.req2].forEach(req => {
+                    if (!req) return;
+                    walk(req.id);
+                    const reqSk = findSk(req.id);
+                    if (reqSk && (learned[reqSk.id] || 0) < req.lv) {
+                        chain.push({ id: reqSk.id, targetLv: req.lv });
+                    }
+                });
+            }
+            walk(id);
+            return chain;
+        }
+
+        // Calculate total SP needed to auto-fulfil prereqs + the skill itself
+        function spNeededToLearn(id) {
+            const chain = getPrereqChain(id);
+            let cost = 0;
+            const sim = Object.assign({}, learned);
+            for (const { id: pid, targetLv } of chain) {
+                const cur = sim[pid] || 0;
+                cost += targetLv - cur;
+                sim[pid] = targetLv;
+            }
+            const finalLv = sim[id] || 0;
+            if (finalLv < (findSk(id)?.max || 0)) cost += 1;
+            return cost;
+        }
+
+        function increase(id) {
+            const s = findSk(id); if (!s) return;
+            const lv = learned[id] || 0;
+            if (lv >= s.max) return;
+
+            if (meetsReq(s)) {
+                // Normal case — just spend 1 SP
+                if (rem() <= 0) return;
+                learned[id] = lv + 1;
+            } else {
+                // Auto-fulfil prerequisites chain
+                const needed = spNeededToLearn(id);
+                if (needed > rem()) return; // can't afford even with auto-fill
+
+                const chain = getPrereqChain(id);
+                for (const { id: pid, targetLv } of chain) {
+                    learned[pid] = targetLv;
+                }
+                // Now learn the skill itself (1 SP)
+                learned[id] = (learned[id] || 0) + 1;
+            }
+            fullRender();
+        }
+
+        // Right-click on a node: reduce level by 1, cascade-unlearn dependents if needed
+        function decrease(id) {
+            const lv = learned[id] || 0; if (lv <= 0) return;
+            const newLv = lv - 1;
+            if (newLv === 0) {
+                delete learned[id];
+            } else {
+                learned[id] = newLv;
+            }
+            // Cascade: unlearn any skill whose req on THIS skill is now unmet
+            cascadeUnlearn(id, newLv);
+            fullRender();
+        }
+
+        // Right-click on a CHIP (learned list): same reduce behaviour
+        function decreaseFromChip(id) { decrease(id); }
+
+        function cascadeUnlearn(changedId, newLv) {
+            for (const s of clsData().skills) {
+                const deps = [s.req, s.req2].filter(Boolean);
+                for (const req of deps) {
+                    if (req.id === changedId && (learned[s.id] || 0) > 0 && newLv < req.lv) {
+                        delete learned[s.id];
+                        cascadeUnlearn(s.id, 0);
+                        break;
+                    }
+                }
+            }
+        }
+
+        function renderStats() {
+            document.getElementById('remainPts').textContent = rem();
+            document.getElementById('learnedCount').textContent = Object.keys(learned).length;
+            document.getElementById('spentPts').textContent = spent();
+            document.getElementById('jobLvVal').textContent = jobLevel;
+
+            document.getElementById('jobLvMax').textContent = '/ 255';
+            const sl = document.getElementById('jobLvSlider'); sl.max = 255; sl.value = jobLevel;
+        }
+
+        function renderLearnedList() {
+            const list = document.getElementById('learnedList');
+            const ls = clsData().skills.filter(s => (learned[s.id] || 0) > 0);
+            if (!ls.length) { list.innerHTML = '<div class="empty-msg">No skills learned yet.<br>Click a skill node to begin.</div>'; return; }
+            list.innerHTML = '';
+            ls.forEach(s => {
+                const lv = learned[s.id];
+                const d = document.createElement('div'); d.className = 'skill-chip';
+                d.title = 'Left-click: +level | Right-click: −1 level';
+                d.innerHTML = `<div class="sc-icon"><img src="${s.icon}" alt="${s.name}" style="width:18px;height:18px;object-fit:contain;image-rendering:pixelated;" onerror="this.style.display='none'"></div><div class="sc-info"><div class="sc-name">${s.name}</div><div class="sc-sub">${lv >= s.max ? '★ Maxed' : 'Learned'}</div></div><div class="sc-lv">Lv ${lv}</div>`;
+                d.onclick = () => increase(s.id);
+                d.oncontextmenu = e => { e.preventDefault(); decreaseFromChip(s.id); };
+                list.appendChild(d);
+            });
+        }
+
+        function renderTree() {
+            const inner = document.getElementById('canvasInner');
+            const svg = document.getElementById('connSvg');
+            inner.querySelectorAll('.skill-node').forEach(el => el.remove());
+            svg.innerHTML = '';
+            const skills = clsData().skills;
+
+            // connector paths — draw lines for both req and req2
+            skills.forEach(sk => {
+                [sk.req, sk.req2].forEach(req => {
+                    if (!req) return;
+                    const from = skills.find(s => s.id === req.id); if (!from) return;
+                    const H = 33, x1 = from.x + H, y1 = from.y + H, x2 = sk.x + H, y2 = sk.y + H;
+                    const isLearned = (learned[sk.id] || 0) > 0;
+                    const isMet = (learned[from.id] || 0) >= req.lv;
+                    const mx = (x1 + x2) / 2;
+
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('d', `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`);
+                    path.setAttribute('fill', 'none');
+                    path.setAttribute('stroke', isLearned ? '#d4a73a' : isMet ? '#8b6f47' : '#c8b89a');
+                    path.setAttribute('stroke-width', isLearned ? '3' : '2');
+                    svg.appendChild(path);
+
+                    const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    const midX = (x1 + x2) / 2, midY = (y1 + y2) / 2;
+                    bg.setAttribute('x', midX - 14); bg.setAttribute('y', midY - 12);
+                    bg.setAttribute('width', 28); bg.setAttribute('height', 16);
+                    bg.setAttribute('rx', 3); bg.setAttribute('fill', isMet ? '#dcc896' : '#e8dcc8');
+                    bg.setAttribute('stroke', isMet ? '#8b6f47' : '#b8a888'); bg.setAttribute('stroke-width', '1.5');
+                    svg.appendChild(bg);
+
+                    const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    txt.setAttribute('x', midX); txt.setAttribute('y', midY - 1);
+                    txt.setAttribute('text-anchor', 'middle'); txt.setAttribute('dominant-baseline', 'middle');
+                    txt.setAttribute('font-size', '9'); txt.setAttribute('font-weight', '700');
+                    txt.setAttribute('fill', isMet ? '#5d4a30' : '#9a8868');
+                    txt.setAttribute('font-family', 'Noto Sans, sans-serif');
+                    txt.textContent = 'Lv' + req.lv;
+                    svg.appendChild(txt);
+                });
+            });
+
+            const maxX = Math.max(...skills.map(s => s.x)) + 160;
+            const maxY = Math.max(...skills.map(s => s.y)) + 160;
+            svg.setAttribute('width', maxX); svg.setAttribute('height', maxY);
+
+            skills.forEach(sk => {
+                const lv = learned[sk.id] || 0;
+                const state = getState(sk);
+                const fc = state === 'maxed' ? 'maxed' : state === 'learned' ? 'learned' : state === 'available' ? 'available' : 'locked';
+                const node = document.createElement('div');
+                node.className = 'skill-node';
+                node.style.left = sk.x + 'px'; node.style.top = sk.y + 'px';
+                node.innerHTML = `
+                    <div class="node-frame ${fc}">
+                        <img class="node-icon" src="${sk.icon}" alt="${sk.name}" onerror="this.style.display='none'">
+                        <div class="node-badge ${lv > 0 ? 'on' : ''}">${lv}/${sk.max}</div>
+                    </div>
+                    <div class="node-name ${lv > 0 ? 'on' : ''}">${sk.name}</div>`;
+                node.onclick = e => { e.stopPropagation(); increase(sk.id); };
+                node.oncontextmenu = e => { e.preventDefault(); decrease(sk.id); };
+                node.onmouseenter = e => showTT(e, sk);
+                node.onmousemove = moveTT;
+                node.onmouseleave = hideTT;
+                inner.appendChild(node);
+            });
+        }
+
+        const ttEl = document.getElementById('tooltip');
+        function showTT(e, sk) {
+            const lv = learned[sk.id] || 0, state = getState(sk);
+
+            // GIF preview
+            const ttIcon = document.getElementById('ttIcon');
+            ttIcon.innerHTML = `<img src="${sk.gif || 'img/skills/placeholder.gif'}" alt="${sk.name}" style="height:60px;object-fit:contain;image-rendering:pixelated;" onerror="this.outerHTML='<span style=\\'font-size:38px\\'>${sk.name[0]}</span>'">`;
+
+            document.getElementById('ttName').textContent = sk.name;
+            document.getElementById('ttMaxLv').textContent = 'MAX LV ' + sk.max;
+            document.getElementById('ttDesc').textContent = sk.desc;
+            document.getElementById('ttCurLv').textContent = lv + ' / ' + sk.max;
+
+            // Requirements (supports req + req2)
+            const req = document.getElementById('ttReq');
+            const reqs = [sk.req, sk.req2].filter(Boolean);
+            if (reqs.length) {
+                req.className = 'tt-rv';
+                req.innerHTML = reqs.map(r => {
+                    const rs = findSk(r.id);
+                    const met = (learned[r.id] || 0) >= r.lv;
+                    return `<span class="${met ? 'ok' : 'warn'}">${rs ? rs.name : r.id} Lv${r.lv}</span>`;
+                }).join(' <span style="color:var(--text-muted)">+</span> ');
+            } else {
+                req.className = 'tt-rv ok';
+                req.textContent = 'None';
+            }
+
+            // Status bar
+            const st = document.getElementById('ttStatus');
+            st.textContent = { learned: '✦ Learned', available: 'Click to Learn', locked: 'Requirements Not Met', maxed: '★ Maxed Out' }[state];
+            st.className = 'tt-status ' + (state === 'maxed' ? 'maxed' : state);
+
+            // Hint
+            document.getElementById('ttHint').textContent =
+                (state === 'learned' || state === 'maxed') ? 'Right-click node to reduce by 1 level' :
+                    state === 'available' ? (rem() <= 0 ? 'Not enough skill points' : 'Left-click — will auto-fulfill prerequisites') :
+                        'Left-click to auto-fulfill prerequisites (if SP allows)';
+
+            moveTT(e);
+            ttEl.classList.add('show');
+        }
+
+        function moveTT(e) {
+            let x = e.clientX + 18, y = e.clientY + 18;
+            if (x + 280 > window.innerWidth) x = e.clientX - 286;
+            if (y + 370 > window.innerHeight) y = e.clientY - 370;
+            ttEl.style.left = x + 'px'; ttEl.style.top = y + 'px';
+        }
+        function hideTT() { ttEl.classList.remove('show'); }
+
+        function applyTransform() { document.getElementById('canvasInner').style.transform = `translate(${panX}px,${panY}px) scale(${zoom})`; }
+        function zoomBy(d) { zoom = Math.min(2.5, Math.max(0.2, zoom + d)); applyTransform(); }
+
+        document.getElementById('zoomIn').onclick = () => zoomBy(0.15);
+        document.getElementById('zoomOut').onclick = () => zoomBy(-0.15);
+        document.getElementById('zoomFit').onclick = () => { panX = 60; panY = 20; zoom = 1; applyTransform(); };
+        document.getElementById('resetBtn').onclick = () => { learned = {}; fullRender(); };
+
+        const panel = document.getElementById('treePanel');
+        panel.addEventListener('mousedown', e => { if (e.target.closest('.skill-node,.zoom-btns,.tree-topbar')) return; dragging = true; dSX = e.clientX; dSY = e.clientY; pSX = panX; pSY = panY; });
+        window.addEventListener('mousemove', e => { if (!dragging) return; panX = pSX + (e.clientX - dSX); panY = pSY + (e.clientY - dSY); applyTransform(); });
+        window.addEventListener('mouseup', () => { dragging = false; });
+        panel.addEventListener('wheel', e => { e.preventDefault(); zoomBy(e.deltaY > 0 ? -0.08 : 0.08); }, { passive: false });
+        document.getElementById('jobLvSlider').addEventListener('input', e => { jobLevel = parseInt(e.target.value); renderStats(); renderTree(); renderLearnedList(); });
+
+        function fullRender() { renderStats(); renderTree(); renderLearnedList(); applyTransform(); }
+
+        // init
+        slides.forEach((s, i) => { s.className = 'sprite-slide ' + slideRole(i, 0, CLASSES.length); });
+        fullRender();
+    </script>
+</body>
+</html>

@@ -13,9 +13,23 @@ namespace StatSimulation
         public Main()
         {
             InitializeComponent();
+            InitializeWebView();
+        }
+
+        private async void InitializeWebView()
+        {
+            await wb1.EnsureCoreWebView2Async(null);
+
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            string fullPath = Path.Combine(baseDir, "Frontend", "index.html");
-            wb1.Source = new Uri(fullPath);
+            string frontendPath = Path.Combine(baseDir, "Frontend");
+
+            wb1.CoreWebView2.SetVirtualHostNameToFolderMapping(
+                "app.local",
+                frontendPath,
+                Microsoft.Web.WebView2.Core.CoreWebView2HostResourceAccessKind.Allow
+            );
+
+            wb1.CoreWebView2.Navigate("https://app.local/index.html");
         }
 
 
