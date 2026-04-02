@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,13 +48,23 @@ namespace StatSimulation.Backend
         public int BaseLv { get; set; }
         public int JobLv { get; set; }
 
-        // Job bonuses (passive, from class)
+        // Job bonuses (purely from job level)
+        public int JobBonusStr { get; set; }
+        public int JobBonusAgi { get; set; }
+        public int JobBonusVit { get; set; }
+        public int JobBonusInt { get; set; }
+        public int JobBonusDex { get; set; }
+        public int JobBonusLuk { get; set; }
+
+        // Total bonuses (Skill)
         public int BonusStr { get; set; }
         public int BonusAgi { get; set; }
         public int BonusVit { get; set; }
         public int BonusInt { get; set; }
         public int BonusDex { get; set; }
         public int BonusLuk { get; set; }
+
+        public List<string> SkillBonuses { get; set; } = new List<string>();
 
     }
 

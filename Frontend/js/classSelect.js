@@ -1,6 +1,7 @@
-﻿'use strict';
+'use strict';
 
 let isInternalUpdate = false;
+window.isInternalUpdate = false; // Make it globally accessible for index.js
 
     // ── CHARACTER REGISTRY ───────────────────────────────────────
     const CHARACTERS = {
@@ -95,7 +96,7 @@ function applyCharacter(className) {
     if (window.chrome?.webview) {
         window.chrome.webview.postMessage({
             type: 'CLASS_CHANGE',
-            class: className
+            ClassName: className
         });
     }
 }
@@ -144,7 +145,9 @@ function populateWeapons(weapons) {
 sprite.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
 
 // ── INIT + LISTENERS ──────────────────────────────────────────
-applyCharacter(classSelect.value);
+// REMOVED: applyCharacter(classSelect.value); 
+// This prevents the page from resetting the class to "Novice" on load.
+// C# will push the correct state via window.syncFromBackend.
 
 classSelect.addEventListener('change', (e) => {
     applyCharacter(e.target.value);
@@ -154,7 +157,7 @@ classSelect.addEventListener('change', (e) => {
 if (jobLvSelect) {
     jobLvSelect.addEventListener('change', (e) => {
 
-        if (isInternalUpdate) return;
+        if (isInternalUpdate || window.isInternalUpdate) return;
 
         if (window.chrome?.webview) {
             window.chrome.webview.postMessage({
@@ -163,6 +166,46 @@ if (jobLvSelect) {
             });
         }
     });
+}
+
+// ── SYNC FROM BACKEND ─────────────────────────────────────────
+window.syncFromBackend = function(data) {
+    if (!data.Job) return;
+    
+    // Prevent infinite loop if we are already on this class
+    // But we still might need to update levels or weapons
+    isInternalUpdate = true;
+    
+    const isSameJob = classSelect.value === data.Job;
+    if (!isSameJob || jobLvSelect.options.length === 0) {
+        classSelect.value = data.Job;
+        applyCharacter(data.Job);
+    }
+    
+    // Also set window flag to be safe
+    window.isInternalUpdate = true;
+    isInternalUpdate = true;
+    
+    if (data.JobLv && jobLvSelect.value !== String(data.JobLv)) {
+        jobLvSelect.value = data.JobLv;
+    }
+
+    if (data.Weapon && weaponSelect.value !== data.Weapon) {
+        // Ensure weapon exists in current dropdown
+        const options = Array.from(weaponSelect.options).map(o => o.value);
+        if (options.includes(data.Weapon)) {
+            weaponSelect.value = data.Weapon;
+            weaponSelect.dispatchEvent(new Event('change'));
+        }
+    }
+    
+    isInternalUpdate = false;
+    window.isInternalUpdate = false;
+};
+
+// ── NOTIFY BACKEND READY ─────────────────────────────────────
+if (window.chrome?.webview) {
+    window.chrome.webview.postMessage({ type: 'PAGE_READY' });
 }
 
 // Weapon change

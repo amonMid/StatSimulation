@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +24,7 @@ namespace StatSimulation.Backend
 
         // to handle "Swordsman", "Mage", etc.
 
-        [JsonProperty("class")]
+        [JsonProperty("ClassName")]
         public string ClassName { get; set; } // Only for CLASS_CHANGE
 
         [JsonProperty("value")]

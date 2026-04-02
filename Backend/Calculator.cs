@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,14 +29,22 @@ namespace StatSimulation.Backend
 
 
 
-            // ── Apply bonuses to stats ────────────────────────────────────
-            int totalStr = charData.Str + bonusStr;
-            int totalAgi = charData.Agi + bonusAgi;
-            int totalVit = charData.Vit + bonusVit;
-            int totalInt = charData.Int + bonusInt;
-            int totalDex = charData.Dex + bonusDex;
-            int totalLuk = charData.Luk + bonusLuk;
+            // ── Skill Bonuses ─────────────────────────────────────────────
+            int skillStr = 0, skillAgi = 0, skillVit = 0, skillInt = 0, skillDex = 0, skillLuk = 0;
 
+            if (charData.SkillLevels.TryGetValue("owl_eye", out int owlEyeLv))
+            {
+                skillDex += owlEyeLv;
+                res.SkillBonuses.Add($"Owl's Eye [Lv {owlEyeLv}]: DEX +{owlEyeLv}");
+            }
+
+            // ── Apply bonuses to stats ────────────────────────────────────
+            int totalStr = charData.Str + bonusStr + skillStr;
+            int totalAgi = charData.Agi + bonusAgi + skillAgi;
+            int totalVit = charData.Vit + bonusVit + skillVit;
+            int totalInt = charData.Int + bonusInt + skillInt;
+            int totalDex = charData.Dex + bonusDex + skillDex;
+            int totalLuk = charData.Luk + bonusLuk + skillLuk;
 
             // Formula: STR + (STR/10)^2 + (DEX/5) + (LUK/5)
             // ── ATK ──────────────────────────────────────────────────────
@@ -64,20 +72,39 @@ namespace StatSimulation.Backend
             // Add secondary stat bonus and LUK bonus
             batk += temp_dex / 5 + totalLuk / 5;
 
-            res.Atk = $"{batk} + 0";
+            // ── Skill Bonuses: Masteries ──────────────────────────────────
+            int masteryBonus = 0;
+            if (charData.EquippedWeapon == WeaponType.OnehandedSword && charData.SkillLevels.TryGetValue("sword_mastery", out int smLv))
+            {
+                masteryBonus = smLv * 4;
+            }
+            else if (charData.EquippedWeapon == WeaponType.TwohandedSword && charData.SkillLevels.TryGetValue("two_mastery", out int tmLv))
+            {
+                masteryBonus = tmLv * 4;
+            }
+
+            res.Atk = $"{batk} + {masteryBonus}";
 
             // --- WEIGHT LIMIT ---
             // Formula: Base Job Weight + (Base STR * 30)
-            // Note: Usually uses charData.Str (Base) rather than totalStr
-            res.MaxWeight = 2000 + job.Weight + (charData.Str * 30);
+            int weightSkillBonus = 0;
+            if (charData.SkillLevels.TryGetValue("enlarge_weight", out int ewLv))
+            {
+                weightSkillBonus = ewLv * 200;
+            }
+            res.MaxWeight = 2000 + job.Weight + (charData.Str * 30) + weightSkillBonus;
 
             // ── ASPD ─────────────────────────────────────────────────────
             res.Aspd = UpdateAspd(charData, job, res, totalAgi, totalDex, false);
 
             // --- AGI: FLEE ---
             // Formula:  BaseLevel + AGI + 10 (base bonus)
-            // LUK does NOT contribute to Flee — only to Perfect Dodge & Crit resist
-            res.Flee = $"{charData.BaseLevel + totalAgi} + {(totalLuk + 10) * 10 / 100}";
+            int fleeSkillBonus = 0;
+            if (charData.SkillLevels.TryGetValue("improve_dodge", out int idLv))
+            {
+                fleeSkillBonus = idLv * 3;
+            }
+            res.Flee = $"{charData.BaseLevel + totalAgi + fleeSkillBonus} + {(totalLuk + 10) * 10 / 100}";
 
             // --- DEF --- 
             // Hard DEF (equipment)
@@ -121,7 +148,33 @@ namespace StatSimulation.Backend
             // Formula:  floor(MaxSP / 100) + floor(INT / 6) + 1   every 8 seconds
             // Bonus: every 100 SP grants +1 regen (already embedded in MaxSP / 100)
             int spRegenValue = (baseSp / 100) + (totalInt / 6) + 1;
-            res.SpRegen = $"{spRegenValue} per 8s standing (per 4s sitting)";
+            //res.SpRegen = $"{spRegenValue} per 8s standing (per 4s sitting)";
+            int sRecoveryBonus = 0;
+            double sRecoveryPercent = 0;
+
+            if (charData.SkillLevels.TryGetValue("sp_recovery", out int spRecLv))
+            {
+                // Flat bonus: 3 * level
+                sRecoveryBonus = 3 * spRecLv;
+
+                // Percent bonus: 0.2% * level
+                sRecoveryPercent = 0.002 * spRecLv;
+
+                int percentRegen = (int)(baseSp * sRecoveryPercent);
+
+                int totalSkillRegen = sRecoveryBonus + percentRegen;
+
+                res.SkillBonuses.Add(
+                    $"Increase SP Recovery [Lv {spRecLv}]: +{sRecoveryBonus} + {percentRegen} (from MaxSP)"
+                );
+
+                // Final SP Regen (separate display)
+                res.SpRegen = $"{spRegenValue} per 8s  standing (per 4s sitting) + {totalSkillRegen} per 10s (idle)";
+            }
+            else
+            {
+                res.SpRegen = $"{spRegenValue} per 8s standing (per 4s sitting)";
+            }
 
             // --- RECOVERY ITEM EFFECTIVENESS ---
             // HP items: Base × (1 + VIT × 0.02)  → +2% per VIT
@@ -183,12 +236,44 @@ namespace StatSimulation.Backend
             res.JobLv = charData.JobLevel;
 
             // ── JOB BONUSES (for UI display) ─────────────────────────────
-            res.BonusStr = bonusStr;
-            res.BonusAgi = bonusAgi;
-            res.BonusVit = bonusVit;
-            res.BonusInt = bonusInt;
-            res.BonusDex = bonusDex;
-            res.BonusLuk = bonusLuk;
+            // ── Skill Bonuses: Other ──────────────────────────────────────
+            if (charData.SkillLevels.TryGetValue("enlarge_weight", out int ewLv2))
+                res.SkillBonuses.Add($"Increase Weight [Lv {ewLv2}]: +{ewLv2 * 200} Max Weight");
+
+            if (charData.SkillLevels.TryGetValue("improve_dodge", out int idLv2))
+                res.SkillBonuses.Add($"Improve Dodge [Lv {idLv2}]: +{idLv2 * 3} FLEE");
+
+            if (charData.SkillLevels.TryGetValue("sword_mastery", out int smLv2) && charData.EquippedWeapon == WeaponType.OnehandedSword)
+                res.SkillBonuses.Add($"Sword Mastery [Lv {smLv2}]: +{smLv2 * 4} ATK");
+
+            if (charData.SkillLevels.TryGetValue("two_mastery", out int tmLv2) && charData.EquippedWeapon == WeaponType.TwohandedSword)
+                res.SkillBonuses.Add($"Two-Handed Mastery [Lv {tmLv2}]: +{tmLv2 * 4} ATK");
+
+            // ── PASS THROUGH VALUES ───────────────────────────────────────
+            res.Str = charData.Str;
+            res.Agi = charData.Agi;
+            res.Vit = charData.Vit;
+            res.Int = charData.Int;
+            res.Dex = charData.Dex;
+            res.Luk = charData.Luk;
+            res.BaseLv = charData.BaseLevel;
+            res.JobLv = charData.JobLevel;
+
+            // Pure Job Bonuses
+            res.JobBonusStr = bonusStr;
+            res.JobBonusAgi = bonusAgi;
+            res.JobBonusVit = bonusVit;
+            res.JobBonusInt = bonusInt;
+            res.JobBonusDex = bonusDex;
+            res.JobBonusLuk = bonusLuk;
+
+            // Total Bonuses (Skill)
+            res.BonusStr = skillStr;
+            res.BonusAgi = skillAgi;
+            res.BonusVit = skillVit;
+            res.BonusInt = skillInt;
+            res.BonusDex = skillDex;
+            res.BonusLuk =  skillLuk;
 
             return res;
         }

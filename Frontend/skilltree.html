@@ -1359,7 +1359,7 @@
     <script>
         const CLASSES = [
             {
-                key: 'Novice', label: 'NOVICE', icon: '🌱', stars: 3, maxJobLv: 255, sprite: 'img/Novice_Animation.gif',
+                key: 'Novice', label: 'NOVICE', icon: '🌱', stars: 3, maxJobLv: 9, sprite: 'img/Novice_Animation.gif',
                 skills: [
                     {
                         id: 'basic_skill', name: 'Basic Skill', icon: 'img/skills/Basic_Skill.png', gif: 'img/skills/Basic_Skill.png', max: 9, x: 80, y: 80, req: null, desc: 'Passive: Enables the use of Basic Interface Skills such as Trading, Kafra use, Chatroom and Party creation.', levelDescriptions: [
@@ -1373,12 +1373,29 @@
                             { lv: 9, desc: "Enables Change to First Job Class\nQualifies character for change from\nNovice to one of the First or Expanded\nclasses." }
                         ]
                     },
-                    { id: 'first_aid', name: 'First Aid', icon: 'img/skills/First_Aid.png', gif: 'img/skills/First_Aid.png', max: 1, x: 280, y: 80, req: null, desc: 'Supportive: Consume 3 SP to restore 5 HP. Quest skill — available from the start.' },
-                    { id: 'play_dead', name: 'Play Dead', icon: 'img/skills/Play_Dead.png', gif: 'img/skills/Play_Dead.png', max: 1, x: 480, y: 80, req: null, desc: 'Supportive: Pretend to fall dead on the ground, becoming immune from all attacks from Players and monsters. Quest skill — available from the start.' },
+                    {
+                        id: 'first_aid',
+                        name: 'First Aid',
+                        icon: 'img/skills/First_Aid.png',
+                        gif: 'img/skills/First_Aid.png',
+                        max: 1, x: 280, y: 80,
+                        req: null,
+                        quest: true,
+                        desc: 'Supportive: Consume 3 SP to restore 5 HP. Quest skill — available from the start.'
+                    },
+                    {
+                        id: 'play_dead',
+                        name: 'Play Dead',
+                        icon: 'img/skills/Play_Dead.png',
+                        gif: 'img/skills/Play_Dead.png',
+                        max: 1, x: 480, y: 80, req: null,
+                        quest: true,
+                        desc: 'Supportive: Pretend to fall dead on the ground, becoming immune from all attacks from Players and monsters. Quest skill — available from the start.'
+                    },
                 ]
             },
             {
-                key: 'Swordman', label: 'SWORDMAN', icon: '⚔️', stars: 4, maxJobLv: 255, sprite: 'img/Swordsman.gif',
+                key: 'Swordsman', label: 'SWORDMAN', icon: '⚔️', stars: 4, maxJobLv: 50, sprite: 'img/Swordsman.gif',
                 skills: [
                     // ── ROW 1 (y:80) — No requirements ──
                     {
@@ -1444,9 +1461,9 @@
                     },
 
                     // ── Quest Skills — no req ──
-                    { id: 'fatal_blow', name: 'Fatal Blow', icon: 'img/skills/Fatal_Blow.png', gif: 'img/skills/Fatal_Blow.png', max: 1, x: 980, y: 80, req: null, req2: null, desc: 'Passive: Adds a chance to stun targets hit with Bash level 6 and up. Quest skill — requires Job Lv 30.' },
-                    { id: 'hp_move', name: 'Moving HP Recovery', icon: 'img/skills/HP_Recovery_While_Moving.png', gif: 'img/skills/HP_Recovery_While_Moving.png', max: 1, x: 980, y: 230, req: null, req2: null, desc: 'Passive: Allows HP recovery while walking. Quest skill — requires Job Lv 35.' },
-                    { id: 'berserk', name: 'Auto Berserk', icon: 'img/skills/Berserk.png', gif: 'img/skills/Berserk.png', max: 1, x: 980, y: 380, req: null, req2: null, desc: 'Passive: Increases attack but decreases Defense as per Provoke level 10 when HP drops below 25%. Quest skill — requires Job Lv 30.' },
+                    { id: 'fatal_blow', name: 'Fatal Blow', icon: 'img/skills/Fatal_Blow.png', gif: 'img/skills/Fatal_Blow.png', max: 1, x: 980, y: 80, req: null, req2: null, quest: true, desc: 'Passive: Adds a chance to stun targets hit with Bash level 6 and up. Quest skill — requires Job Lv 30.' },
+                    { id: 'hp_move', name: 'Moving HP Recovery', icon: 'img/skills/HP_Recovery_While_Moving.png', gif: 'img/skills/HP_Recovery_While_Moving.png', max: 1, x: 980, y: 230, req: null, req2: null, quest: true, desc: 'Passive: Allows HP recovery while walking. Quest skill — requires Job Lv 35.' },
+                    { id: 'berserk', name: 'Auto Berserk', icon: 'img/skills/Berserk.png', gif: 'img/skills/Berserk.png', max: 1, x: 980, y: 380, req: null, req2: null, quest: true, desc: 'Passive: Increases attack but decreases Defense as per Provoke level 10 when HP drops below 25%. Quest skill — requires Job Lv 30.' },
 
                     // ── ROW 2 (y:230) — Require row 1 ──
                     {
@@ -1497,11 +1514,11 @@
                 ]
             },
             {
-                key: 'Mage',
+                key: 'Magician',
                 label: 'MAGICIAN',
                 icon: '🔮',
                 stars: 4,
-                maxJobLv: 255,
+                maxJobLv: 50,
                 sprite: 'img/Magician.gif',
                 skills: [
 
@@ -1765,7 +1782,7 @@
                 label: 'ARCHER',
                 icon: '🏹',
                 stars: 4,
-                maxJobLv: 255,
+                maxJobLv: 50,
                 sprite: 'img/Archer.gif',
                 skills: [
 
@@ -1825,6 +1842,7 @@
                         max: 1,
                         x: 440, y: 80,
                         req: null,
+                        quest: true,
                         desc: 'Create arrows from items.',
                         levelDescriptions: [
                             { lv: 1, desc: "Utility skill" }
@@ -1918,7 +1936,7 @@
                 ]
             },
             {
-                key: 'Merchant', label: 'MERCHANT', icon: '💰', stars: 4, maxJobLv: 255, sprite: 'img/Merchant.gif',
+                key: 'Merchant', label: 'MERCHANT', icon: '💰', stars: 4, maxJobLv: 50, sprite: 'img/Merchant.gif',
                 skills: [
                     // ── ROW 1 ──
                     {
@@ -1990,6 +2008,7 @@
                         max: 1,
                         x: 620, y: 80,
                         req: null,
+                        quest: true,
                         desc: 'AoE attack scaling with cart weight.',
                         levelDescriptions: [
                             { lv: 1, desc: '150% ATK, SP: 12' }
@@ -2149,7 +2168,7 @@
                 ]
             },
             {
-                key: 'Thief', label: 'THIEF', icon: '🗡️', stars: 4, maxJobLv: 255, sprite: 'img/Thief.gif',
+                key: 'Thief', label: 'THIEF', icon: '🗡️', stars: 4, maxJobLv: 50, sprite: 'img/Thief.gif',
                 skills: [
                     // ── ROW 1 ──
                     {
@@ -2250,6 +2269,7 @@
                         max: 1,
                         x: 800, y: 80,
                         req: null,
+                        quest: true,
                         desc: 'Earth attack with blind chance.',
                         levelDescriptions: [
                             { lv: 1, desc: "130% ATK, Blind chance, SP: 9" }
@@ -2334,7 +2354,7 @@
                 ]
             },
             {
-                key: 'Acolyte', label: 'ACOLYTE', icon: '✨', stars: 4, maxJobLv: 255, sprite: 'img/Acolyte.gif',
+                key: 'Acolyte', label: 'ACOLYTE', icon: '✨', stars: 4, maxJobLv: 50, sprite: 'img/Acolyte.gif',
                 skills: [
                     // ── ROW 1 ──
                     {
@@ -2641,14 +2661,6 @@
             dotsRow.appendChild(d);
         });
 
-        //CLASSES.forEach((c, i) => {
-        //    const b = document.createElement('button');
-        //    b.className = 'quick-btn' + (i === 0 ? ' active' : '');
-        //    b.innerHTML = `<img class="qb-gif" src="${c.sprite}" alt="${c.label}" onerror="this.outerHTML='<span class=\\"qb-icon\\">${c.icon}</span><span class="qb-name">${c.label}</span>`;
-        //    b.onclick = () => goTo(i);
-        //    quickGrid.appendChild(b);
-        //});
-
         CLASSES.forEach((c, i) => {
             const b = document.createElement('button');
             b.className = 'quick-btn' + (i === 0 ? ' active' : '');
@@ -2676,22 +2688,51 @@
             return d === 0 ? 's-current' : d === 1 ? 's-next' : d === n - 1 ? 's-prev' : d === 2 ? 's-far-next' : d === n - 2 ? 's-far-prev' : 's-hidden';
         }
 
+        function updateJobLevels() {
+            const c = CLASSES[carouselIdx];
+            const slider = document.getElementById('jobLvSlider');
+            const maxLabel = document.getElementById('jobLvMax');
+            if (slider) {
+                slider.max = c.maxJobLv;
+                if (jobLevel > c.maxJobLv) {
+                    jobLevel = c.maxJobLv;
+                    slider.value = jobLevel;
+                    if (window.chrome?.webview && !window.isInternalUpdate) {
+                        window.chrome.webview.postMessage({ type: 'JOB_LEVEL_CHANGE', value: jobLevel });
+                    }
+                }
+            }
+            if (maxLabel) maxLabel.textContent = '/ ' + c.maxJobLv;
+        }
+
         function goTo(idx) {
-            if (carouselBusy || idx === carouselIdx) return;
+            if (carouselBusy) return;
             carouselBusy = true;
-            carouselIdx = ((idx % CLASSES.length) + CLASSES.length) % CLASSES.length;
+            carouselIdx = (idx + CLASSES.length) % CLASSES.length;
             slides.forEach((s, i) => { s.className = 'sprite-slide ' + slideRole(i, carouselIdx, CLASSES.length); });
             const c = CLASSES[carouselIdx];
-            const plate = document.getElementById('namePlate');
-            plate.classList.add('fading');
-            setTimeout(() => {
-                document.getElementById('className').textContent = c.label;
-                document.getElementById('classStars').textContent = '★'.repeat(c.stars);
-                plate.classList.remove('fading');
-            }, 160);
+            currentClass = c.key;
+            document.getElementById('className').textContent = c.label;
+            document.getElementById('classStars').textContent = '★'.repeat(c.stars);
             document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === carouselIdx));
             document.querySelectorAll('.quick-btn').forEach((b, i) => b.classList.toggle('active', i === carouselIdx));
-            currentClass = c.key; learned = {}; jobLevel = 1; fullRender();
+            
+            updateJobLevels();
+
+            learned = {};
+            const cls = CLASSES[carouselIdx];
+
+            cls.skills.forEach(sk => {
+                if (sk.quest) {
+                    learned[sk.id] = sk.max;
+                }
+            });
+
+            fullRender();
+            
+            if (window.chrome?.webview) {
+                window.chrome.webview.postMessage({ type: 'JOB_CHANGE', value: currentClass });
+            }
             setTimeout(() => { carouselBusy = false; }, 420);
         }
 
@@ -2704,6 +2745,15 @@
 
         // ── SKILL TREE ────────────────────────────────────────────────
         let currentClass = 'Novice', jobLevel = 1, learned = {};
+        // AUTO-UNLOCK QUEST SKILLS
+        CLASSES.forEach(cls => {
+            cls.skills.forEach(sk => {
+                if (sk.quest) {
+                    learned[sk.id] = sk.max; // or 1 if fixed level
+                }
+            });
+        });
+
         let panX = 60, panY = 20, zoom = 1, dragging = false, dSX, dSY, pSX, pSY;
 
         const clsData = () => CLASSES.find(c => c.key === currentClass);
@@ -2773,12 +2823,23 @@
                 // Now learn the skill itself (1 SP)
                 learned[id] = (learned[id] || 0) + 1;
             }
+            if (window.chrome?.webview) {
+                window.chrome.webview.postMessage({ type: 'SKILL_CHANGE', stat: id, value: learned[id] });
+            }
             fullRender();
         }
 
         // Right-click on a node: reduce level by 1, cascade-unlearn dependents if needed
         function decrease(id) {
-            const lv = learned[id] || 0; if (lv <= 0) return;
+
+            const cls = CLASSES.find(c => c.key === currentClass);
+            const skill = cls?.skills.find(s => s.id === id);
+
+            // Prevent unlearning quest skills
+            if (skill?.quest) return;
+
+            const lv = learned[id] || 0;
+            if (lv <= 0) return;
             const newLv = lv - 1;
             if (newLv === 0) {
                 delete learned[id];
@@ -2787,11 +2848,22 @@
             }
             // Cascade: unlearn any skill whose req on THIS skill is now unmet
             cascadeUnlearn(id, newLv);
+
+            if (window.chrome?.webview) {
+                window.chrome.webview.postMessage({ type: 'SKILL_CHANGE', stat: id, value: newLv });
+            }
             fullRender();
         }
 
         // Right-click on a CHIP (learned list): same reduce behaviour
-        function decreaseFromChip(id) { decrease(id); }
+        function decreaseFromChip(id) {
+            const cls = CLASSES.find(c => c.key === currentClass);
+            const skill = cls?.skills.find(s => s.id === id);
+
+            if (skill?.quest) return;
+
+            decrease(id);
+        }
 
         function cascadeUnlearn(changedId, newLv) {
             for (const s of clsData().skills) {
@@ -2812,8 +2884,21 @@
             document.getElementById('spentPts').textContent = spent();
             document.getElementById('jobLvVal').textContent = jobLevel;
 
-            document.getElementById('jobLvMax').textContent = '/ 50';
-            const sl = document.getElementById('jobLvSlider'); sl.max = 50; sl.value = jobLevel;
+            document.getElementById('jobLvMax').textContent = '/ ' + clsData().maxJobLv;
+            const sl = document.getElementById('jobLvSlider'); 
+            sl.max = clsData().maxJobLv; 
+            sl.value = jobLevel;
+        }
+
+        function applyQuestSkills() {
+            const cls = CLASSES.find(c => c.key === currentClass);
+            if (!cls) return;
+
+            cls.skills.forEach(sk => {
+                if (sk.quest) {
+                    learned[sk.id] = sk.max;
+                }
+            });
         }
 
         function renderLearnedList() {
@@ -2898,6 +2983,20 @@
                 node.onmousemove = moveTT;
                 node.onmouseleave = hideTT;
                 inner.appendChild(node);
+            });
+        }
+
+        function validateSkillsByJobLevel() {
+            const cls = clsData();
+
+            Object.keys(learned).forEach(skillId => {
+                const sk = cls.skills.find(s => s.id === skillId);
+                if (!sk) return;
+
+                // If skill requires job level and it's not met → remove it
+                if (sk.jobReq && jobLevel < sk.jobReq) {
+                    delete learned[skillId];
+                }
             });
         }
 
@@ -2988,20 +3087,73 @@
         document.getElementById('zoomIn').onclick = () => zoomBy(0.15);
         document.getElementById('zoomOut').onclick = () => zoomBy(-0.15);
         document.getElementById('zoomFit').onclick = () => { panX = 60; panY = 20; zoom = 1; applyTransform(); };
-        document.getElementById('resetBtn').onclick = () => { learned = {}; fullRender(); };
+        document.getElementById('resetBtn').onclick = () => {
+            learned = {};
+            if (window.chrome?.webview) {
+                // Just send an empty skill set update or a specific RESET message that doesn't change class
+                window.chrome.webview.postMessage({ type: 'SKILL_RESET' });
+            }
+            fullRender();
+        };
 
         const panel = document.getElementById('treePanel');
         panel.addEventListener('mousedown', e => { if (e.target.closest('.skill-node,.zoom-btns,.tree-topbar')) return; dragging = true; dSX = e.clientX; dSY = e.clientY; pSX = panX; pSY = panY; });
         window.addEventListener('mousemove', e => { if (!dragging) return; panX = pSX + (e.clientX - dSX); panY = pSY + (e.clientY - dSY); applyTransform(); });
         window.addEventListener('mouseup', () => { dragging = false; });
         panel.addEventListener('wheel', e => { e.preventDefault(); zoomBy(e.deltaY > 0 ? -0.08 : 0.08); }, { passive: false });
-        document.getElementById('jobLvSlider').addEventListener('input', e => { jobLevel = parseInt(e.target.value); renderStats(); renderTree(); renderLearnedList(); });
+        document.getElementById('jobLvSlider').addEventListener('input', e => { 
+            jobLevel = parseInt(e.target.value); 
+            // Notify C#
+            if (window.chrome?.webview && !window.isInternalUpdate) {
+                window.chrome.webview.postMessage({ type: 'JOB_LEVEL_CHANGE', value: jobLevel });
+            }
+            renderStats(); 
+            renderTree(); 
+            renderLearnedList(); 
+        });
 
         function fullRender() { renderStats(); renderTree(); renderLearnedList(); applyTransform(); }
 
+        // ── SYNC FROM BACKEND ─────────────────────────────────────────
+        window.syncFromBackend = function(data) {
+            window.isInternalUpdate = true;
+            console.log("Syncing skill tree state:", data);
+            if (data.Job && data.Job !== currentClass) {
+                const idx = CLASSES.findIndex(c => c.key === data.Job);
+                if (idx !== -1) {
+                    carouselIdx = idx;
+                    currentClass = data.Job;
+                    slides.forEach((s, i) => { s.className = 'sprite-slide ' + slideRole(i, carouselIdx, CLASSES.length); });
+                    const c = CLASSES[carouselIdx];
+                    document.getElementById('className').textContent = c.label;
+                    document.getElementById('classStars').textContent = '★'.repeat(c.stars);
+                    document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === carouselIdx));
+                    document.querySelectorAll('.quick-btn').forEach((b, i) => b.classList.toggle('active', i === carouselIdx));
+                }
+            }
+            if (data.SkillLevels) {
+                learned = Object.assign({}, data.SkillLevels);
+            }
+            if (data.JobLv) {
+                jobLevel = data.JobLv;
+                const slider = document.getElementById('jobLvSlider');
+                if (slider) slider.value = jobLevel;
+            }
+            updateJobLevels();
+            fullRender();
+            window.isInternalUpdate = false;
+        };
+
         // init
         slides.forEach((s, i) => { s.className = 'sprite-slide ' + slideRole(i, 0, CLASSES.length); });
+        updateJobLevels();
+        applyQuestSkills();
         fullRender();
+
+        // ── NOTIFY BACKEND READY ─────────────────────────────────────
+        if (window.chrome?.webview) {
+            window.chrome.webview.postMessage({ type: 'PAGE_READY' });
+        }
     </script>
 </body>
 

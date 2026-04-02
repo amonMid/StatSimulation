@@ -1,4 +1,4 @@
-﻿class StatBridge {
+class StatBridge {
     static LEVEL_MIN = 1;
     static LEVEL_MAX = 99;
 
@@ -172,6 +172,7 @@ document.querySelectorAll('[data-stat-input]').forEach(input => {
     });
 
     input.addEventListener('change', async (e) => {
+        if (window.isInternalUpdate) return;
         const stat = e.target.getAttribute('data-stat-input');
         const newValue = parseInt(e.target.value) || 1;
         const oldValue = parseInt(e.target.dataset.oldValue || 1);

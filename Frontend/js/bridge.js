@@ -1,4 +1,4 @@
-﻿if (window.chrome && window.chrome.webview) {
+if (window.chrome && window.chrome.webview) {
     window.chrome.webview.addEventListener('message', event => {
         // C# sends a JSON string or object
         const resultData = event.data;
@@ -68,6 +68,18 @@ const CharacterUI = (() => {
                 updateStatBonus('INT', data.BonusInt || 0);
                 updateStatBonus('DEX', data.BonusDex || 0);
                 updateStatBonus('LUK', data.BonusLuk || 0);
+
+                // ── Display skill bonuses list ─────────────────────
+                const skillList = document.getElementById('skillBonusesList');
+                if (skillList) {
+                    if (data.SkillBonuses && data.SkillBonuses.length > 0) {
+                        skillList.innerHTML = data.SkillBonuses.map(bonus => 
+                            `<div class="skill-bonus-tag">${bonus}</div>`
+                        ).join('');
+                    } else {
+                        skillList.innerHTML = '<div class="no-bonuses">No active skill bonuses</div>';
+                    }
+                }
 
 
                 // ── Point Restriction Logic ───────────────────────

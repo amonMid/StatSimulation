@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -124,13 +124,37 @@ namespace StatSimulation.Backend
             if (string.IsNullOrEmpty(newJob))
                 newJob = "Novice";
 
+            if (CurrentCharacter.Job == newJob)
+                return Calculator.CalculateAll(CurrentCharacter);
+
             // Update the job class string in your character data
             CurrentCharacter.Job = newJob;
 
             // Reset Job LV to 1 on class change
             CurrentCharacter.JobLevel = 1;
 
+            // Reset Skills on class change
+            CurrentCharacter.SkillLevels.Clear();
+
             // Re-run all calculations because HP/SP multipliers depend on Job
+            return Calculator.CalculateAll(CurrentCharacter);
+        }
+
+        public CalculationResult UpdateSkill(string skillId, int level)
+        {
+            if (string.IsNullOrEmpty(skillId))
+                return Calculator.CalculateAll(CurrentCharacter);
+
+            if (level <= 0)
+            {
+                if (CurrentCharacter.SkillLevels.ContainsKey(skillId))
+                    CurrentCharacter.SkillLevels.Remove(skillId);
+            }
+            else
+            {
+                CurrentCharacter.SkillLevels[skillId] = level;
+            }
+
             return Calculator.CalculateAll(CurrentCharacter);
         }
 

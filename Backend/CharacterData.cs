@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,6 +29,9 @@ namespace StatSimulation.Backend
 
         // Weapons
         public WeaponType EquippedWeapon { get; set; } = WeaponType.Hand;
+
+        // Skill Levels
+        public Dictionary<string, int> SkillLevels { get; set; } = new Dictionary<string, int>();
     }
 
     // Weapons
