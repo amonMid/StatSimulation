@@ -33,6 +33,21 @@ namespace StatSimulation.Backend
         [JsonProperty("weapon")]
         public string Weapon { get; set; }  // Only for WEAPON_CHANGE
 
+        [JsonProperty("job")]
+        public string Job { get; set; }
+
+        [JsonProperty("jobLevel")]
+        public int JobLevel { get; set; }
+
+        [JsonProperty("skillLevels")]
+        public Dictionary<string, int> SkillLevels { get; set; }
+
+        [JsonProperty("skillId")]
+        public string SkillId { get; set; }
+
+        [JsonProperty("skillLevel")]
+        public int SkillLevel { get; set; }
+
         // Constructor with safe defaults
         public StatUpdateMessage()
         {

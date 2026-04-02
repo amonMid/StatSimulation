@@ -137,8 +137,25 @@ namespace StatSimulation.Backend
             //int baseHpr = Math.Max(1, totalMaxHp / 200);
             int hpRegenValue = (int)CalculateHPRegen(totalMaxHp, totalVit);
 
-            res.HpRegen = $"{hpRegenValue} per 6s standing (per 3s sitting)";
+            //res.HpRegen = $"{hpRegenValue} per 6s standing (per 3s sitting)";
+            // Increase HP Recovery skill bonus
+            if (charData.SkillLevels.TryGetValue("hp_recovery", out int hpRecLv))
+            {
+                int flatBonus = hpRecLv * 5;
+                double percentBonus = hpRecLv * 0.002; // 0.2% per level
+                int percentRegen = (int)(totalMaxHp * percentBonus);
+                int totalSkillRegen = flatBonus + percentRegen;
 
+                res.SkillBonuses.Add(
+                    $"Increase HP Recovery [Lv {hpRecLv}]: +{flatBonus} + {percentRegen} (from MaxHP) per 10s idle"
+                );
+
+                res.HpRegen = $"{hpRegenValue} per 6s standing (per 3s sitting) + {totalSkillRegen} per 10s (idle)";
+            }
+            else
+            {
+                res.HpRegen = $"{hpRegenValue} per 6s standing (per 3s sitting)";
+            }
             // --- SP CALCULATIONS ---
             // Formula:  BaseSP × (1 + INT × 0.01)
             int baseSp = CalculateBaseSP(charData.BaseLevel, totalInt, job);
@@ -267,13 +284,13 @@ namespace StatSimulation.Backend
             res.JobBonusDex = bonusDex;
             res.JobBonusLuk = bonusLuk;
 
-            // Total Bonuses (Skill)
-            res.BonusStr = skillStr;
-            res.BonusAgi = skillAgi;
-            res.BonusVit = skillVit;
-            res.BonusInt = skillInt;
-            res.BonusDex = skillDex;
-            res.BonusLuk =  skillLuk;
+            // Total Bonuses (Skill + Job)
+            res.BonusStr = bonusStr + skillStr;
+            res.BonusAgi = bonusAgi + skillAgi;
+            res.BonusVit = bonusVit + skillVit;
+            res.BonusInt = bonusInt + skillInt;
+            res.BonusDex = bonusDex + skillDex;
+            res.BonusLuk =  bonusLuk + skillLuk;
 
             return res;
         }

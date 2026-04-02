@@ -59,7 +59,54 @@ namespace StatSimulation
                         results = Calculator.CalculateAll(_service.CurrentCharacter);
                         UpdateUIStats();
                         break;
+                    case "SKILL_TREE_BACK":
+                        // Sync job class if it changed in skill tree
+                        if (!string.IsNullOrEmpty(message.Job))
+                        {
+                            _service.UpdateJob(message.Job);
+                        }
+                        // Full sync from skill tree ? job level + all skill levels
+                        if (message.JobLevel > 0)
+                        {
+                            _service.CurrentCharacter.JobLevel = message.JobLevel;
+                        }
+                        if (message.SkillLevels != null)
+                        {
+                            _service.CurrentCharacter.SkillLevels = new Dictionary<string, int>(message.SkillLevels);
+                        }
+                        else
+                        {
+                            _service.CurrentCharacter.SkillLevels.Clear();
+                        }
+                        results = Calculator.CalculateAll(_service.CurrentCharacter);
+                        // Push updated job level back to index.html UI
+                        UpdateUIStats();
+                        break;
 
+                    case "SKILL_UPDATE":
+                        // Incremental update ? single skill change + auto-allocated job level
+                        if (message.JobLevel > 0)
+                        {
+                            _service.CurrentCharacter.JobLevel = message.JobLevel;
+                        }
+                        if (!string.IsNullOrEmpty(message.SkillId))
+                        {
+                            _service.UpdateSkill(message.SkillId, message.SkillLevel);
+                        }
+                        results = Calculator.CalculateAll(_service.CurrentCharacter);
+                        break;
+
+                    case "JOB_CHANGE":
+                        // Carousel class switch from skill tree
+                        if (!string.IsNullOrEmpty(message.Job))
+                        {
+                            _service.UpdateJob(message.Job);
+                            _service.CurrentCharacter.SkillLevels.Clear();
+                            _service.CurrentCharacter.JobLevel = 1;
+                            results = Calculator.CalculateAll(_service.CurrentCharacter);
+                            UpdateUIStats();
+                        }
+                        break;
                     case "SKILL_RESET":
                         _service.CurrentCharacter.SkillLevels.Clear();
                         results = Calculator.CalculateAll(_service.CurrentCharacter);
@@ -206,20 +253,32 @@ namespace StatSimulation
 
         private async void SyncFrontendState()
         {
-            if (wb1.CoreWebView2 == null) return;
-            var results = Calculator.CalculateAll(_service.CurrentCharacter);
-            string json = JsonConvert.SerializeObject(results);
-            string skillJson = JsonConvert.SerializeObject(new { 
-                Job = _service.CurrentCharacter.Job, 
-                JobLv = _service.CurrentCharacter.JobLevel,
-                SkillLevels = _service.CurrentCharacter.SkillLevels,
-                Weapon = StringifyWeaponType(_service.CurrentCharacter.EquippedWeapon)
-            });
-            string safeJson = System.Web.HttpUtility.JavaScriptStringEncode(json);
+            //if (wb1.CoreWebView2 == null) return;
+            //var results = Calculator.CalculateAll(_service.CurrentCharacter);
+            //string json = JsonConvert.SerializeObject(results);
+            //string skillJson = JsonConvert.SerializeObject(new { 
+            //    Job = _service.CurrentCharacter.Job, 
+            //    JobLv = _service.CurrentCharacter.JobLevel,
+            //    SkillLevels = _service.CurrentCharacter.SkillLevels,
+            //    Weapon = StringifyWeaponType(_service.CurrentCharacter.EquippedWeapon)
+            //});
+            //string safeJson = System.Web.HttpUtility.JavaScriptStringEncode(json);
 
-            await wb1.CoreWebView2.ExecuteScriptAsync($"if(window.CharacterUI) CharacterUI.render(\"{safeJson}\");");
-            await wb1.CoreWebView2.ExecuteScriptAsync($"if(window.CharacterUI) CharacterUI.syncInputs(\"{safeJson}\");");
-            await wb1.CoreWebView2.ExecuteScriptAsync($"if(window.syncFromBackend) window.syncFromBackend({skillJson});");
+            //await wb1.CoreWebView2.ExecuteScriptAsync($"if(window.CharacterUI) CharacterUI.render(\"{safeJson}\");");
+            //await wb1.CoreWebView2.ExecuteScriptAsync($"if(window.CharacterUI) CharacterUI.syncInputs(\"{safeJson}\");");
+            //await wb1.CoreWebView2.ExecuteScriptAsync($"if(window.syncFromBackend) window.syncFromBackend({skillJson});");
+            var skillLevels = JsonConvert.SerializeObject(_service.CurrentCharacter.SkillLevels ?? new Dictionary<string, int>());
+
+            string script = $@"
+                if (typeof window.syncFromBackend === 'function') {{
+                    window.syncFromBackend({{
+                        Job: '{_service.CurrentCharacter.Job}',
+                        JobLv: {_service.CurrentCharacter.JobLevel},
+                        SkillLevels: {skillLevels}
+                    }});
+                }}
+            ";
+            await wb1.CoreWebView2.ExecuteScriptAsync(script);
         }
 
         private string StringifyWeaponType(WeaponType weapon)

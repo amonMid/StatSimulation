@@ -1320,7 +1320,7 @@
         <div class="right-panel" id="treePanel">
             <div class="tree-topbar">
                 <button class="zoom-btn sm" style="margin-left:auto; padding: 8px 5px;"
-                    onclick="window.location.href='https://app.local/index.html'">← Back</button>
+                    onclick="syncToCalculatorAndGoBack()">← Back</button>
                 <span class="tb-title">⚔ SKILL TREE</span>
                 <div class="tb-sep"></div>
                 <span class="tb-hint">Left-click to learn · Right-click to reduce · Scroll/drag to navigate</span>
@@ -2731,7 +2731,7 @@
             fullRender();
             
             if (window.chrome?.webview) {
-                window.chrome.webview.postMessage({ type: 'JOB_CHANGE', value: currentClass });
+                window.chrome.webview.postMessage({ type: 'JOB_CHANGE', job: currentClass });
             }
             setTimeout(() => { carouselBusy = false; }, 420);
         }
@@ -2745,20 +2745,27 @@
 
         // ── SKILL TREE ────────────────────────────────────────────────
         let currentClass = 'Novice', jobLevel = 1, learned = {};
-        // AUTO-UNLOCK QUEST SKILLS
-        CLASSES.forEach(cls => {
-            cls.skills.forEach(sk => {
-                if (sk.quest) {
-                    learned[sk.id] = sk.max; // or 1 if fixed level
-                }
-            });
-        });
+        //// AUTO-UNLOCK QUEST SKILLS
+        //CLASSES.forEach(cls => {
+        //    cls.skills.forEach(sk => {
+        //        if (sk.quest) {
+        //            learned[sk.id] = sk.max; // or 1 if fixed level
+        //        }
+        //    });
+        //});
 
         let panX = 60, panY = 20, zoom = 1, dragging = false, dSX, dSY, pSX, pSY;
 
         const clsData = () => CLASSES.find(c => c.key === currentClass);
         const pts = () => Math.max(0, jobLevel - 1);
-        const spent = () => Object.values(learned).reduce((a, b) => a + b, 0);
+        const spent = () => {
+            const cls = clsData();
+            return Object.entries(learned).reduce((total, [id, lv]) => {
+                const sk = cls?.skills.find(s => s.id === id);
+                if (sk?.quest) return total; // quest skills are free
+                return total + lv;
+            }, 0);
+        };
         const rem = () => Math.max(0, pts() - spent());
         const meetsReq = sk => {
             const r1 = !sk.req || (learned[sk.req.id] || 0) >= sk.req.lv;
@@ -2807,6 +2814,16 @@
             const lv = learned[id] || 0;
             if (lv >= s.max) return;
 
+            // Auto-raise job level if we don't have enough SP
+            const needed = spNeededToLearn(id);
+            const maxJobLv = clsData().maxJobLv;
+            while (Math.max(0, jobLevel - 1) - spent() < needed && jobLevel < maxJobLv) {
+                jobLevel++;
+            }
+            // Sync slider
+            const sl = document.getElementById('jobLvSlider');
+            if (sl) sl.value = jobLevel;
+
             if (meetsReq(s)) {
                 // Normal case — just spend 1 SP
                 if (rem() <= 0) return;
@@ -2823,8 +2840,21 @@
                 // Now learn the skill itself (1 SP)
                 learned[id] = (learned[id] || 0) + 1;
             }
+            //if (window.chrome?.webview) {
+            //    window.chrome.webview.postMessage({
+            //        type: 'SKILL_CHANGE',
+            //        stat: id,
+            //        value: learned[id]
+            //    });
+            //}
             if (window.chrome?.webview) {
-                window.chrome.webview.postMessage({ type: 'SKILL_CHANGE', stat: id, value: learned[id] });
+                window.chrome.webview.postMessage({
+                    type: 'SKILL_UPDATE',
+                    job: currentClass,
+                    jobLevel: jobLevel,
+                    skillId: id,
+                    skillLevel: learned[id]
+                });
             }
             fullRender();
         }
@@ -2875,6 +2905,39 @@
                         break;
                     }
                 }
+            }
+        }
+
+        // Unlearn skills (last-learned first) until spent SP fits within available points
+        function enforceSkillPointBudget() {
+            const cls = clsData();
+            const available = Math.max(0, jobLevel - 1);
+
+            // Build list of non-quest learned skills in reverse order (last learned = highest x/y position, approximate)
+            let needsReduction = true;
+            while (needsReduction) {
+                needsReduction = false;
+                const currentSpent = Object.entries(learned).reduce((total, [id, lv]) => {
+                    const sk = cls?.skills.find(s => s.id === id);
+                    if (sk?.quest) return total;
+                    return total + lv;
+                }, 0);
+
+                if (currentSpent <= available) break;
+
+                // Find the non-quest skill with the highest y (deepest), then highest x to reduce first
+                const candidates = cls.skills
+                    .filter(sk => !sk.quest && (learned[sk.id] || 0) > 0)
+                    .sort((a, b) => b.y - a.y || b.x - a.x);
+
+                if (candidates.length === 0) break;
+
+                const target = candidates[0];
+                const newLv = (learned[target.id] || 0) - 1;
+                if (newLv === 0) delete learned[target.id];
+                else learned[target.id] = newLv;
+                cascadeUnlearn(target.id, newLv);
+                needsReduction = true;
             }
         }
 
@@ -3089,8 +3152,8 @@
         document.getElementById('zoomFit').onclick = () => { panX = 60; panY = 20; zoom = 1; applyTransform(); };
         document.getElementById('resetBtn').onclick = () => {
             learned = {};
+            applyQuestSkills(); // re-lock quest skills back in for free
             if (window.chrome?.webview) {
-                // Just send an empty skill set update or a specific RESET message that doesn't change class
                 window.chrome.webview.postMessage({ type: 'SKILL_RESET' });
             }
             fullRender();
@@ -3101,23 +3164,22 @@
         window.addEventListener('mousemove', e => { if (!dragging) return; panX = pSX + (e.clientX - dSX); panY = pSY + (e.clientY - dSY); applyTransform(); });
         window.addEventListener('mouseup', () => { dragging = false; });
         panel.addEventListener('wheel', e => { e.preventDefault(); zoomBy(e.deltaY > 0 ? -0.08 : 0.08); }, { passive: false });
-        document.getElementById('jobLvSlider').addEventListener('input', e => { 
-            jobLevel = parseInt(e.target.value); 
-            // Notify C#
+        document.getElementById('jobLvSlider').addEventListener('input', e => {
+            jobLevel = parseInt(e.target.value);
+            // Unlearn skills if we no longer have enough SP
+            enforceSkillPointBudget();
             if (window.chrome?.webview && !window.isInternalUpdate) {
                 window.chrome.webview.postMessage({ type: 'JOB_LEVEL_CHANGE', value: jobLevel });
             }
-            renderStats(); 
-            renderTree(); 
-            renderLearnedList(); 
+            renderStats();
+            renderTree();
+            renderLearnedList();
         });
 
         function fullRender() { renderStats(); renderTree(); renderLearnedList(); applyTransform(); }
 
-        // ── SYNC FROM BACKEND ─────────────────────────────────────────
-        window.syncFromBackend = function(data) {
+        window.syncFromBackend = function (data) {
             window.isInternalUpdate = true;
-            console.log("Syncing skill tree state:", data);
             if (data.Job && data.Job !== currentClass) {
                 const idx = CLASSES.findIndex(c => c.key === data.Job);
                 if (idx !== -1) {
@@ -3133,7 +3195,11 @@
             }
             if (data.SkillLevels) {
                 learned = Object.assign({}, data.SkillLevels);
+            } else {
+                learned = {};
             }
+            // Always re-apply quest skills after any sync — backend doesn't track these
+            applyQuestSkills();
             if (data.JobLv) {
                 jobLevel = data.JobLv;
                 const slider = document.getElementById('jobLvSlider');
@@ -3145,14 +3211,33 @@
         };
 
         // init
+        currentClass = CLASSES[0].key;
+        carouselIdx = 0;
         slides.forEach((s, i) => { s.className = 'sprite-slide ' + slideRole(i, 0, CLASSES.length); });
         updateJobLevels();
+        learned = {};
         applyQuestSkills();
         fullRender();
 
-        // ── NOTIFY BACKEND READY ─────────────────────────────────────
         if (window.chrome?.webview) {
+            // PAGE_READY will trigger syncFromBackend which also calls applyQuestSkills
             window.chrome.webview.postMessage({ type: 'PAGE_READY' });
+        }
+
+        function syncToCalculatorAndGoBack() {
+            if (window.chrome?.webview) {
+                const skillLevels = {};
+                clsData().skills.forEach(sk => {
+                    if ((learned[sk.id] || 0) > 0) skillLevels[sk.id] = learned[sk.id];
+                });
+                window.chrome.webview.postMessage({
+                    type: 'SKILL_TREE_BACK',
+                    job: currentClass,
+                    jobLevel: jobLevel,
+                    skillLevels: skillLevels
+                });
+            }
+            window.location.href = 'https://app.local/index.html';
         }
     </script>
 </body>

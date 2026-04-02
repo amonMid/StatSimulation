@@ -56,7 +56,7 @@ namespace StatSimulation.Backend
         public int JobBonusDex { get; set; }
         public int JobBonusLuk { get; set; }
 
-        // Total bonuses (Skill)
+        // Total bonuses (Skill + Job)
         public int BonusStr { get; set; }
         public int BonusAgi { get; set; }
         public int BonusVit { get; set; }
